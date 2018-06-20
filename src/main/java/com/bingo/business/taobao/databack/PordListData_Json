@@ -1,0 +1,64 @@
+{
+  "i2iTags": {
+    "samestyle": {
+      "url": ""
+    },
+    "similar": {
+      "url": "/search?type=similar&app=i2i&rec_type=1&uniqpid=-736957511&nid=565658521746"
+    }
+  },
+  "p4pTags": [],
+  "nid": "565658521746",
+  "category": "50010850",
+  "pid": "-736957511",
+  "title": "2018新款连衣裙春五分袖宽松中长款蕾丝胖mm<span class=H>女装</span>a字打底裙女夏季",
+  "raw_title": "2018新款连衣裙春五分袖宽松中长款蕾丝胖mm女装a字打底裙女夏季",
+  "pic_url": "//g-search3.alicdn.com/img/bao/uploaded/i4/i3/673126895/TB1SebxaC8YBeNkSnb4XXaevFXa_!!0-item_pic.jpg",
+  "detail_url": "//item.taobao.com/item.htm?id=565658521746&ns=1&abbucket=0#detail",
+  "view_price": "118.00",
+  "view_fee": "0.00",
+  "item_loc": "广东 茂名",
+  "view_sales": "49人付款",
+  "comment_count": "33",
+  "user_id": "673126895",
+  "nick": "菲菲18189",
+  "shopcard": {
+    "levelClasses": [{
+      "levelClass": "icon-supple-level-guan"
+    }, {
+      "levelClass": "icon-supple-level-guan"
+    }, {
+      "levelClass": "icon-supple-level-guan"
+    }],
+    "isTmall": false,
+    "delivery": [492, 1, 6581],
+    "description": [487, 1, 5272],
+    "service": [491, 1, 6160],
+    "encryptedUserId": "UMCcGvFILOmkb",
+    "sellerCredit": 13,
+    "totalRate": 9917
+  },
+  "icon": [{
+    "title": "卖家提供以下贴心服务：",
+    "dom_class": "icon-service-fuwu",
+    "position": "99",
+    "show_type": "1",
+    "icon_category": "baobei",
+    "outer_text": "0",
+    "html": "",
+    "icon_key": "icon-service-fuwu",
+    "trace": "srpservice",
+    "traceIdx": 0,
+    "innerText": "分组-服务",
+    "iconPopupComplex": {
+      "popup_title": "卖家提供以下贴心服务：",
+      "subIcons": [{
+        "dom_class": "icon-service-7tianjia",
+        "icon_content": "8天退货"
+      }]
+    }
+  }],
+  "comment_url": "//item.taobao.com/item.htm?id=565658521746&ns=1&abbucket=0&on_comment=1",
+  "shopLink": "//store.taobao.com/shop/view_shop.htm?user_number_id=673126895",
+  "risk": ""
+}
