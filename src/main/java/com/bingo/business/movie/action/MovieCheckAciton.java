@@ -19,5 +19,6 @@ public class MovieCheckAciton {
     @RequestMapping("/checkUnMarkZip")
     public XJsonInfo checkUnMarkZip() throws ServiceException, DaoException {
         return new XJsonInfo().setMsg("ok");
+
     }
 }
