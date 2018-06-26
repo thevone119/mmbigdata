@@ -46,6 +46,19 @@ public class SysUserService{
 	public SysUser get(Serializable id) throws DaoException{
 		return sysuserRepository.getById(id);
 	}
+
+
+	/**
+	 * 根据用户名，密码查询用户
+	 * @param username
+	 * @param pwd
+	 * @return
+	 * @throws DaoException
+	 */
+	public SysUser queryByUserAndPwd(String username,String pwd) throws DaoException{
+		String hql = "from SysUser where username=? and pwd=?";
+		return sysuserRepository.find(hql,new String[]{username,pwd});
+	}
 	
 	/**
 	 * @description: <删除对象>
@@ -56,6 +69,10 @@ public class SysUserService{
 	public void delete(Serializable id) throws DaoException{
 		sysuserRepository.deleteById(id);
 	}
+
+
+
+
 	
 	/**
 	 * @description: <取分页列表>

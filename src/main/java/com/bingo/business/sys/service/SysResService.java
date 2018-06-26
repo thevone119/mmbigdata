@@ -17,7 +17,7 @@ import com.bingo.business.sys.repository.*;
 /**
  * @author huangtw
  * 2018-06-25 00:31:29
- * 对象功能: ç³»ç»èµæº service管理
+ * 对象功能: 系统资源 service管理
  */
 @Service
 @Transactional
@@ -33,8 +33,8 @@ public class SysResService{
 	 * @throws DaoException 
 	 * @throws:
 	 */
-	public void saveOrUpdate(SysRes vo) throws ServiceException, DaoException {
-		sysresRepository.saveOrUpdate(vo);
+	public SysRes saveOrUpdate(SysRes vo) throws ServiceException, DaoException {
+		return sysresRepository.saveOrUpdate(vo);
 	}
 	
 	/**
@@ -56,6 +56,27 @@ public class SysResService{
 	public void delete(Serializable id) throws DaoException{
 		sysresRepository.deleteById(id);
 	}
+
+	/**
+	 * 根据父节点获取列表
+	 * @param pid
+	 * @return
+	 * @throws DaoException
+	 */
+	public List<SysRes> queryByPid(Long pid) throws DaoException{
+		String hql  = "from SysRes where presid=?";
+		return sysresRepository.query(hql,new Long[]{pid});
+	}
+
+	/**
+	 * 删除父节点下的子节点
+	 * @param pid
+	 */
+	public void deleteByPid(Long pid){
+		String hql  = "delete from SysRes where presid=?";
+		sysresRepository.executeByHql(hql,new Long[]{pid});
+	}
+
 	
 	/**
 	 * @description: <取分页列表>

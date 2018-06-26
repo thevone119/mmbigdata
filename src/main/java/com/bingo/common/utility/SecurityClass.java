@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ *
+ * 各种加密，解密算法
  * Created by xinxin on 2016/6/21.
  */
 public class SecurityClass {
@@ -486,5 +488,10 @@ public class SecurityClass {
         }
     }
     //endregion
+
+
+    public static void main(String args[]){
+        System.out.println(encryptMD5("Gmcc12#$"));
+    }
 
 }

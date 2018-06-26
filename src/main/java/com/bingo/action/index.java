@@ -29,7 +29,6 @@ public class index {
     public ModelAndView index() {
         pubClass.showLog("index");
         return new ModelAndView("view/index");
-
     }
 
     @AuthTarget(AuthType.USER)

@@ -17,8 +17,7 @@ import java.util.Date;
 public class SysRoleRes extends PageModel{
 
 	@Id
-	@TableGenerator(name="GENERATOR_ID",table="T_SYS_DB_GENERATOR",allocationSize=10) 
-    @GeneratedValue(strategy=GenerationType.TABLE, generator="GENERATOR_ID")
+	@GeneratedValue //相当于native  相当于mysql的表内自增
 	@Column(name = "sid")
 	protected Long  sid;//sid
 	

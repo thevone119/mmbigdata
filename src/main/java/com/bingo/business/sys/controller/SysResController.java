@@ -13,10 +13,13 @@ import javax.annotation.Resource;
 import com.bingo.business.sys.model.*;
 import com.bingo.business.sys.service.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author huangtw
  * 2018-06-25 00:31:29
- * 对象功能: ç³»ç»èµæº Controller管理
+ * 对象功能: 系统资源 Controller管理
  */
 @RestController
 @RequestMapping("/api/sys/sysres")
@@ -31,6 +34,36 @@ public class SysResController  {
 	public SysResController(){
 		
 	}
+
+
+	/**
+	 * 查询根菜单
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/listByPid")
+	@ResponseBody
+	public List<SysRes> listByPid(Long pid) throws Exception{
+		if (pid==null){
+			pid=0L;
+		}
+		List<SysRes> nodeList =sysresService.queryByPid(pid);
+		return nodeList;
+	}
+
+	/**
+	 * 删除某些菜单下的子菜单
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/deleteByPid")
+	@ResponseBody
+	public XJsonInfo deleteByPid(Long pid) throws Exception{
+		sysresService.deleteByPid(pid);
+		return new XJsonInfo();
+	}
+
+
 	
 	/**
 	 * @description: <修改、保存>
@@ -40,8 +73,12 @@ public class SysResController  {
 	@ResponseBody
     @RequestMapping("/save")
     public XJsonInfo save(SysRes vo) throws ServiceException, DaoException {
-        sysresService.saveOrUpdate(vo);
-        return new XJsonInfo();
+		SysRes res = sysresService.saveOrUpdate(vo);
+
+		XJsonInfo ret = new XJsonInfo();
+		//把ID返回
+		ret.setData(res.getResid());
+        return ret;
     }
 
 	/**
@@ -54,6 +91,8 @@ public class SysResController  {
     public XJsonInfo delete(String[] selRows) throws ServiceException, DaoException {
 		for(String id:selRows){
 			sysresService.delete(new Long(id));
+			//同时删除此节点下的子节点
+			sysresService.deleteByPid(new Long(id));
 		}
         return new XJsonInfo();
     }

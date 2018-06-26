@@ -33,8 +33,7 @@ public class SysUser extends PageModel{
 	
 	
 	@Id
-	@TableGenerator(name="GENERATOR_ID",table="T_SYS_DB_GENERATOR",allocationSize=10) 
-    @GeneratedValue(strategy=GenerationType.TABLE, generator="GENERATOR_ID")
+	@GeneratedValue //相当于native  相当于mysql的表内自增
 	@Column(name = "userid")
 	protected Long  userid;//userid
 	
@@ -53,6 +52,9 @@ public class SysUser extends PageModel{
 	
 	@Column(name = "mobile")
 	protected String  mobile;//mobile
+
+	@Column(name = "state")
+	protected Long  state;//状态；0：无效 1：有效
 	
 	
 	
@@ -162,6 +164,12 @@ public class SysUser extends PageModel{
 	public String getMobile(){
 		return this.mobile;
 	}
-	
-	
+
+	public Long getState() {
+		return state;
+	}
+
+	public void setState(Long state) {
+		this.state = state;
+	}
 }

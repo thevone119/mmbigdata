@@ -10,44 +10,43 @@ import java.util.Date;
 /**
  * @author huangtw
  * 2018-06-25 00:31:29
- * 对象功能: ç³»ç»èµæº Model对象
+ * 对象功能: 系统资源 Model对象
  */
 @Entity
 @Table(name="T_sys_res")
 public class SysRes extends PageModel{
 
 	@Id
-	@TableGenerator(name="GENERATOR_ID",table="T_SYS_DB_GENERATOR",allocationSize=10) 
-    @GeneratedValue(strategy=GenerationType.TABLE, generator="GENERATOR_ID")
-	@Column(name = "resId")
+	@GeneratedValue //相当于native  相当于mysql的表内自增)
+	@Column(name = "resid")
 	protected Long  resid;//resId
 	
 	
-	@Column(name = "resName")
+	@Column(name = "resname")
 	protected String  resname;//resName
 	
 	
-	@Column(name = "presId")
+	@Column(name = "presid")
 	protected Long  presid;//presId
 	
 	
-	@Column(name = "resType")
+	@Column(name = "restype")
 	protected Long  restype;//resType
 	
 	
-	@Column(name = "resUrl")
+	@Column(name = "resurl")
 	protected String  resurl;//resUrl
 	
 	
-	@Column(name = "resState")
+	@Column(name = "resstate")
 	protected Long  resstate;//resState
 	
 	
-	@Column(name = "createTime")
+	@Column(name = "createtime")
 	protected String  createtime;//createTime
 	
 	
-	@Column(name = "updateTime")
+	@Column(name = "updatetime")
 	protected String  updatetime;//updateTime
 	
 	

@@ -126,8 +126,7 @@ public abstract class BaseDao<T, ID extends Serializable> {
 
     public T saveOrUpdate(T entity) throws DaoException {
         try {
-            entityManager.merge(entity);
-            return entity;
+            return entityManager.merge(entity);
         } catch (Exception e) {
             throw new DaoException(e);
         }
