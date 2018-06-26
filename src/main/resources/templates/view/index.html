@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XX系统管理后台</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="This is my page">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+
+    <link rel="stylesheet" type="text/css" href="/lib/iview/iview.css">
+    <link rel="stylesheet" type="text/css" href="/css/global.css">
+
+    <script type="text/javascript" src="/js/vue.js"></script>
+    <script type="text/javascript" src="/js/zepto.min.js"></script>
+    <script type="text/javascript" src="/lib/iview/iview.min.js"></script>
+    <script type="text/javascript" src="/lib/iview/locale/zh-CN.js"></script>
+    <script type="text/javascript" src="/js/vue-components.js"></script>
+    <script type="text/javascript" src="/js/public.js"></script>
+
+    <style>
+        body, html {
+            background: #fff url(/images/login/login-bg.png) no-repeat center center;
+        }
+
+        .login-content {
+            width: 450px;
+            height: 290px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -225px;
+            margin-top: -145px;
+            background: url(/images/login/text-bg.png) no-repeat center center;
+        }
+
+        .login-box {
+            width: 290px;
+            height: 290px;
+            position: absolute;
+            top: 0;
+            left: 160px;
+        }
+
+        .ivu-tabs-nav .ivu-tabs-tab {
+            width: 140px;
+            margin-right: 4px;
+            text-align: center;
+        }
+
+        .ivu-tabs-tab .ivu-tabs-tab-active {
+            width: 155px;
+            margin-right: 0;
+        }
+
+        input, input:active, input:focus {
+            border: none !important;
+            border-bottom: 1px solid #d2d2d2 !important;
+            outline: none !important;
+            box-shadow: none !important;
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: #d2d2d2 !important;
+        }
+
+        .login-form {
+            margin: 0 auto;
+            padding: 0 50px;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #6d7995;
+            width: 300px;
+            position: fixed;
+            bottom: 3%;
+            left: 50%;
+            margin-left: -150px;
+            text-align: center;
+        }
+
+        .btn-sendsms {
+            color: #00a0ff;
+            border-color: #00a0ff;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="login-content">
+        <div class="login-box">
+            <div class="login-form">
+                <i-form ref="myForm1" :model="form1" :rules="ruleValidate1" :label-width="0">
+                    <Form-item prop="acc">
+                        <i-input type="text" v-model.trim="form1.acc" placeholder="请输入账号/邮箱/手机号"/>
+                    </Form-item>
+                    <Form-item prop="pwd">
+                        <i-input type="password" v-model.trim="form1.pwd" placeholder="请输入密码"
+                                 @on-enter="loginByPwd"/>
+                    </Form-item>
+                    <Row>
+                        <i-col span="14">
+                            <Form-item prop="imgcode">
+                                <i-input type="text" v-model.trim="form1.imgcode" placeholder="验证码"
+                                         @on-enter="loginByPwd"/>
+                            </Form-item>
+                        </i-col>
+                        <i-col span="8" offset="1">
+                            <img :src="vcodeurl" @click="loadVCode" alt="" width="100"/>
+                        </i-col>
+                    </Row>
+                    </Form-item>
+                    <i-button type="info" :loading="loading" @click="loginByPwd" size="large"
+                              long>登&nbsp;录
+                    </i-button>
+                    </Form-item>
+                </i-form>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div><span>一源二码版权所有</span></div>
+
+    </div>
+</div>
+
+</div>
+<div id="isie"
+     style="width:400px; margin:200px auto;padding:20px;background: #fff;border: 1px solid #eee;border-radius: 15px;">
+    <div>你的浏览器不支持，请选择以下任一浏览器，点击进行下载（XP系统请下载QQ浏览器）</div>
+    <div>
+        <ul>
+            <li><a href="/browser/ChromeStandalone_62.0.3202.94_Setup.exe" target="_blank">谷歌浏览器(32位)</a></li>
+            <li><a href="/browser/Chrome64wei_62.0.3202.89.exe" target="_blank">谷歌浏览器(64位)</a></li>
+            <!--<li><a href="/browser/360se9.2.0.112.exe" target="_blank">360浏览器</a></li>-->
+            <li><a href="/browser/QQBrowser_Setup_9.7.12622.400.exe" target="_blank">QQ浏览器</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+    const m_apis = {
+        loginByPwd(p_form, p_imgcodeKey) {
+            return PB.apiRoute('/api/sys/sysuser/Login?imgcodeKey=' + p_imgcodeKey, 'POST', p_form)
+        }
+    };
+    let vu = new Vue({
+        el: '#app',
+        data: {
+            apis: m_apis,
+            form1: {
+                acc: '',
+                pwd: ''
+            },
+            form2: {},
+            ruleValidate1: {
+                acc: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ],
+                pwd: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ],
+                imgcode: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ]
+            },
+            ruleValidate2: {
+                acc: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ],
+                smscode: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ],
+                imgcode: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ]
+            },
+            sendBtnText: '发送短信',
+            cdForSendSMS: false,
+            loading: false,
+            loadingSendSMSYzm: false,
+            modelSelUser: false,
+            userList: [],
+            loginingBySMS: false,
+            vcodeurl: '',
+        },
+        created() {
+            this.initData();
+
+        },
+        methods: {
+            initData() {
+                if (top.location.href != window.location.href) {
+                    top.location.href = window.location.href;
+                }
+                window.document.querySelector('#isie').style.display = 'none';
+                this.loadDefInfo();
+                this.loadVCode();
+                setTimeout(() => {
+                    //this.loadVCode2();
+                }, 2000);
+
+                window.localStorage.clear();
+            },
+            loadDefInfo() {
+                this.form1.acc = PB.getStorage('def_acc') || '';
+                this.form2.acc = PB.getStorage('def_sms_acc') || '';
+            },
+            loadVCode() {
+                this.vcodeurl = "/api/sys/sysuser/getRandomImg?rd="+new Date().getTime() ;
+            },
+            loginByPwd() {
+                this.$refs['myForm1'].validate((valid) => {
+                    if (valid) {
+                        this.loading = true;
+                        this.loginingBySMS = false;
+                        let that = this;
+
+                        PB.ajax(this.apis.loginByPwd(this.form1, this.vcodekey1), {
+                            showLoading: false,
+                            myFail: function () {
+                                that.loadVCode();
+                            },
+                            complete: function () {
+                                that.loading = false;
+                            }
+                        }, function (d) {
+                            if (!d.success) {
+                                that.loadVCode();
+                            }
+                            else {
+                                PB.open('main');
+                            }
+
+                        });
+                    } else {
+                        //PB.alert('请填写完整信息再提交!');
+                    }
+                })
+            }
+
+        }
+    })
+
+    //防止页面后退
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
+</script>
+</body>
+</html>

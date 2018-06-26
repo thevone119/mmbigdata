@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="This is my page">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+
+    <link rel="stylesheet" type="text/css" href="/lib/iview/iview.css">
+    <link rel="stylesheet" type="text/css" href="/css/global.css">
+
+    <script type="text/javascript" src="/js/vue.js"></script>
+    <script type="text/javascript" src="/js/zepto.min.js"></script>
+    <script type="text/javascript" src="/lib/iview/iview.min.js"></script>
+    <script type="text/javascript" src="/js/vue-components.js"></script>
+    <script type="text/javascript" src="/js/public.js"></script>
+    <script type="text/javascript" src="/js/baiduMap/polygonPoint.js"></script>
+
+    <title>百度地图选取工具</title>
+    <style type="text/css">
+        html{height:100%}
+        body{height:100%;margin:0px;padding:0px}
+        #container{height:90%}
+        #but_control{height:10%}
+
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=2v5EsIZLnz6ua5W5UDmjlgkG">
+        //v3.0版本的引用方式：src="http://api.map.baidu.com/api?v=3.0&ak=您的密钥"
+    </script>
+
+    <!--加载鼠标绘制工具-->
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+    <link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+</head>
+
+<body>
+<div id="app">
+<div id="but_control" class="g-dg-search-banner" >
+    <i-form ref="myAddForm" :model="searchForm" label-position="right" :label-width="120" >
+
+            <i-select v-model="searchForm.LayerId"  style="width: 120px;"   @on-change="layerChange()">
+                <template v-for="ly in mapCfgLayer">
+                    <i-option :value="ly.id">{{ly.name}}</i-option>
+                </template>
+            </i-select>
+
+            <i-button type="info" @click="openPolygon()">打开区域移动</i-button>
+            <i-button type="info" @click="add()">保存移动过的区域</i-button>
+            <i-button type="info" @click="closePolygon()">关闭区域移动</i-button>
+
+
+
+    </i-form>
+</div>
+
+<div id="container" style="border:1px solid gray"></div>
+</div>
+<script type="text/javascript">
+    //把字符串转换成点数组 x,y|x,y|x,y
+    function strToPoints(pstr){
+        if(pstr == null || pstr.length<=2){
+            return [];
+        }
+        var points = [];
+        var idx = 0;
+        var ps = pstr.split("|");
+        for(var i = 0;i < ps.length;i++){
+            var p = ps[i];
+            if(p==null || p.length<2){
+                continue;
+            }
+            var _p = p.split(",");
+            try{
+                if(_p.length==2 && _p[0].length>0&&_p[1].length>0){
+                    points.push(new BMap.Point(parseFloat(_p[0]), parseFloat(_p[1])));
+                }
+            }catch(e){}
+        }
+        return points;
+    }
+
+    //把点数组转换成字符串 x,y|x,y|x,y
+    function pointsTostr(ps){
+        var retstr = "";
+        for(var i=0;i<ps.length;i++){
+            var p = ps[i];
+            retstr+= p.lng+","+p.lat+"|";
+        }
+        return retstr;
+    }
+</script>
+
+
+<script type="text/javascript">
+    var map = new BMap.Map("container");
+    // 创建地图实例
+    var point = new BMap.Point(110.946928,21.663135);
+    // 初始化地图,设置中心点坐标和地图级别
+    //添加地图类型控件
+    map.addControl(new BMap.MapTypeControl({
+        mapTypes:[
+            BMAP_NORMAL_MAP,
+            BMAP_HYBRID_MAP
+    ]}));
+    map.setCurrentCity("茂名");          // 设置地图显示的城市 此项是必须设置的
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+    // 创建点坐标
+    //map.setCurrentCity("茂名");
+    map.centerAndZoom(point, 15);
+    // 初始化地图，设置中心点坐标和地图级别
+
+    var styleOptions = {
+        strokeColor:"red",    //边线颜色。
+        fillColor:"red",      //填充颜色。当参数为空时，圆形将没有填充效果。
+        strokeWeight: 2,       //边线的宽度，以像素为单位。
+        strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+        fillOpacity: 0.6,      //填充的透明度，取值范围0 - 1。
+        strokeStyle: 'solid' //边线的样式，solid或dashed。
+    }
+
+    //实例化鼠标绘制工具
+    var drawingManager = new BMapLib.DrawingManager(map, {
+        isOpen: false, //是否开启绘制模式
+        enableDrawingTool: true, //是否显示工具栏
+        drawingToolOptions: {
+            anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+            offset: new BMap.Size(5, 5), //偏离值
+        },
+        circleOptions: styleOptions, //圆的样式
+        polylineOptions: styleOptions, //线的样式
+        polygonOptions: styleOptions, //多边形的样式
+        rectangleOptions: styleOptions //矩形的样式
+    });
+    //绘制完成的事件
+    var overlaycomplete = function(e){
+        var openPolygon = function(e,ee,p){
+            p.enableEditing();
+        }
+        var closePolygon = function(e,ee,p){
+            p.disableEditing();
+        }
+        var closeUpdatePolygon = function(e,ee,p){
+            try{
+                p.disableEditing();
+                var centp = p.getBounds().getCenter();
+                var area = {areaType:"polygon",blng:centp.lng,blat:centp.lat,layerId:1,areaBorderBaidu:""};
+                area.areaBorderBaidu = pointsTostr(p.getPath());
+                area.name = "茂名"
+                if(p.id){
+                    area.id = p.id;
+                }
+                //保存到服务器更新一次
+                PB.ajaxJson('/api/map/mapcfgarea/saveJson',JSON.stringify(area),function (d){
+                    p.id = d.data.id;
+                    p.name = d.data.name;
+                    //document.location.reload();//当前页面重新刷新
+                });
+            }catch(e){}
+        }
+        //创建右键菜单
+        var polygonMenu=new BMap.ContextMenu();
+        polygonMenu.addItem(new BMap.MenuItem('编辑',openPolygon.bind(e.overlay)));
+        polygonMenu.addItem(new BMap.MenuItem('关闭编辑',closePolygon.bind(e.overlay)));
+        polygonMenu.addItem(new BMap.MenuItem('关闭并更新',closeUpdatePolygon.bind(e.overlay)));
+        e.overlay.addContextMenu(polygonMenu);
+    };
+    //添加鼠标绘制工具监听事件，用于获取绘制结果
+    drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+
+
+
+
+    // 1 星星；2 桃心；3 圆形；4 正方形；
+    //星星
+    var options_STAR = {
+        size: BMAP_POINT_SIZE_SMALL,
+        shape: BMAP_POINT_SHAPE_STAR,
+        color: '#d30e0a'
+    }
+
+    //方形
+    var options_SQUARE = {
+        size: BMAP_POINT_SIZE_SMALL,
+        shape: BMAP_POINT_SHAPE_SQUARE,
+        color: '#5507d3'
+    }
+
+    //圆形
+    var options_CIRCLE = {
+        size: BMAP_POINT_SIZE_SMALL,
+        shape: BMAP_POINT_SHAPE_CIRCLE,
+        color: '#06d3cf'
+    }
+
+    //菱形
+    var options_RHOMBUS = {
+        size: BMAP_POINT_SIZE_SMALL,
+        shape: BMAP_POINT_SHAPE_CIRCLE,
+        color: '#d30b06'
+    }
+
+
+
+
+    //area中的GPS坐标批量转换为百度坐标(转换后，提交服务器进行更新存储)
+    var areaPoint01;
+    areaTranslateCallback01 = function (data){
+        if(data.status === 0) {
+            for (var i = 0; i < data.points.length; i++) {
+
+            }
+        }
+    }
+
+    //area中的百度坐标批量转换为GPS坐标(转换后，提交服务器进行更新存储)
+    var areaPoint02;
+    areaTranslateCallback02 = function (data){
+        if(data.status === 0) {
+            for (var i = 0; i < data.points.length; i++) {
+
+            }
+        }
+    }
+
+
+    const m_apis = {
+        layer_save() {
+            return PB.apiRoute('/api/map/mapcfgarea/findPage?queryChangeModel=1&id=', 'GET');
+        },
+        layer_listAll() {
+            return PB.apiRoute('/api/map/mapcfglayer/findPage?pageNo=1&pageSize=10000', 'GET');
+        },
+        layer_findArea(layerId) {
+            return PB.apiRoute('/api/map/mapcfgarea/findPage?pageNo=1&pageSize=10000&layerId='+layerId, 'GET');
+        },
+        area_save() {
+            return PB.apiRoute('/api/map/mapcfgarea/save', 'GET');
+        }
+    };
+
+    let vm = new Vue({
+        el: '#but_control',
+        data() {
+            return {
+                apis: m_apis,
+                title: '工单列表',
+                page: 1,
+                pageSize: 10,
+                searchForm: {
+                    plevel: 0,
+                    statetype: 'XD_ALL',
+                    orderby: 'crtTime desc',
+                    queryChangeModel: 1,
+                    LayerId:0
+                },
+                mapCfgLayer:[],
+                mapCfgArea:[],
+                polygons:[],
+                searchDate: ['', ''],
+                ruleValidate: {
+                    /*cmMobile: [
+                     {required: true, message: '请输入客户号码查询', trigger: 'blur'}
+                     ]*/
+                },
+                total: 0,
+                dtData: [],
+                dtCols: []
+            }
+        },
+        created(){
+            this.loadData();
+            this.loadLayer();
+        },
+        computed: {
+            getTableHeight(){
+                //return (window.innerHeight - 150);
+            }
+        },
+        methods: {
+            loadData () {
+
+            },
+            loadLayer(){
+                let that = this;
+                PB.ajax(this.apis.layer_listAll(), function (d) {
+                    that.mapCfgLayer = d.data;
+                });
+            },
+            layerChange(value){
+                let that = this;
+                PB.ajax(this.apis.layer_findArea(vm.searchForm.LayerId), function (d) {
+                    that.mapCfgArea = d.data;
+                    var allpoint = [];
+                    //
+                    for(var i=0;i<vm.mapCfgArea.length;i++){
+                        var area = vm.mapCfgArea[i];
+                        //点
+                        if(area.areaType=="point"){
+                            if(area.blng&&area.blng.length>0){
+                                allpoint.push(new BMap.Point(area.blng, area.blat));
+                            }else{
+                                (function () {
+                                    var _i = i;
+                                    //回调函数，添加marker。
+                                    var callback2 = function (data) {
+                                        if (data.status == 0) {
+                                            vm.mapCfgArea[_i].blng = data.points[0].lng;
+                                            vm.mapCfgArea[_i].blat = data.points[0].lat;
+                                            //保存到服务器更新一次
+                                            PB.ajaxJson('/api/map/mapcfgarea/saveJson',JSON.stringify(vm.mapCfgArea[_i]),function (d){});
+                                        }
+                                        callback2 = null;//清理内存。
+                                    }
+
+                                    setTimeout(function(){
+                                        var convertor = new BMap.Convertor();
+                                        var pointArr = [];
+                                        pointArr.push(new BMap.Point(vm.mapCfgArea[_i].glng, vm.mapCfgArea[_i].glat));
+                                        convertor.translate(pointArr, 1, 5, callback2);//坐标转换。
+                                    }, 1000);
+                                })();
+                            }
+                        }
+                        //多边形
+                        if(area.areaType=="polygon"){
+                            if(area.areaBorderBaidu!=null && area.areaBorderBaidu.length>0){
+                                var ps = strToPoints(area.areaBorderBaidu);
+                                area.areaBorderbaiduPoints = ps;
+                            }else{
+                                if(area.areaBorderGps!=null && area.areaBorderGps.length>0){
+                                    //坐标转换,一次最多转换10个
+                                    var ps = strToPoints(area.areaBorderGps);
+                                    area.areaBorderbaiduPoints = [];
+                                    for(var j=0;j<ps.length/10;j++) {
+                                        var pstem = new Array();
+                                        var start = j * 10;
+                                        var end = (j + 1) * 10;
+                                        if (end > ps.length) {
+                                            end = ps.length;
+                                        }
+                                        for (var k = start; k < end; k++) {
+                                            pstem.push(ps[k]);
+                                        }
+
+                                        (function () {
+                                            var _pstem = pstem;
+                                            var _start = start;
+                                            var _i = i;
+                                            var _area = vm.mapCfgArea[_i];
+                                            var pslen = ps.length;
+                                            //回调函数，添加marker。
+                                            var callback = function (data) {
+                                                if (data.status == 0) {
+                                                    for (var n = 0; n < data.points.length; n++) {
+                                                        _area.areaBorderbaiduPoints[_start+n]=data.points[n];
+                                                    }
+                                                    if(_area.areaBorderbaiduPoints.length==pslen){
+                                                        vm.mapCfgArea[_i].areaBorderBaidu = pointsTostr(_area.areaBorderbaiduPoints);
+                                                        //保存到服务器更新一次
+                                                        PB.ajaxJson('/api/map/mapcfgarea/saveJson',JSON.stringify(vm.mapCfgArea[_i]),function (d){});
+                                                    }
+                                                }
+                                                callback = null;//清理内存。
+                                            }
+                                            setTimeout(function(){
+                                                var convertor = new BMap.Convertor();
+                                                convertor.translate(_pstem, 1, 5, callback);//坐标转换。
+                                                _pstem = null;
+                                            }, 1000+(_i*10));
+
+                                        })();
+                                    }
+                                }
+                            }
+                            //在地图上画多边形
+                            if(area.areaBorderbaiduPoints&&area.areaBorderbaiduPoints.length>0){
+                                var polygon =new BMap.Polygon(area.areaBorderbaiduPoints,{strokeColor:"red", strokeWeight:3, strokeOpacity:0.5,fillOpacity:0.2});
+                                //var polygon = createAreaOverlay(area.areaBorderbaiduPoints);
+                                polygon.name = area.name;
+                                polygon.id = area.id;
+                                //polygon.areaType = area.areaType;
+                                ///polygon.addEventListener("click",function(){
+                                 //   var _n = this.name;
+                                 //   alert("当前区域为：" + _n);
+                                //});
+                                //
+                                var cenpoint = polygon.getBounds().getCenter()
+                                var label_opts = {
+                                    position : cenpoint,    // 指定文本标注所在的地理位置
+                                    offset   : new BMap.Size(-30, -0)    //设置文本偏移量
+                                }
+                                var label = new BMap.Label(polygon.name, label_opts);  // 创建文本标注对象
+                                label.setStyle({
+                                    color : "#5507d3",
+                                    fontSize : "12px",
+                                    border :"0",
+                                    //backgroundColor:"transparent",
+                                    //height : "20px",
+                                    //lineHeight : "20px",
+                                    fontFamily:"微软雅黑"
+                                });
+                                map.addOverlay(label);
+                                var openPolygon = function(e,ee,p){
+                                    p.enableEditing();
+                                }
+                                var closePolygon = function(e,ee,p){
+                                    p.disableEditing();
+                                }
+                                var closeUpdatePolygon = function(e,ee,p){
+                                    p.disableEditing();
+                                    for(var i=0;i<vm.mapCfgArea.length;i++){
+                                        var area = vm.mapCfgArea[i];
+                                        if(area.id==p.id){
+                                            area.areaBorderBaidu = pointsTostr(p.getPath());
+                                            //保存到服务器更新一次
+                                            PB.ajaxJson('/api/map/mapcfgarea/saveJson',JSON.stringify(area),function (d){});
+                                        }
+                                    }
+                                }
+                                //创建右键菜单
+                                var polygonMenu=new BMap.ContextMenu();
+                                polygonMenu.addItem(new BMap.MenuItem('编辑',openPolygon.bind(polygon)));
+                                polygonMenu.addItem(new BMap.MenuItem('关闭编辑',closePolygon.bind(polygon)));
+                                polygonMenu.addItem(new BMap.MenuItem('关闭并更新',closeUpdatePolygon.bind(polygon)));
+                                polygon.addContextMenu(polygonMenu);
+                                vm.polygons[area.id] = polygon;
+                                map.addOverlay(vm.polygons[area.id]);   //增加多边形
+                            }
+
+                            //通过GPS画多边形
+                            if(area.areaBorderGps!=null && area.areaBorderGps.length>0){
+                                //var gpsps = strToPoints(area.areaBorderGps);
+                                //var polygon =new BMap.Polygon(gpsps,{strokeColor:"red", strokeWeight:3, strokeOpacity:0.5,fillOpacity:0.2});
+                                //map.addOverlay(polygon);   //增加多边形
+                            }
+                        }
+                    }
+
+                    //添加海量点
+                    if(allpoint.length>0){
+                        var pointCollection = new BMap.PointCollection(allpoint, options_STAR);  // 初始化PointCollection
+                        pointCollection.addEventListener('click', function (e) {
+                            alert('单击点的坐标为：' + e.point.lng + ',' + e.point.lat);  // 监听点击事件
+                        });
+                        map.addOverlay(pointCollection);  // 添加Overlay
+                    }
+                });
+            },
+        }
+    })
+</script>
+</body>
+</html>

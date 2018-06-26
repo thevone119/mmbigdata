@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <title>区域坐标点_明细</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+	
+	<link rel="stylesheet" type="text/css" href="/lib/iview/iview.css">
+	<link rel="stylesheet" type="text/css" href="/css/global.css">
+	
+	<script type="text/javascript" src="/js/vue.js"></script>
+	<script type="text/javascript" src="/js/zepto.min.js"></script>
+	<script type="text/javascript" src="/lib/iview/iview.min.js"></script>
+	<script type="text/javascript" src="/js/vue-components.js"></script>
+	<script type="text/javascript" src="/js/public.js"></script>
+</head>
+<body>
+<div id="app">
+    <i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="80">
+        <Form-item label="name" prop="name">
+            <i-input v-model="myform.name" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="blng" prop="blng">
+            <i-input v-model="myform.blng" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="blat" prop="blat">
+            <i-input v-model="myform.blat" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="glng" prop="glng">
+            <i-input v-model="myform.glng" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="glat" prop="glat">
+            <i-input v-model="myform.glat" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="create_Time" prop="createTime">
+            <i-input v-model="myform.createTime" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="update_Time" prop="updateTime">
+            <i-input v-model="myform.updateTime" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="LAYER_id" prop="layerId">
+            <i-input v-model="myform.layerId" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="area_id" prop="areaId">
+            <i-input v-model="myform.areaId" placeholder="请输入"></i-input>
+        </Form-item>
+    </i-form>
+</div>
+<script>
+
+
+    const urls = {
+        query:'/api/map/mapcfgareapoint/query'
+        ,save:'/api/map/mapcfgareapoint/save'
+    };
+
+    let vm = new Vue({
+        el: '#app',
+        data() {
+            return {
+                myform: {
+                    isState:true,
+                    state: 1,
+                    id:null//主键
+                },
+                ruleValidate: {
+                    //prodId: [
+                    //    {required: true, message: '产品ID不能为空', trigger: 'blur'}
+                    //]
+                }
+            }
+        },
+        created(){
+            if (PB.getPara('id')) {
+                this.myform.id = PB.getPara('id');
+                this.loadData();
+            }
+        },
+        methods: {
+            loadData(){
+                let that = this;
+                PB.ajax({url:urls.query,data:this.myform}, function (d) {
+                    that.myform = d.data;
+                    //that.myform.isState = !!that.myform.state;
+                });
+            },
+            save () {
+                this.$refs['myForm'].validate((valid) => {
+                    if (valid) {
+                        PB.ajax({url:urls.save,data:this.myform}, function (d) {
+                            PB.formPageSaveOK(d);
+                            });
+                    } else {
+                        PB.alert('表单验证失败!');
+                        PB.formPageSaveError();
+                    }
+                })
+            }
+        }
+    });
+
+
+    function save() {
+        vm.save();
+    }
+
+</script>
+</body>
+</html>

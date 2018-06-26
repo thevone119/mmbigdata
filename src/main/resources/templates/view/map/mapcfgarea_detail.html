@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <title>区域表_明细</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+	
+	<link rel="stylesheet" type="text/css" href="/lib/iview/iview.css">
+	<link rel="stylesheet" type="text/css" href="/css/global.css">
+	
+	<script type="text/javascript" src="/js/vue.js"></script>
+	<script type="text/javascript" src="/js/zepto.min.js"></script>
+	<script type="text/javascript" src="/lib/iview/iview.min.js"></script>
+	<script type="text/javascript" src="/js/vue-components.js"></script>
+	<script type="text/javascript" src="/js/public.js"></script>
+</head>
+<body>
+<div id="app">
+    <i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="80">
+        <Form-item label="区域名称" prop="name">
+            <i-input v-model="myform.name" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="区域类型" prop="areaType">
+            <i-select v-model="myform.areaType" :value="myform.areaType" >
+                <i-option value="polygon">多边形</i-option>
+                <i-option value="point">点</i-option>
+                <i-option value="round">圆形</i-option>
+                <i-option value="sector">扇形</i-option>
+            </i-select>
+        </Form-item>
+
+        <Form-item label="中心点坐标(百度坐标)经度" prop="blng">
+            <i-input v-model="myform.blng" placeholder="请输入"></i-input>
+        </Form-item>
+
+
+        <Form-item label="中心点坐标(百度坐标)维度" prop="blat">
+            <i-input v-model="myform.blat" placeholder="请输入"></i-input>
+        </Form-item>
+
+        <Form-item label="边界点坐标（百度）x,y|x,y" prop="areaBorderBaidu">
+            <i-input v-model="myform.areaBorderBaidu" placeholder="请输入"></i-input>
+        </Form-item>
+
+        <Form-item label="边界点坐标（GPS）x,y|x,y" prop="areaBorderGps">
+            <i-input v-model="myform.areaBorderGps" placeholder="请输入"></i-input>
+        </Form-item>
+
+        <Form-item label="归属图层" prop="layerId">
+            <i-select v-model="myform.layerId">
+                <template v-for="ly in mapCfgLayer">
+                    <i-option :value="ly.id">{{ly.name}}</i-option>
+                </template>
+            </i-select>
+        </Form-item>
+
+
+    </i-form>
+</div>
+<script>
+
+
+    const urls = {
+        query:'/api/map/mapcfgarea/query'
+        ,save:'/api/map/mapcfgarea/save'
+        ,layer_listAll:'/api/map/mapcfglayer/findPage?pageNo=1&pageSize=10000'
+    };
+
+    let vm = new Vue({
+        el: '#app',
+        data() {
+            return {
+                mapCfgLayer:[],
+                myform: {
+                    isState:true,
+                    state: 1,
+                    pageNo: 1,
+                    layerId:"",
+                    id:null//主键
+                },
+
+                ruleValidate: {
+                    //prodId: [
+                    //    {required: true, message: '产品ID不能为空', trigger: 'blur'}
+                    //]
+                }
+            }
+        },
+        created(){
+            if (PB.getPara('id')) {
+                this.myform.id = PB.getPara('id');
+                this.loadData();
+            }
+            this.loadLayer();
+        },
+        methods: {
+            loadData(){
+                let that = this;
+                PB.ajax({url:urls.query,data:this.myform}, function (d) {
+                    that.myform = d.data;
+                    //that.myform.isState = !!that.myform.state;
+                });
+            },
+            loadLayer(){
+                let that = this;
+                PB.ajax({url:urls.layer_listAll,data:this.myform}, function (d) {
+                    that.mapCfgLayer = d.data;
+                });
+            },
+            save () {
+                this.$refs['myForm'].validate((valid) => {
+                    if (valid) {
+                        PB.ajax({url:urls.save,data:this.myform}, function (d) {
+                            PB.formPageSaveOK(d);
+                            });
+                    } else {
+                        PB.alert('表单验证失败!');
+                        PB.formPageSaveError();
+                    }
+                })
+            }
+        }
+    });
+
+
+    function save() {
+        vm.save();
+    }
+
+</script>
+</body>
+</html>

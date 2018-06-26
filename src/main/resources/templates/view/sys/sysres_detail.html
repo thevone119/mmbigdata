@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <title>ç³»ç»èµæº_明细</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+	
+	<link rel="stylesheet" type="text/css" href="/lib/iview/iview.css">
+	<link rel="stylesheet" type="text/css" href="/css/global.css">
+	
+	<script type="text/javascript" src="/js/vue.js"></script>
+	<script type="text/javascript" src="/js/zepto.min.js"></script>
+	<script type="text/javascript" src="/lib/iview/iview.min.js"></script>
+	<script type="text/javascript" src="/js/vue-components.js"></script>
+	<script type="text/javascript" src="/js/public.js"></script>
+</head>
+<body>
+<div id="app">
+    <i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="80">
+        <Form-item label="resName" prop="resname">
+            <i-input v-model="myform.resname" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="presId" prop="presid">
+            <i-input v-model="myform.presid" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="resType" prop="restype">
+            <i-input v-model="myform.restype" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="resUrl" prop="resurl">
+            <i-input v-model="myform.resurl" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="resState" prop="resstate">
+            <i-input v-model="myform.resstate" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="createTime" prop="createtime">
+            <i-input v-model="myform.createtime" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="updateTime" prop="updatetime">
+            <i-input v-model="myform.updatetime" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="demo" prop="demo">
+            <i-input v-model="myform.demo" placeholder="请输入"></i-input>
+        </Form-item>
+    </i-form>
+</div>
+<script>
+
+
+    const urls = {
+        query:'/api/sys/sysres/query'
+        ,save:'/api/sys/sysres/save'
+    };
+
+    let vm = new Vue({
+        el: '#app',
+        data() {
+            return {
+                myform: {
+                    isState:true,
+                    state: 1,
+                    id:null//主键
+                },
+                ruleValidate: {
+                    //prodId: [
+                    //    {required: true, message: '产品ID不能为空', trigger: 'blur'}
+                    //]
+                }
+            }
+        },
+        created(){
+            if (PB.getPara('id')) {
+                this.myform.id = PB.getPara('id');
+                this.loadData();
+            }
+        },
+        methods: {
+            loadData(){
+                let that = this;
+                PB.ajax({url:urls.query,data:this.myform}, function (d) {
+                    that.myform = d.data;
+                    //that.myform.isState = !!that.myform.state;
+                });
+            },
+            save () {
+                this.$refs['myForm'].validate((valid) => {
+                    if (valid) {
+                        PB.ajax({url:urls.save,data:this.myform}, function (d) {
+                            PB.formPageSaveOK(d);
+                            });
+                    } else {
+                        PB.alert('表单验证失败!');
+                        PB.formPageSaveError();
+                    }
+                })
+            }
+        }
+    });
+
+
+    function save() {
+        vm.save();
+    }
+
+</script>
+</body>
+</html>

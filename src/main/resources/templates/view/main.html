@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <#include "/layout/baseHeader.ftl" />
+    <style>
+        html, body, #app, .layout {
+            height: 100%;
+        }
+
+        .layout {
+            overflow: hidden;
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .layout-content {
+            overflow: hidden;
+            background: #fff;
+            flex: 1;
+            display: flex;
+        }
+
+        .layout-content-left {
+            width: 200px;
+            float: left;
+            height: 100%;
+            flex-shrink: 0;
+        }
+
+        .layout-content-left .ivu-menu {
+            height: 100%;
+        }
+
+        .layout-content-left .ivu-menu-item-active:not(.ivu-menu-submenu) {
+            background: #2d8cf1 !important;
+            color: #fff !important;
+        }
+
+        .layout-content-main {
+            float: left;
+            height: 100%;
+            flex: 1;
+            padding: 10px;
+        }
+
+        .layout-header {
+            width: 100%;
+            height: 72px;
+            display: flex;
+            flex-direction: row;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            background-color: #2a3542;
+        }
+
+        .layout-header-soft-banner {
+            height: 72px;
+            line-height: 72px;
+            float: left;
+            width: 200px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .layout-header-menu {
+            float: left;
+            flex: 1;
+        }
+
+        .layout-header-menu .ivu-menu {
+            background-color: transparent !important;
+        }
+
+        .layout-header-menu .ivu-menu-horizontal {
+            height: 72px !important;
+            line-height: 72px !important;
+        }
+
+        .layout-header-menu .ivu-menu-item {
+            color: #c9cbd0 !important;
+            height: 72px !important;
+        }
+
+        .layout-header-menu .ivu-menu-item-active {
+            color: #00a0ff !important;
+            border-bottom: 4px solid #00a0ff !important;
+            opacity: 1;
+        }
+
+        .layout-header-menu .ivu-menu-item:hover {
+            opacity: 1;
+        }
+
+        .layout-header-menu .ivu-menu-horizontal.ivu-menu-light:after {
+            background-color: transparent !important;
+        }
+
+        .layout-header-toolbar {
+            float: right;
+            width: 200px;
+            color: #fff;
+            font-size: 18px;
+            padding-top: 25px;
+        }
+
+        /*.layout-header-toolbar > div {*/
+        /*cursor: pointer;*/
+        /*}*/
+
+        .ivu-tabs-content {
+            height: 93%; /*REVIEW 这里有待优化，某些页面太高会导致tab标签往上凹进去*/
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="layout">
+        <div class="layout-header">
+            <div class="layout-header-soft-banner">
+                <img src="/images/main/logo.png" style="margin-top: 5px;"/>
+            </div>
+            <div class="layout-header-menu">
+                <i-menu mode="horizontal" theme="light" ref="menuModule" :active-name="currentModule"
+                        @on-select="selectModule">
+                    <template v-for="item in menuData">
+                        <Menu-item :name="item.key">
+                            <Icon :type="item.icon"></Icon>
+                            {{item.name}}
+                        </Menu-item>
+                    </template>
+                </i-menu>
+            </div>
+            <div class="layout-header-toolbar">
+                <div>
+                    <Poptip width="300" trigger="hover" placement="bottom-end">
+                        <Icon type="person"></Icon>
+                        <div slot="content">
+                            <Card :bordered="false">
+                                <p slot="title">{{loginUser.userName}}</p>
+                                <div>
+                                    <i-button type="warning" icon="power" @click="loginOut">退出用户</i-button>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <i-button type="text" @click="openSetting" v-if="showChangePWD">修改密码</i-button>
+                                </div>
+                            </Card>
+                        </div>
+                    </Poptip>
+
+                </div>
+            </div>
+        </div>
+        <div class="layout-content">
+            <div class="layout-content-left">
+                <i-menu @on-select="selectMenu" :accordion="true" theme="dark"
+                        width="auto">
+                    <template v-for="i in leftMenu">
+                        <template v-if="i.children">
+                            <Submenu :name="i.key">
+                                <template slot="title">
+                                    <Icon :type="i.icon"></Icon>
+                                    <span class="layout-text">{{i.name}}</span>
+                                </template>
+                                <template v-for="j in i.children">
+                                    <Menu-item :name="j.key">{{j.name}}</Menu-item>
+                                </template>
+                            </Submenu>
+                        </template>
+                        <template v-else>
+                            <Menu-item :name="i.key">{{i.name}}</Menu-item>
+                        </template>
+                    </template>
+                </i-menu>
+            </div>
+            <div class="layout-content-main">
+                <Tabs v-model="tabCurrntName" type="card" class="g-fit" :animated="false"
+                      @on-tab-remove="tabClose">
+                    <Tab-pane name="tab0" label="首页" class="g-fit">
+                        <iframe id="ifrIndexPage" :src="indexpageUrl" class="g-fit" frameborder="0"></iframe>
+                    </Tab-pane>
+                    <template v-for="(item, index) in tabPanels">
+                        <Tab-pane closable :label="item.Title" :name="item.Key" :key="item.Key" class="g-fit">
+                            <iframe :id="item.IfrName" :src="item.Url" class="g-fit"
+                                    frameborder="0"></iframe>
+                        </Tab-pane>
+                    </template>
+                </Tabs>
+            </div>
+        </div>
+    </div>
+    <Modal v-model="formPageModel" width="1024" :mask-closable="false">
+        <p slot="header" class="g-model-title">
+            <span>{{formPageTitle}}</span>
+        </p>
+        <iframe id="ifrFormPage" :src="formPageURL" frameborder="0"
+                :style="{'width':'100%','height':getFormPageHeight}"></iframe>
+        <div slot="footer">
+            <i-button type="text" size="large" @click="cancelFormPage">取消</i-button>
+            <i-button type="primary" size="large" :loading="formPageSaving" @click="saveFormPage"
+                      v-if="!formPageReadOnly">确定
+            </i-button>
+        </div>
+    </Modal>
+</div>
+
+<script>
+    const m_apis = {
+        getTreeForCurrentUser() {
+            return PB.apiRoute('/api/sys/menu/getTreeForCurrentUser', 'GET')
+        },
+        loginOut() {
+            return PB.apiRoute('/api/sys/user/loginOut', 'POST')
+        }
+    };
+    let vm = new Vue({
+        el: '#app',
+        data() {
+            return {
+                apis: m_apis,
+                indexpageUrl: PB.fmtUri('/view/sys/indexpage'),
+                loginUser: {},
+                tabPanels: [],
+                tabCurrntName: 'tab0',
+                currentModule: '',
+                leftMenu: [],
+                menuData: [],
+                openMenuNames: [],
+                formPageTitle: '',
+                formPageURL: '',
+                formPageWidth: 0,
+                formPageModel: false,
+                formPageReadOnly: false,
+                formPageSaving: false
+            }
+        },
+        created() {
+            this.initUserInfo();
+            this.initMenu();
+        },
+        destroyed() { // 测试一下关闭页面的时候会不会执行，但是没效
+            PB.alert('1');
+            PB.setLoginUser(null);
+        },
+        computed: {
+            showChangePWD() {
+                return PB.getLoginUser().source == '6';
+            },
+            getOpenMenuNames() {
+                let arrOpenNames = [];
+                for (let node of this.leftMenu) {
+                    if (node.children) {
+                        arrOpenNames.push(node.key);
+                    }
+                }
+
+                return arrOpenNames;
+            },
+            getFormPageHeight() {
+                return (window.innerHeight * .8 - 150) + 'px';
+            }
+        },
+        methods: {
+            initUserInfo() {
+                this.loginUser = PB.getLoginUser();
+                if (!this.loginUser) {
+                    PB.alert('请重新登录');
+                }
+            },
+            initMenu() {
+                let that = this;
+
+                PB.ajax(this.apis.getTreeForCurrentUser(), function (d2) {
+                    let endMenu = createMenu(d2.data);
+                    that.menuData = endMenu;
+
+                    if (endMenu.length > 0) {
+                        let def = endMenu[0];
+                        that.leftMenu = def.data;
+                        that.currentModule = def.key;
+
+                    }
+                    that.$nextTick(function () {
+                        vm.$refs.menuModule.updateActiveName();
+                    });
+
+                });
+
+
+                function createMenu(p_dbMenuData) {
+
+                    let allMenuData = [];
+                    for (let module of p_dbMenuData) {
+                        let arrModule = [];
+                        if (module.children) {
+                            for (let node of module.children) {
+
+                                // 判断是否有children下级结构的节点
+                                if (node.children) {
+                                    // 如果是具有下级结构的节点，则该节点是否显示，由其下级是否有权限查看而决定
+                                    let childrenArr = [];
+                                    for (let c_node of node.children) {
+                                        let info = checkMenuPower(c_node);
+                                        if (info) { // 必需同时具备open权限才可以看到该菜单
+                                            childrenArr.push(info);
+                                        }
+                                    }
+
+                                    if (childrenArr.length > 0) {
+                                        let info = {};
+                                        info.key = node.key;
+                                        info.name = node.name;
+                                        info.icon = node.icon;
+                                        info.children = childrenArr;
+                                        arrModule.push(info);
+                                    }
+                                }
+                                else {
+                                    // 如果没下级节点，表示改节点就是具体功能的节点，则需要开始判断是否有权限
+                                    let info = checkMenuPower(node);
+                                    if (info) { // 必需同时具备open权限才可以看到该菜单
+                                        arrModule.push(info);
+                                    }
+                                }
+                            }
+                        }
+                        if (arrModule.length > 0) {
+                            // 构建大模块信息
+                            let moduleInfo = {};
+                            moduleInfo.key = module.key;
+                            moduleInfo.name = module.name;
+                            moduleInfo.icon = module.icon;
+                            moduleInfo.data = arrModule;
+
+                            allMenuData.push(moduleInfo);
+                        }
+                    }
+
+                    return allMenuData;
+
+                    function checkMenuPower(p_node) {
+                        //if (p_userPowerList.includes(p_node.key) && p_userPowerList.includes(p_node.key + '-open')) { // 必需同时具备open权限才可以看到该菜单
+                        let info = {};
+                        info.key = p_node.key;
+                        info.name = p_node.name;
+                        info.uri = p_node.uri;
+                        info.icon = p_node.icon;
+
+                        return info;
+                        //}
+                        //return null;
+                    }
+                }
+            },
+
+            tabClose(key) {
+                let indx = this.tabPanels.findIndex(q => q.Key === key);
+                if (indx >= 0) {
+                    this.tabPanels.splice(indx, 1);
+//                    if (this.tabPanels.length === 0) {
+//                        this.tabCurrntName = 'tab0';
+//                    }
+//                    else {
+//                        this.tabCurrntName = this.tabPanels[this.tabPanels.length - 1].Key;
+//                    }
+
+                }
+            },
+            selectModule(key) {
+                let modelData = this.menuData.filter(q => q.key == key)[0].data;
+                this.leftMenu = modelData;
+                this.currentModule = key;
+
+//                let arrOpenNames = [];
+//                for (let node of modelData) {
+//                    if (node.children) {
+//                        arrOpenNames.push(node.key);
+//                    }
+//                }
+//
+//                this.openMenuNames = arrOpenNames;
+            },
+            selectMenu(key) {
+                let currentMenu;
+                for (let node of this.leftMenu) {
+                    if (node.children) {
+                        for (let c_node of node.children) {
+                            if (c_node.key == key) {
+                                currentMenu = c_node;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        if (node.key == key) {
+                            currentMenu = node;
+                            break;
+                        }
+                    }
+
+                }
+
+                if (currentMenu.uri) {
+
+                    // 检查tab中是否已经打开该页面
+                    if (this.tabPanels.some(q => q.Key === key)) {
+                        this.tabCurrntName = key;
+                    }
+                    else {
+                        // 判断tab数量是否超过一定数量，是则删除第一个tab
+                        if (this.tabPanels.length === 6) {
+                            this.tabClose(this.tabPanels[0].Key);
+                        }
+                        // 添加新的tabPanel
+                        let p = {};
+                        p.Key = currentMenu.key;
+                        p.Title = currentMenu.name;
+                        p.Url = '/view/' + PB.fmtUri(currentMenu.uri);
+                        p.IfrName = 'ifr' + key;
+                        this.tabPanels.push(p);
+                        this.tabCurrntName = key;
+                    }
+                }
+            },
+            showFormPage(url, title) {
+                let that = this;
+                this.formPageModel = true;
+                this.formPageURL = '';
+                this.formPageTitle = title;
+                setTimeout(function () {
+                    that.formPageURL = PB.fmtUri(url);
+                }, 1);
+            },
+            cancelFormPage() {
+                this.formPageModel = false;
+                this.formPageSaving = false;
+            },
+            saveFormPage() {
+                document.getElementById('ifrFormPage').contentWindow.save();
+                this.formPageSaving = true;
+            },
+            loginOut() {
+                PB.ajax(this.apis.loginOut(), function (d) {
+                    PB.setLoginUser(null);
+                    window.location.replace('/');
+                });
+            },
+            openSetting() {
+                PB.showFormPage('sys/setting/setting', '设置', {showFooter: false});
+            }
+        }
+    });
+
+    function showFormPage(uri, title, options) {
+        if (uri) {
+            let url = '/view/' + uri;
+            vm.showFormPage(url, title);
+
+            let def = {
+                width: 870,
+                readOnly: false
+            };
+            PB.extend(def, options);
+
+            vm.formPageReadOnly = def.readOnly;
+            vm.formPageWidth = def.width;
+            vm.formPageSaving = false;
+        }
+    }
+
+    function formPageSaveError(d) {
+        vm.formPageSaving = false;
+    }
+
+    function formPageSaveOK(d) {
+        vm.formPageSaving = false;
+        if (d.success) {
+            vm.$Message.info('操作成功');
+            vm.cancelFormPage();
+
+            let ifr = 'ifr' + vm.tabCurrntName;
+            document.getElementById(ifr).contentWindow.saveOK();
+        }
+        else {
+            vm.formPageSaving = false;
+            PB.alert(d);
+        }
+
+
+    }
+</script>
+</body>
+</html>

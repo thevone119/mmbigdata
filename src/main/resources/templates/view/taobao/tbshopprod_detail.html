@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <title>淘宝商品_明细</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+	
+	<link rel="stylesheet" type="text/css" href="/lib/iview/iview.css">
+	<link rel="stylesheet" type="text/css" href="/css/global.css">
+	
+	<script type="text/javascript" src="/js/vue.js"></script>
+	<script type="text/javascript" src="/js/zepto.min.js"></script>
+	<script type="text/javascript" src="/lib/iview/iview.min.js"></script>
+	<script type="text/javascript" src="/js/vue-components.js"></script>
+	<script type="text/javascript" src="/js/public.js"></script>
+</head>
+<body>
+<div id="app">
+    <i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="80">
+        <Form-item label="shopid" prop="shopid">
+            <i-input v-model="myform.shopid" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="outer_id" prop="outerId">
+            <i-input v-model="myform.outerId" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="cid" prop="cid">
+            <i-input v-model="myform.cid" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="cat_name" prop="catName">
+            <i-input v-model="myform.catName" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="commodity_id" prop="commodityId">
+            <i-input v-model="myform.commodityId" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="created" prop="created">
+            <i-input v-model="myform.created" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="name" prop="name">
+            <i-input v-model="myform.name" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="price" prop="price">
+            <i-input v-model="myform.price" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="prod_desc" prop="prodDesc">
+            <i-input v-model="myform.prodDesc" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="modified" prop="modified">
+            <i-input v-model="myform.modified" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="status" prop="status">
+            <i-input v-model="myform.status" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="level" prop="level">
+            <i-input v-model="myform.level" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="sale_num" prop="saleNum">
+            <i-input v-model="myform.saleNum" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="rate_num" prop="rateNum">
+            <i-input v-model="myform.rateNum" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="shop_price" prop="shopPrice">
+            <i-input v-model="myform.shopPrice" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="standard_price" prop="standardPrice">
+            <i-input v-model="myform.standardPrice" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="vertical_market" prop="verticalMarket">
+            <i-input v-model="myform.verticalMarket" placeholder="请输入"></i-input>
+        </Form-item>
+    </i-form>
+</div>
+<script>
+
+
+    const urls = {
+        query:'/api/taobao/tbshopprod/query'
+        ,save:'/api/taobao/tbshopprod/save'
+    };
+
+    let vm = new Vue({
+        el: '#app',
+        data() {
+            return {
+                myform: {
+                    isState:true,
+                    state: 1,
+                    id:null//主键
+                },
+                ruleValidate: {
+                    //prodId: [
+                    //    {required: true, message: '产品ID不能为空', trigger: 'blur'}
+                    //]
+                }
+            }
+        },
+        created(){
+            if (PB.getPara('id')) {
+                this.myform.id = PB.getPara('id');
+                this.loadData();
+            }
+        },
+        methods: {
+            loadData(){
+                let that = this;
+                PB.ajax({url:urls.query,data:this.myform}, function (d) {
+                    that.myform = d.data;
+                    //that.myform.isState = !!that.myform.state;
+                });
+            },
+            save () {
+                this.$refs['myForm'].validate((valid) => {
+                    if (valid) {
+                        PB.ajax({url:urls.save,data:this.myform}, function (d) {
+                            PB.formPageSaveOK(d);
+                            });
+                    } else {
+                        PB.alert('表单验证失败!');
+                        PB.formPageSaveError();
+                    }
+                })
+            }
+        }
+    });
+
+
+    function save() {
+        vm.save();
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <#include "/layout/baseHeader.ftl" />
+    <style>
+        body, html {
+            background: #fff url(/images/login/login-bg.png) no-repeat center center;
+        }
+
+        .login-content {
+            width: 450px;
+            height: 290px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -225px;
+            margin-top: -145px;
+            background: url(/images/login/text-bg.png) no-repeat center center;
+        }
+
+        .login-box {
+            width: 290px;
+            height: 290px;
+            position: absolute;
+            top: 0;
+            left: 160px;
+        }
+
+        .ivu-tabs-nav .ivu-tabs-tab {
+            width: 140px;
+            margin-right: 4px;
+            text-align: center;
+        }
+
+        .ivu-tabs-tab .ivu-tabs-tab-active {
+            width: 155px;
+            margin-right: 0;
+        }
+
+        input, input:active, input:focus {
+            border: none !important;
+            border-bottom: 1px solid #d2d2d2 !important;
+            outline: none !important;
+            box-shadow: none !important;
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: #d2d2d2 !important;
+        }
+
+        .login-form {
+            margin: 0 auto;
+            padding: 0 50px;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #6d7995;
+            width: 300px;
+            position: fixed;
+            bottom: 3%;
+            left: 50%;
+            margin-left: -150px;
+            text-align: center;
+        }
+
+        .btn-sendsms {
+            color: #00a0ff;
+            border-color: #00a0ff;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="login-content">
+        <div class="login-box">
+            <Tabs>
+                <Tab-pane label="静态密码">
+                    <div class="login-form">
+                        <i-form ref="myForm1" :model="form1" :rules="ruleValidate1" :label-width="0">
+                            <Form-item prop="acc">
+                                <i-input type="text" v-model.trim="form1.acc" placeholder="请输入portal/邮箱/手机号"/>
+                            </Form-item>
+                            <Form-item prop="pwd">
+                                <i-input type="password" v-model.trim="form1.pwd" placeholder="请输入密码"
+                                         @on-enter="loginByPwd"/>
+                            </Form-item>
+                            <Row>
+                                <i-col span="14">
+                                    <Form-item prop="imgcode">
+                                        <i-input type="text" v-model.trim="form1.imgcode" placeholder="验证码"
+                                                 @on-enter="loginByPwd"/>
+                                    </Form-item>
+                                </i-col>
+                                <i-col span="8" offset="1">
+                                    <img :src="vcodeurl1" @click="loadVCode1" alt=""/>
+                                </i-col>
+                            </Row>
+                            </Form-item>
+                            <i-button type="info" :loading="loading" @click="loginByPwd" size="large"
+                                      long>登&nbsp;录
+                            </i-button>
+                            </Form-item>
+                        </i-form>
+                    </div>
+                </Tab-pane>
+                <Tab-pane label="动态密码">
+                    <div class="login-form">
+                        <i-form ref="myForm2" :model="form2" :rules="ruleValidate2" :label-width="0" @submit.prevent>
+                            <Form-item prop="acc">
+                                <i-input type="text" v-model.trim="form2.acc" placeholder="账号"/>
+                            </Form-item>
+                            <Row>
+                                <i-col span="14">
+                                    <Form-item prop="smscode">
+                                        <i-input type="text" v-model.trim="form2.smscode" placeholder="请输入短信密码"/>
+                                    </Form-item>
+                                </i-col>
+                                <i-col span="8" offset="1">
+                                    <i-button class="btn-sendsms" type="ghost" @click="sendSMS"
+                                              :disabled="cdForSendSMS" :loading="loadingSendSMSYzm">{{sendBtnText}}
+                                    </i-button>
+                                </i-col>
+                            </Row>
+                            <Row>
+                                <i-col span="14">
+                                    <Form-item prop="imgcode">
+                                        <i-input type="text" v-model.trim="form2.imgcode" placeholder="验证码"
+                                                 @on-enter="loginBySMS"/>
+                                    </Form-item>
+                                </i-col>
+                                <i-col span="8" offset="1">
+                                    <img :src="vcodeurl2" @click="loadVCode2" alt=""/>
+                                </i-col>
+                            </Row>
+                            <Form-item>
+                                <i-button type="info" :loading="loading" @click="loginBySMS" size="large" long>登&nbsp;录
+                                </i-button>
+                            </Form-item>
+                        </i-form>
+                    </div>
+                </Tab-pane>
+            </Tabs>
+        </div>
+    </div>
+    <Modal v-model="modelSelUser" width="360" :mask-closable="false">
+        <p slot="header">
+            <span>请指定boss用户</span>
+        </p>
+        <template v-for="user in userList">
+            <i-button type="info" style="margin:2px 0" :data-userid="user.userId" :data-portal="user.portalno"
+                      @click="selectPortalUserForLogin($event)" long>{{user.userName +' ' +user.bossno}}
+            </i-button>
+        </template>
+        <div slot="footer">
+
+        </div>
+    </Modal>
+    <div class="footer">
+        <div><span>中国移动通信集团广东有限公司湛江分公司版权所有</span></div>
+        <div><span>粤ICP备10089283号-10</span></div>
+    </div>
+</div>
+
+</div>
+<div id="isie"
+     style="width:400px; margin:200px auto;padding:20px;background: #fff;border: 1px solid #eee;border-radius: 15px;">
+    <div>你的浏览器不支持，请选择以下任一浏览器，点击进行下载（XP系统请下载QQ浏览器）</div>
+    <div>
+        <ul>
+            <li><a href="/browser/ChromeStandalone_62.0.3202.94_Setup.exe" target="_blank">谷歌浏览器(32位)</a></li>
+            <li><a href="/browser/Chrome64wei_62.0.3202.89.exe" target="_blank">谷歌浏览器(64位)</a></li>
+            <!--<li><a href="/browser/360se9.2.0.112.exe" target="_blank">360浏览器</a></li>-->
+            <li><a href="/browser/QQBrowser_Setup_9.7.12622.400.exe" target="_blank">QQ浏览器</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+    const m_apis = {
+        yzm(p_key) {
+            return PB.apiRoute('/api/sys/user/yzm?key=' + p_key, 'GET')
+        },
+        sendSMSYzm(p_acc) {
+            return PB.apiRoute('/api/sys/userzj/sendSMSYzmByZXT?acc=' + p_acc, 'POST')
+        },
+        loginByPwd(p_form, p_imgcodeKey) {
+            return PB.apiRoute('/api/sys/userzj/loginByPwd?imgcodeKey=' + p_imgcodeKey, 'POST', p_form)
+        },
+        loginBySMS(p_form, p_imgcodeKey) {
+            return PB.apiRoute('/api/sys/userzj/loginBySMS?imgcodeKey=' + p_imgcodeKey, 'POST', p_form)
+        },
+        selectPortalUserForLogin(p_acc, p_portal, p_userId) {
+            return PB.apiRoute('/api/sys/userzj/selectPortalUserForLogin?acc=' + p_acc + '&portal=' + p_portal + '&userId=' + p_userId, 'GET')
+        }
+    };
+    let vu = new Vue({
+        el: '#app',
+        data: {
+            apis: m_apis,
+            form1: {
+                acc: '',
+                pwd: ''
+            },
+            form2: {},
+            ruleValidate1: {
+                acc: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ],
+                pwd: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ],
+                imgcode: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ]
+            },
+            ruleValidate2: {
+                acc: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ],
+                smscode: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ],
+                imgcode: [
+                    {required: true, message: '不能为空', trigger: 'blur'}
+                ]
+            },
+            sendBtnText: '发送短信',
+            cdForSendSMS: false,
+            loading: false,
+            loadingSendSMSYzm: false,
+            modelSelUser: false,
+            userList: [],
+            loginingBySMS: false,
+            vcodekey1: '',
+            vcodekey2: '',
+            vcodeurl1: '',
+            vcodeurl2: ''
+        },
+        created() {
+            this.initData();
+
+        },
+        methods: {
+            initData() {
+                if (top.location.href != window.location.href) {
+                    top.location.href = window.location.href;
+                }
+                window.document.querySelector('#isie').style.display = 'none';
+                this.loadDefInfo();
+                this.loadVCode1();
+                setTimeout(() => {
+                    this.loadVCode2();
+                }, 2000);
+
+                window.localStorage.clear();
+            },
+            loadDefInfo() {
+                this.form1.acc = PB.getStorage('def_acc') || '';
+                this.form2.acc = PB.getStorage('def_sms_acc') || '';
+            },
+            loadVCode1() {
+                this.vcodekey1 = 'pwd' + new Date().pattern('yyyyMMddHHmmssS') + PB.getRandomStr(5);
+                this.vcodeurl1 = this.apis.yzm(this.vcodekey1).uri;
+            },
+            loadVCode2() {
+                this.vcodekey2 = 'sms' + new Date().pattern('yyyyMMddHHmmssS') + PB.getRandomStr(5);
+                this.vcodeurl2 = this.apis.yzm(this.vcodekey2).uri;
+            },
+            reloadVcode() {
+                this.vcodeSrc = this.vcodeurl + '&t=' + new Date().getTime();
+            },
+            sendSMS() {
+                let acc = this.form2.acc;
+                if (acc) {
+                    let that = this;
+                    this.loadingSendSMSYzm = true;
+                    PB.ajax(this.apis.sendSMSYzm(acc), {
+                        showLoading: false,
+                        complete: function () {
+                            that.loadingSendSMSYzm = false;
+                        }
+                    }, function (d) {
+                        if (d.success) {
+                            that.cdForSendSMS = true;
+                            let tim = 60;
+                            window.setinter = setInterval(() => {
+                                that.sendBtnText = tim + 'S';
+                                if (tim === 0) {
+                                    that.cdForSendSMS = false;
+                                    that.sendBtnText = '发送短信';
+                                    window.clearInterval(window.setinter);
+                                }
+                                --tim;
+                            }, 1000);
+                            PB.alert(d, 'success');
+                        }
+                    });
+                }
+            },
+            loginByPwd() {
+                this.$refs['myForm1'].validate((valid) => {
+                    if (valid) {
+                        this.loading = true;
+                        this.loginingBySMS = false;
+                        let that = this;
+
+                        PB.ajax(this.apis.loginByPwd(this.form1, this.vcodekey1), {
+                            showLoading: false,
+                            myFail: function () {
+                                that.loadVCode1();
+                            },
+                            complete: function () {
+                                that.loading = false;
+                            }
+                        }, function (d) {
+                            if (!d.success) {
+                                that.loadVCode1();
+                            }
+                            else {
+                                if (!Array.isArray(d.data)) { // 如果是1个portal对应一个bossno，则直接返回一个实体
+                                    PB.setStorage('def_acc', that.form1.acc);
+                                    PB.setLoginUser(d.data);
+                                    PB.open('main');
+                                }
+                                else {
+                                    that.modelSelUser = true;
+                                    that.userList = d.data;
+                                    that.loadVCode1();
+                                }
+                            }
+
+                        });
+                    } else {
+                        //PB.alert('请填写完整信息再提交!');
+                    }
+                })
+            },
+            loginBySMS() {
+                this.$refs['myForm2'].validate((valid) => {
+                    if (valid) {
+                        this.loading = true;
+                        this.loginingBySMS = true;
+                        PB.setStorage('def_sms_acc', this.form2.acc);
+                        let that = this;
+
+                        PB.ajax(this.apis.loginBySMS(this.form2, this.vcodekey2), {
+                            showLoading: false,
+                            complete: function () {
+                                that.loading = false;
+                            },
+                            myFail: function () {
+                                that.loadVCode2();
+                            },
+                        }, function (d) {
+                            if (!d.success) {
+                                that.loadVCode2();
+                            }
+                            else {
+                                if (!Array.isArray(d.data)) { // 如果是1个portal对应一个bossno，则直接返回一个实体
+                                    PB.setLoginUser(d.data);
+                                    PB.open('main');
+                                }
+                                else {
+                                    that.modelSelUser = true;
+                                    that.userList = d.data;
+                                    that.loadVCode2();
+                                }
+                            }
+                        });
+                    } else {
+                        //PB.alert('请填写完整信息再提交!');
+                    }
+                })
+            },
+            selectPortalUserForLogin(e) {
+                let portal = e.target.dataset.portal || e.target.parentNode.dataset.portal;
+                let userId = e.target.dataset.userid || e.target.parentNode.dataset.userid;
+                let that = this;
+                let acc = '';
+                if (this.loginingBySMS) {
+                    acc = this.form2.acc;
+                }
+                else {
+                    acc = this.form1.acc;
+                }
+                PB.ajax(this.apis.selectPortalUserForLogin(acc, portal, userId), function (d) {
+                    PB.setStorage('def_acc', that.form1.acc);
+                    PB.setLoginUser(d.data);
+                    PB.open('main');
+                });
+            }
+        }
+    })
+
+    //防止页面后退
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
+</script>
+</body>
+</html>
