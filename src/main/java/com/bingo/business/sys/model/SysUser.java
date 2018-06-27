@@ -4,6 +4,7 @@ import com.bingo.common.model.PageModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -63,7 +64,9 @@ public class SysUser extends PageModel{
 	 * @return
 	 */
 	public SysUser(){
-	
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		this.createtime=format.format(new Date());
+		//this.updatetime=format.format(new Date());
 	}
 	
 	public void setUsername(String username){

@@ -20,39 +20,41 @@ public class SysRes extends PageModel{
 	@Id
 	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "resid")
-	protected Long  resid;//resId
+	protected Long  resid;//资源ID
 	
 	
 	@Column(name = "resname")
-	protected String  resname;//resName
+	protected String  resname;//资源名称
 	
 	
 	@Column(name = "presid")
-	protected Long  presid;//presId
+	protected Long  presid;//父节点ID
+
+
 	
 	
 	@Column(name = "restype")
-	protected Long  restype;//resType
+	protected Long  restype=0L;//资源类型 0：菜单  1：url访问权限
 	
 	
 	@Column(name = "resurl")
-	protected String  resurl;//resUrl
+	protected String  resurl;//资源的URL
 	
 	
 	@Column(name = "resstate")
-	protected Long  resstate;//resState
+	protected Integer  resstate=1;//状态：0：无效，1有效
 	
 	
 	@Column(name = "createtime",updatable = false)
-	protected String  createtime;//createTime
+	protected String  createtime;//创建时间
 	
 	
 	@Column(name = "updatetime")
-	protected String  updatetime;//updateTime
+	protected String  updatetime;//更新时间
 	
 	
 	@Column(name = "demo")
-	protected String  demo;//demo
+	protected String  demo;//备注
 	
 	
 	
@@ -120,18 +122,15 @@ public class SysRes extends PageModel{
 	public String getResurl(){
 		return this.resurl;
 	}
-	
-	public void setResstate(Long resstate){
+
+	public Integer getResstate() {
+		return resstate;
+	}
+
+	public void setResstate(Integer resstate) {
 		this.resstate = resstate;
 	}
-	/**
-	 * 返回 resState
-	 * @return
-	 */
-	public Long getResstate(){
-		return this.resstate;
-	}
-	
+
 	public void setCreatetime(String createtime){
 		this.createtime = createtime;
 	}
