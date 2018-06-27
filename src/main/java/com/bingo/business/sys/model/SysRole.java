@@ -18,31 +18,31 @@ public class SysRole extends PageModel{
 
 	@Id
 	@GeneratedValue //相当于native  相当于mysql的表内自增
-	@Column(name = "roleId")
+	@Column(name = "roleid")
 	protected Long  roleid;//roleId
 	
 	
-	@Column(name = "roleType")
+	@Column(name = "roletype")
 	protected Long  roletype;//roleType
 	
 	
-	@Column(name = "roleName")
+	@Column(name = "rolename")
 	protected String  rolename;//roleName
 	
 	
-	@Column(name = "roleCode")
+	@Column(name = "rolecode")
 	protected String  rolecode;//roleCode
 	
 	
-	@Column(name = "roleState")
+	@Column(name = "rolestate")
 	protected Long  rolestate;//roleState
-	
-	
-	@Column(name = "createTime")
+
+
+	@Column(name = "createtime",updatable = false)
 	protected String  createtime;//createTime
 	
 	
-	@Column(name = "updateTime")
+	@Column(name = "updatetime")
 	protected String  updatetime;//updateTime
 	
 	

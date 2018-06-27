@@ -22,11 +22,11 @@ public class SysRoleRes extends PageModel{
 	protected Long  sid;//sid
 	
 	
-	@Column(name = "resId")
+	@Column(name = "resid")
 	protected Long  resid;//resId
 	
 	
-	@Column(name = "roleId")
+	@Column(name = "roleid")
 	protected Long  roleid;//roleId
 	
 	
