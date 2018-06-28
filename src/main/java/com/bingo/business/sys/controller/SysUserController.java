@@ -116,6 +116,18 @@ public class SysUserController  {
 		sessionCache.setloginUser(user);
 		return new XJsonInfo();
 	}
+
+	/**
+	 * @description: <修改、保存>
+	 * @param:
+	 * @throws:
+	 */
+	@ResponseBody
+	@RequestMapping("/loginOut")
+	public XJsonInfo loginOut(HttpServletRequest request) throws ServiceException, DaoException {
+		sessionCache.loginOut();
+		return new XJsonInfo();
+	}
 	
 	/**
 	 * @description: <修改、保存>

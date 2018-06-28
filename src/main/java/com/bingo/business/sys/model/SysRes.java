@@ -30,11 +30,9 @@ public class SysRes extends PageModel{
 	@Column(name = "presid")
 	protected Long  presid;//父节点ID
 
-
-	
 	
 	@Column(name = "restype")
-	protected Long  restype=0L;//资源类型 0：菜单  1：url访问权限
+	protected int  restype=0;//资源类型 0：菜单  1：url访问权限
 	
 	
 	@Column(name = "resurl")
@@ -55,6 +53,9 @@ public class SysRes extends PageModel{
 	
 	@Column(name = "demo")
 	protected String  demo;//备注
+
+	@Transient
+	private int childCount = 0;//孩子节点数
 	
 	
 	
@@ -100,18 +101,15 @@ public class SysRes extends PageModel{
 	public Long getPresid(){
 		return this.presid;
 	}
-	
-	public void setRestype(Long restype){
+
+	public int getRestype() {
+		return restype;
+	}
+
+	public void setRestype(int restype) {
 		this.restype = restype;
 	}
-	/**
-	 * 返回 resType
-	 * @return
-	 */
-	public Long getRestype(){
-		return this.restype;
-	}
-	
+
 	public void setResurl(String resurl){
 		this.resurl = resurl;
 	}
@@ -163,6 +161,12 @@ public class SysRes extends PageModel{
 	public String getDemo(){
 		return this.demo;
 	}
-	
-	
+
+	public int getChildCount() {
+		return childCount;
+	}
+
+	public void setChildCount(int childCount) {
+		this.childCount = childCount;
+	}
 }

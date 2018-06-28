@@ -13,7 +13,9 @@ import javax.annotation.Resource;
 import com.bingo.business.sys.model.*;
 import com.bingo.business.sys.service.*;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,6 +50,12 @@ public class SysResController  {
 			pid=0L;
 		}
 		List<SysRes> nodeList =sysresService.queryByPid(pid);
+		for(SysRes res:nodeList){
+			List<SysRes> _l =sysresService.queryByPid(res.getResid());
+			if( _l!=null &&  _l.size()>0){
+				res.setChildCount(_l.size());
+			}
+		}
 		return nodeList;
 	}
 
@@ -73,6 +81,10 @@ public class SysResController  {
 	@ResponseBody
     @RequestMapping("/save")
     public XJsonInfo save(SysRes vo) throws ServiceException, DaoException {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		vo.setCreatetime(format.format(new Date()));
+		vo.setUpdatetime(format.format(new Date()));
+
 		SysRes res = sysresService.saveOrUpdate(vo);
 
 		XJsonInfo ret = new XJsonInfo();
@@ -80,6 +92,21 @@ public class SysResController  {
 		ret.setData(res.getResid());
         return ret;
     }
+
+
+	/**
+	 * @description: <删除>
+	 * @param:
+	 * @throws:
+	 */
+	@ResponseBody
+	@RequestMapping("/delete2")
+	public XJsonInfo delete2(Long id) throws ServiceException, DaoException {
+		sysresService.delete(id);
+		//同时删除此节点下的子节点
+		sysresService.deleteByPid(id);
+		return new XJsonInfo();
+	}
 
 	/**
 	 * @description: <删除>
