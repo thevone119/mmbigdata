@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>系统树管理_列表</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+
+    <link rel="stylesheet" href="/js/zTree_v3/css/demo.css" type="text/css">
+    <link rel="stylesheet" href="/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <script type="text/javascript" src="/js/zTree_v3/js/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="/js/zTree_v3/js/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/js/zTree_v3/js/jquery.ztree.exedit.js"></script>
+
+    <style type="text/css">
+        .ztree li span.button.add {margin-left:2px; margin-right: -1px; background-position:-144px 0; vertical-align:top; *vertical-align:middle}
+
+        .left {
+            float: left;
+            width: 300px;
+            height: 600px;
+        }
+        .right {
+            margin-left: 310px;
+            height: 600px;
+        }
+    </style>
+
+</head>
+<body>
+
+
+<div >
+    <div class="left" width="30%">
+        <button type="info" icon="shuffle" onclick="addTopNode()"> 添加顶级顶级资源 </button>
+        <ul id="treeDemo" class="ztree"></ul>
+    </div>
+    <div class="right" width="70%">
+        <IFRAME ID="res_info" Name="res_info" FRAMEBORDER=0 SCROLLING=NO SRC="" width="100%" height="100%"></IFRAME>
+    </div>
+</div>
+<script>
+    <!--
+    var setting = {
+        view: {
+            addHoverDom: addHoverDom,
+            removeHoverDom: removeHoverDom,
+            selectedMulti: false
+        },
+        async: {
+            enable: true,
+            url:"/api/sys/sysres/listByPid",
+            autoParam:["id=pid"],
+            otherParam:{"otherParam":"zTreeAsyncTest"},
+            dataFilter: filter
+        },
+        edit: {
+            enable: true,
+            editNameSelectAll: true,
+            showRemoveBtn: true,
+            showRenameBtn: true
+        },
+        data: {
+            simpleData: {
+                enable: false
+            }
+        },
+        callback: {
+            beforeDrag: beforeDrag,
+            beforeEditName: beforeEditName,
+            beforeRemove: beforeRemove,
+            beforeRename: beforeRename,
+            onRemove: onRemove,
+            onRename: onRename,
+            onClick:onClick
+        }
+    };
+
+    function filter(treeId, parentNode, childNodes) {
+        if (!childNodes) return null;
+        for (var i=0, l=childNodes.length; i<l; i++) {
+            childNodes[i].name = childNodes[i].resname;
+            childNodes[i].id = childNodes[i].resid;
+            childNodes[i].pid = childNodes[i].presid;
+            childNodes[i].isParent = childNodes[i].childCount>0;
+        }
+        return childNodes;
+    }
+
+    var log, className = "dark";
+    function beforeDrag(treeId, treeNodes) {
+        return false;
+    }
+    function beforeEditName(treeId, treeNode) {
+        className = (className === "dark" ? "":"dark");
+        showLog("[ "+getTime()+" beforeEditName ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name);
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        zTree.selectNode(treeNode);
+        setTimeout(function() {
+            if (confirm("进入节点 -- " + treeNode.name + " 的编辑状态吗？")) {
+                setTimeout(function() {
+                    zTree.editName(treeNode);
+                }, 0);
+            }
+        }, 0);
+        return false;
+    }
+
+    function beforeRemove(treeId, treeNode) {
+        className = (className === "dark" ? "":"dark");
+        showLog("[ "+getTime()+" beforeRemove ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name);
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        zTree.selectNode(treeNode);
+        var ret_confirm = confirm("确认删除 节点 -- " + treeNode.name + " 吗？");
+        if(ret_confirm){
+            //调用ajax删除节点
+            ret_confirm = delSysRes(treeNode.id)
+        }
+        return ret_confirm;
+    }
+    function onRemove(e, treeId, treeNode) {
+        showLog("[ "+getTime()+" onRemove ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name);
+    }
+    function beforeRename(treeId, treeNode, newName, isCancel) {
+        className = (className === "dark" ? "":"dark");
+        showLog((isCancel ? "<span style='color:red'>":"") + "[ "+getTime()+" beforeRename ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name + (isCancel ? "</span>":""));
+        if (newName.length == 0) {
+            setTimeout(function() {
+                var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+                zTree.cancelEditName();
+                alert("节点名称不能为空.");
+            }, 0);
+            return false;
+        }
+        //修改节点
+        //alert("treeId:"+treeId+"id:"+treeNode.id+"pid:"+treeNode.pid+'parentTId'+treeNode.parentTId)
+
+        retid=saveSysRes(treeNode.id,treeNode.pid,newName);
+        if(retid>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    function onClick(e, treeId, treeNode, isCancel) {
+        var tar_url = "/view/sys/sysres_detail?id="+treeNode.id;
+        document.getElementById('res_info').src=tar_url;
+        //res_info.src="/view/sys/sysres_detil?id="+treeNode.id;
+        //showLog((isCancel ? "<span style='color:red'>":"") + "[ "+getTime()+" onRename ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name + (isCancel ? "</span>":""));
+    }
+
+    function onRename(e, treeId, treeNode, isCancel) {
+
+        showLog((isCancel ? "<span style='color:red'>":"") + "[ "+getTime()+" onRename ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name + (isCancel ? "</span>":""));
+    }
+    function showRemoveBtn(treeId, treeNode) {
+        return true;
+    }
+    function showRenameBtn(treeId, treeNode) {
+        return true;
+    }
+    function showLog(str) {
+        if (!log) log = $("#log");
+        log.append("<li class='"+className+"'>"+str+"</li>");
+        if(log.children("li").length > 8) {
+            log.get(0).removeChild(log.children("li")[0]);
+        }
+    }
+    function getTime() {
+        var now= new Date(),
+            h=now.getHours(),
+            m=now.getMinutes(),
+            s=now.getSeconds(),
+            ms=now.getMilliseconds();
+        return (h+":"+m+":"+s+ " " +ms);
+    }
+
+    var newCount = 1;
+
+    function addTopNode(){
+        resid=saveSysRes(0,0,"xx节点");
+        //alert(resid);
+        if(resid==0){
+            return false;
+        }
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        zTree.addNodes(null, {id:resid, pId:0, name:"xx节点"});
+    }
+
+
+    //添加节点
+    function addHoverDom(treeId, treeNode) {
+        //alert(treeNode.tId);
+        var sObj = $("#" + treeNode.tId + "_span");
+        if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
+        var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+            + "' title='add node' onfocus='this.blur();'></span>";
+        sObj.after(addStr);
+        var btn = $("#addBtn_"+treeNode.tId);
+        if (btn) btn.bind("click", function(){
+            //服务器添加节点
+            newCount++
+            resname="new node" + (newCount);
+            presid=treeNode.id;
+            resid=saveSysRes(0,treeNode.id,resname);
+            //alert(resid);
+            if(resid==0){
+                return false;
+            }
+            var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+            zTree.addNodes(treeNode, {id:resid, pId:presid, name:resname});
+            return false;
+        });
+    };
+    function removeHoverDom(treeId, treeNode) {
+        $("#addBtn_"+treeNode.tId).unbind().remove();
+    };
+
+    function selectAll() {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        zTree.setting.edit.editNameSelectAll =  $("#selectAll").attr("checked");
+    }
+
+    $(document).ready(function(){
+        $.fn.zTree.init($("#treeDemo"), setting);
+        //$("#selectAll").bind("click", selectAll);
+    });
+
+    //添加节点,修改节点
+    function saveSysRes(resid,presid,resname){
+        var retid=0;
+        $.ajax({
+            type: 'POST',
+            url: '/api/sys/sysres/save',
+            async:false,
+            cache:false,
+            timeout:1000*5,
+            data: {'resname':resname,'presid':presid,'resid':resid},
+            success: function(response){
+                if(response.success){
+                    retid= response.data;
+                }else{
+                    alert(response.msg);
+                }
+            },
+            error: function(){
+                alert("服务器繁忙，请稍候再试");
+            },
+            dataType: 'json'
+        });
+        return retid;
+    }
+
+    //删除节点
+    function delSysRes(resid){
+        ret =false
+        $.ajax({
+            type: 'POST',
+            url: '/api/sys/sysres/delete2',
+            async:false,
+            cache:false,
+            timeout:1000*5,
+            data: {'id':resid},
+            success: function(response){
+                if(response.success){
+                    ret= true;
+                }else{
+                    alert(response.msg);
+                }
+            },
+            error: function(){
+                alert("服务器繁忙，请稍候再试");
+            },
+            dataType: 'json'
+        });
+        return ret;
+    }
+    //-->
+
+</script>
+</body>
+</html>

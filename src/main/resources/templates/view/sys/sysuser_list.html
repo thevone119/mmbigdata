@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>淘宝用户表_列表</title>
+    <title>用户表_列表</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
@@ -24,16 +24,13 @@
 <div id="app">
     <div class="g-dg-search-banner">
         <i-form ref="myformRef" :model="myform" :label-width="80" inline>
-            <Form-item label="username">
+            <Form-item label="登录账号">
             <i-input v-model="myform.username" placeholder="请输入"></i-input>
     	 	 </Form-item>
-            <Form-item label="pwd">
-            <i-input v-model="myform.pwd" placeholder="请输入"></i-input>
-    	 	 </Form-item>
-            <Form-item label="createtime">
+            <Form-item label="用户名称">
             <i-input v-model="myform.createtime" placeholder="请输入"></i-input>
     	 	 </Form-item>
-            <Form-item label="usertype">
+            <Form-item label="用户类型">
             <i-input v-model="myform.usertype" placeholder="请输入"></i-input>
     	 	 </Form-item>
         </i-form>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <#include "/layout/baseHeader.ftl" />
+    <style>
+        .ivu-card-head{
+            background: #3a9dff;
+        }
+
+        .ivu-card-head p{
+            color:#fff;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <!--<Row>-->
+        <!--<i-col span="8">-->
+            <!--<Card style="width:350px">-->
+                <!--<p slot="title">-->
+                    <!--&lt;!&ndash;<Icon type="ios-film-outline"></Icon>&ndash;&gt;-->
+                    <!--库存预警-->
+                <!--</p>-->
+                <!--<a href="#" slot="extra" @click.prevent="changeLimit">-->
+                    <!--&lt;!&ndash;<Icon type="ios-loop-strong"></Icon>&ndash;&gt;-->
+                    <!--&lt;!&ndash;换一换&ndash;&gt;-->
+                <!--</a>-->
+                <!--<Row>-->
+                    <!--<i-col span="12">-->
+                        <!--五类线-->
+                    <!--</i-col>-->
+                    <!--<i-col span="12">-->
+                        <!--<i-progress :percent="75" :stroke-width="7"><span>75</span></i-progress>-->
+                    <!--</i-col>-->
+                <!--</Row>-->
+                <!--<Row>-->
+                    <!--<i-col span="12">-->
+                        <!--超五类线-->
+                    <!--</i-col>-->
+                    <!--<i-col span="12">-->
+                        <!--<i-progress :percent="25" status="wrong" :stroke-width="7"><span>25</span></i-progress>-->
+                    <!--</i-col>-->
+                <!--</Row>-->
+                <!--<Row>-->
+                    <!--<i-col span="12">-->
+                        <!--光猫-->
+                    <!--</i-col>-->
+                    <!--<i-col span="12">-->
+                        <!--<i-progress :percent="95" status="success" :stroke-width="7"><span>95</span></i-progress>-->
+                    <!--</i-col>-->
+                <!--</Row>-->
+                <!--<Row>-->
+                    <!--<i-col span="12">-->
+                        <!--路由器-->
+                    <!--</i-col>-->
+                    <!--<i-col span="12">-->
+                        <!--<i-progress :percent="15" status="wrong" :stroke-width="7"><span>15</span></i-progress>-->
+                    <!--</i-col>-->
+                <!--</Row>-->
+            <!--</Card>-->
+        <!--</i-col>-->
+        <!--<i-col span="8">-->
+        <!--</i-col>-->
+        <!--<i-col span="8">-->
+        <!--</i-col>-->
+    <!--</Row>-->
+</div>
+</div>
+<script>
+    const m_apis = {
+        login(p_form, p_loginType){
+            return PB.apiRoute('/api/sys/userzj/login?loginType=' + p_loginType, 'POST', p_form)
+        }
+    };
+    let vu = new Vue({
+        el: '#app',
+        data: {
+            apis: m_apis
+        },
+        created(){
+
+        },
+        methods: {
+
+        }
+    })
+
+</script>
+</body>
+</html>
