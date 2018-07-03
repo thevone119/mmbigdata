@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author huangtw
@@ -33,6 +35,12 @@ public class SysRes extends PageModel{
 	
 	@Column(name = "restype")
 	protected int  restype=0;//资源类型 0：菜单  1：url访问权限
+
+	@Column(name = "pos")
+	protected int  pos=0;//排序
+
+	@Column(name = "icon")
+	protected String  icon;//图标
 	
 	
 	@Column(name = "resurl")
@@ -56,8 +64,8 @@ public class SysRes extends PageModel{
 
 	@Transient
 	private int childCount = 0;//孩子节点数
-	
-	
+
+
 	
 	/**
 	 * 对象构建方法
@@ -168,5 +176,21 @@ public class SysRes extends PageModel{
 
 	public void setChildCount(int childCount) {
 		this.childCount = childCount;
+	}
+
+	public int getPos() {
+		return pos;
+	}
+
+	public void setPos(int pos) {
+		this.pos = pos;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 }

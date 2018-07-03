@@ -13,6 +13,9 @@ import javax.annotation.Resource;
 import com.bingo.business.sys.model.*;
 import com.bingo.business.sys.service.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @author huangtw
  * 2018-06-25 00:31:07
@@ -40,6 +43,10 @@ public class SysRoleController  {
 	@ResponseBody
     @RequestMapping("/save")
     public XJsonInfo save(SysRole vo) throws ServiceException, DaoException {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		vo.setCreatetime(format.format(new Date()));
+		vo.setUpdatetime(format.format(new Date()));
+
         sysroleService.saveOrUpdate(vo);
         return new XJsonInfo();
     }

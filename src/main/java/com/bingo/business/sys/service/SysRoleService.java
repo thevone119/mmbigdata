@@ -3,6 +3,7 @@ package com.bingo.business.sys.service;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.model.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -66,12 +67,24 @@ public class SysRoleService{
 	public Page<SysRole> findPage(SysRole vo){
 		StringBuffer hql = new StringBuffer(" from SysRole where roleid is not null ");
 		List<Object> fldValues = new ArrayList<Object>();
-		/**
-		if(StringUtils.isNotEmpty(vo.getUserAccount())){
-			hql.append(" and userAccount = ?");
-			fldValues.add(vo.getUserAccount());
+
+		if(StringUtils.isNotEmpty(vo.getRolename())){
+			hql.append(" and rolename like ?");
+			fldValues.add("%"+vo.getRolename()+"%");
 		}
-		**/
+		if(StringUtils.isNotEmpty(vo.getRolecode())){
+			hql.append(" and rolecode like ?");
+			fldValues.add("%"+vo.getRolecode()+"%");
+		}
+		if(vo.getRoletype()!=null && vo.getRoletype()!=-1){
+			hql.append(" and roletype = ?");
+			fldValues.add(vo.getRoletype());
+		}
+		if(vo.getRolestate()!=null && vo.getRolestate()!=-1){
+			hql.append(" and rolestate = ?");
+			fldValues.add(vo.getRolestate());
+		}
+
 		return sysroleRepository.findPage(hql.toString(), vo, fldValues);
 	}
 	

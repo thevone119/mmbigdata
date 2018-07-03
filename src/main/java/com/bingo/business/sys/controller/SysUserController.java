@@ -8,6 +8,7 @@ import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.RandomImg;
 import com.bingo.common.utility.SecurityClass;
 import com.bingo.common.utility.XJsonInfo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,84 +51,7 @@ public class SysUserController  {
 		
 	}
 
-	/**
-	 * 获取随机验证码(有效期5分钟)
-	 * @return
-	 * @throws ServiceException
-	 * @throws DaoException
-	 */
-	@ResponseBody
-	@RequestMapping("/getRandomImg")
-	public void getRandomImg(HttpServletResponse response,HttpServletRequest request) throws ServiceException, DaoException {
-		RandomImg draw = new RandomImg();
-		String rdCode = draw.getCode();
-		BufferedImage image = draw.getImg();
-		OutputStream os = null;
-		//验证码放入缓存中5分钟有效，关联session放入
-		String sessid = sessionCache.getCurrSessionId();
-		redis.set("RandomImg:"+sessid,rdCode,5);
-		try {
-			os = response.getOutputStream();
-			ImageIO.write(image, "PNG", os);
-			image.flush();
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}finally{
-			if(os != null){
-				try {
-					os.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return;
-	}
-
-
-	/**
-	 * @description: <修改、保存>
-	 * @param:
-	 * @throws:
-	 */
-	@ResponseBody
-	@RequestMapping("/Login")
-	public XJsonInfo login(HttpServletRequest request,String acc,String pwd,String imgcode) throws ServiceException, DaoException {
-		XJsonInfo ret = new XJsonInfo();
-		ret.setSuccess(false);
-		if(acc==null || pwd==null || imgcode==null){
-			ret.setMsg("参数错误，请重新输入1");
-			return ret;
-		}
-		String sessid = sessionCache.getCurrSessionId();
-		String code = (String)redis.get("RandomImg:"+sessid);
-		if(!imgcode.toUpperCase().equals(code)){
-			ret.setMsg("验证码错误，请重新输入");
-			return ret;
-		}
-		pwd= SecurityClass.encryptMD5(pwd);
-		SysUser user = sysuserService.queryByUserAndPwd(acc,pwd);
-		if(user==null || user.getState()!=1){
-			ret.setMsg("用户名或密码错误，请重试");
-			return ret;
-		}
-		//登录成功，把用户放入session
-		sessionCache.setloginUser(user);
-		return new XJsonInfo();
-	}
-
-	/**
-	 * @description: <修改、保存>
-	 * @param:
-	 * @throws:
-	 */
-	@ResponseBody
-	@RequestMapping("/loginOut")
-	public XJsonInfo loginOut(HttpServletRequest request) throws ServiceException, DaoException {
-		sessionCache.loginOut();
-		return new XJsonInfo();
-	}
 	
 	/**
 	 * @description: <修改、保存>
@@ -137,6 +61,23 @@ public class SysUserController  {
 	@ResponseBody
     @RequestMapping("/save")
     public XJsonInfo save(SysUser vo) throws ServiceException, DaoException {
+		if(vo.getUsername()==null || vo.getUsername().length()<5){
+			return new XJsonInfo(false,"用户账号错误");
+		}
+		if(vo.getNikename()==null || vo.getNikename().length()<2){
+			return new XJsonInfo(false,"请输入用户昵称");
+		}
+
+
+		SysUser _vo = sysuserService.get(vo.getUserid());
+		if(vo.getPwd()!=null && vo.getPwd().length()>5){
+			vo.setPwd(SecurityClass.encryptMD5(vo.getPwd()));
+		}
+		if(_vo!=null){
+			if(vo.getPwd()==null || vo.getPwd().length()<6){
+				vo.setPwd(_vo.getPwd());
+			}
+		}
         sysuserService.saveOrUpdate(vo);
         return new XJsonInfo();
     }
@@ -167,7 +108,11 @@ public class SysUserController  {
         if(vo==null){
             vo = new SysUser();
         }
-        return new XJsonInfo().setData(vo);
+		SysUser t = new SysUser();
+		BeanUtils.copyProperties(vo,t);
+		t.setPwd(null);
+
+        return new XJsonInfo().setData(t);
     }
 
 	/**

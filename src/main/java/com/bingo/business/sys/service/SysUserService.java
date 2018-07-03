@@ -3,6 +3,7 @@ package com.bingo.business.sys.service;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.model.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -83,13 +84,30 @@ public class SysUserService{
 	public Page<SysUser> findPage(SysUser vo){
 		StringBuffer hql = new StringBuffer(" from SysUser where userid is not null ");
 		List<Object> fldValues = new ArrayList<Object>();
-		/**
-		if(StringUtils.isNotEmpty(vo.getUserAccount())){
-			hql.append(" and userAccount = ?");
-			fldValues.add(vo.getUserAccount());
+		if(StringUtils.isNotEmpty(vo.getUsername())){
+			hql.append(" and username like ?");
+			fldValues.add("%"+vo.getUsername()+"%");
 		}
-		**/
-		return sysuserRepository.findPage(hql.toString(), vo, fldValues);
+		if(StringUtils.isNotEmpty(vo.getNikename())){
+			hql.append(" and nikename like ?");
+			fldValues.add("%"+vo.getNikename()+"%");
+		}
+		if(vo.getUsertype()!=null && vo.getUsertype()!=-1){
+			hql.append(" and usertype = ?");
+			fldValues.add(vo.getUsertype());
+		}
+		if(vo.getState()!=null && vo.getState()!=-1){
+			hql.append(" and state = ?");
+			fldValues.add(vo.getState());
+		}
+		//密码不返回
+		Page<SysUser> page = sysuserRepository.findPage(hql.toString(), vo, fldValues);
+		if(page!=null && page.getTotalCount()>0){
+			for(SysUser user : page.getResult()){
+				//user.setPwd(null);
+			}
+		}
+		return page;
 	}
 	
 }

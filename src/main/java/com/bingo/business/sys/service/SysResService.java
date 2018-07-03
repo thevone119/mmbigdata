@@ -69,6 +69,17 @@ public class SysResService{
 	}
 
 	/**
+	 * 根据资源类型查询资源列表
+	 * @param restype
+	 * @return
+	 * @throws DaoException
+	 */
+	public List<SysRes> queryByRestype(int restype) throws DaoException{
+		String hql  = "from SysRes where restype=?";
+		return sysresRepository.query(hql,new Integer[]{restype});
+	}
+
+	/**
 	 * 删除父节点下的子节点
 	 * @param pid
 	 */

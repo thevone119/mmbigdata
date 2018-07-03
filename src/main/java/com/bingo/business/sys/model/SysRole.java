@@ -24,7 +24,7 @@ public class SysRole extends PageModel{
 	
 	
 	@Column(name = "roletype")
-	protected Long  roletype;//roleType
+	protected Integer  roletype=0;//角色类型，0普通角色 1管理员角色
 	
 	
 	@Column(name = "rolename")
@@ -36,7 +36,7 @@ public class SysRole extends PageModel{
 	
 	
 	@Column(name = "rolestate")
-	protected Long  rolestate;//roleState
+	protected Integer  rolestate=1;//角色状态，0无效 1有效
 
 
 	@Column(name = "createtime",updatable = false)
@@ -69,16 +69,7 @@ public class SysRole extends PageModel{
 		return this.roleid;
 	}
 	
-	public void setRoletype(Long roletype){
-		this.roletype = roletype;
-	}
-	/**
-	 * 返回 roleType
-	 * @return
-	 */
-	public Long getRoletype(){
-		return this.roletype;
-	}
+
 	
 	public void setRolename(String rolename){
 		this.rolename = rolename;
@@ -102,16 +93,7 @@ public class SysRole extends PageModel{
 		return this.rolecode;
 	}
 	
-	public void setRolestate(Long rolestate){
-		this.rolestate = rolestate;
-	}
-	/**
-	 * 返回 roleState
-	 * @return
-	 */
-	public Long getRolestate(){
-		return this.rolestate;
-	}
+
 	
 	public void setCreatetime(String createtime){
 		this.createtime = createtime;
@@ -134,6 +116,20 @@ public class SysRole extends PageModel{
 	public String getUpdatetime(){
 		return this.updatetime;
 	}
-	
-	
+
+	public Integer getRoletype() {
+		return roletype;
+	}
+
+	public void setRoletype(Integer roletype) {
+		this.roletype = roletype;
+	}
+
+	public Integer getRolestate() {
+		return rolestate;
+	}
+
+	public void setRolestate(Integer rolestate) {
+		this.rolestate = rolestate;
+	}
 }

@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * @author huangtw
  * 2018-06-25 00:30:49
- * 对象功能: ç³»ç»è§è²èµæºå³è Model对象
+ * 对象功能: 角色资源关联 Model对象
  */
 @Entity
 @Table(name="T_sys_role_res")

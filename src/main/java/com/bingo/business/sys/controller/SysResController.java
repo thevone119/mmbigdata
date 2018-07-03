@@ -2,6 +2,7 @@ package com.bingo.business.sys.controller;
 
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.XJsonInfo;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,9 @@ public class SysResController  {
     
 	@Resource
 	private SysResService sysresService;
+
+	@Resource
+	private SessionCacheService sessionCache;
 
 	public SysResController(){
 		
@@ -72,7 +76,29 @@ public class SysResController  {
 	}
 
 
-	
+	// 获得当前登录用户菜单权限
+	@RequestMapping(value = "/getTreeForCurrentUser")
+	public XJsonInfo getTreeForCurrentUser() throws DaoException {
+		SysUser user =(SysUser)sessionCache.getLoginUser();
+		if (user == null) {
+			return new XJsonInfo(false, "无法获得登录用户信息");
+		}
+		//1.查询所有的菜单
+		List<SysRes> menuList =sysresService.queryByRestype(0);
+		//2.过滤无效的菜单
+		for(int i=0;i<menuList.size();i++){
+			SysRes m = menuList.get(i);
+			if(m.getResstate()!=1){
+				menuList.remove(i);
+				i--;
+			}
+		}
+		//3.查询当前用户的角色，资源权限列表
+
+		return new XJsonInfo().setData(menuList);
+	}
+
+
 	/**
 	 * @description: <修改、保存>
 	 * @param:

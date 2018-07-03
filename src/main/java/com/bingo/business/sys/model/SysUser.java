@@ -11,28 +11,28 @@ import java.util.Date;
 /**
  * @author huangtw
  * 2018-06-24 23:55:28
- * 对象功能: 淘宝用户表 Model对象
+ * 对象功能: 用户表 Model对象
  */
 @Entity
 @Table(name="T_sys_user")
 public class SysUser extends PageModel{
 
 	@Column(name = "username")
-	protected String  username;//username
+	protected String  username;//用户名，登录账号
 	
 	
 	@Column(name = "pwd")
-	protected String  pwd;//pwd
+	protected String  pwd;//用户密码，MD5加密存储
 	
 	
 	@Column(name = "createtime")
-	protected String  createtime;//createtime
+	protected String  createtime;//创建时间
 	
 	
 	@Column(name = "usertype")
-	protected Long  usertype;//usertype
-	
-	
+	protected Integer  usertype=0;//用户类型，0：普通用户，1：管理员
+
+
 	@Id
 	@GeneratedValue //相当于native  相当于mysql的表内自增
 	@Column(name = "userid")
@@ -40,7 +40,7 @@ public class SysUser extends PageModel{
 	
 	
 	@Column(name = "nikename")
-	protected String  nikename;//nikename
+	protected String  nikename;//昵称，中文名称
 	
 	
 	@Column(name = "email")
@@ -52,10 +52,10 @@ public class SysUser extends PageModel{
 	
 	
 	@Column(name = "mobile")
-	protected String  mobile;//mobile
+	protected String  mobile;//手机号码
 
 	@Column(name = "state")
-	protected Long  state;//状态；0：无效 1：有效
+	protected Integer  state=0;//状态；0：无效 1：有效
 	
 	
 	
@@ -102,17 +102,7 @@ public class SysUser extends PageModel{
 		return this.createtime;
 	}
 	
-	public void setUsertype(Long usertype){
-		this.usertype = usertype;
-	}
-	/**
-	 * 返回 usertype
-	 * @return
-	 */
-	public Long getUsertype(){
-		return this.usertype;
-	}
-	
+
 	public void setUserid(Long userid){
 		this.userid = userid;
 	}
@@ -168,11 +158,20 @@ public class SysUser extends PageModel{
 		return this.mobile;
 	}
 
-	public Long getState() {
+	public Integer getUsertype() {
+		return usertype;
+	}
+
+	public void setUsertype(Integer usertype) {
+		this.usertype = usertype;
+	}
+
+	public Integer getState() {
 		return state;
 	}
 
-	public void setState(Long state) {
+	public void setState(Integer state) {
 		this.state = state;
 	}
+
 }
