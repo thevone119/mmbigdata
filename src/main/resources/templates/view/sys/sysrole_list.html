@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ç³»ç»è§è²_列表</title>
+    <title>角色管理_列表</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
@@ -24,15 +24,19 @@
 <div id="app">
     <div class="g-dg-search-banner">
         <i-form ref="myformRef" :model="myform" :label-width="80" inline>
-            <Form-item label="roleType">
-            <i-input v-model="myform.roletype" placeholder="请输入"></i-input>
-    	 	 </Form-item>
-            <Form-item label="roleName">
-            <i-input v-model="myform.rolename" placeholder="请输入"></i-input>
-    	 	 </Form-item>
-            <Form-item label="roleCode">
-            <i-input v-model="myform.rolecode" placeholder="请输入"></i-input>
-    	 	 </Form-item>
+            <Form-item label="角色名称">
+                <i-input v-model="myform.rolename" placeholder="请输入"></i-input>
+            </Form-item>
+            <Form-item label="角色编码">
+                <i-input v-model="myform.rolecode" placeholder="请输入"></i-input>
+            </Form-item>
+            <Form-item label="角色类型">
+                <i-select v-model="myform.roletype" :value="myform.roletype" style="width:150px">
+                    <i-option value="0">普通角色（默认）</i-option>
+                    <i-option value="1">管理员角色</i-option>
+                </i-select>
+            </Form-item>
+
         </i-form>
     </div>
     <div class="g-dg-toolbar">
@@ -44,7 +48,7 @@
              @on-current-change="onCurrentChange" stripe  @on-selection-change="onSelRows" @on-row-dblclick="edit"></i-table>
     <div class="g-dg-footbar">
         <div>
-            <Page :total="total" :current="pageNo" show-elevator show-sizer show-total placement="top"
+            <Page :total="total" :current="myform.pageNo" show-elevator show-sizer show-total placement="top"
                   @on-change="changePage" @on-page-size-change="changePageSize" ></Page>
         </div>
     </div>
@@ -58,7 +62,7 @@
         el: '#app',
         data() {
             return {
-                title: ' ç³»ç»è§è²',
+                title: '角色管理',
                 myform: {
                     plevel : 0
                     ,selRows: null//选中的行 字符串，用,号隔开
@@ -75,28 +79,44 @@
                         ,width: 60
                         ,align: 'center'
                     },
+
                     {
-                        title: 'roleType',
-                        key: 'roletype'
-                    },
-                    {
-                        title: 'roleName',
+                        title: '角色名称',
                         key: 'rolename'
                     },
                     {
-                        title: 'roleCode',
+                        title: '角色编码',
                         key: 'rolecode'
                     },
                     {
-                        title: 'roleState',
-                        key: 'rolestate'
+                        title: '角色类型',
+                        key: 'roletype',
+                        render: (h, params) => {
+                            if(params.row.roletype==0){
+                                return "普通角色";
+                            }
+                            if(params.row.roletype==1){
+                                return "管理员角色";
+                            }
+                        }
                     },
                     {
-                        title: 'createTime',
+                        title: '状态',
+                        key: 'rolestate',
+                        render: (h, params) => {
+                            if(params.row.rolestate==1){
+                                return "有效";
+                            }else{
+                                return "无效";
+                            }
+                        }
+                    },
+                    {
+                        title: '创建时间',
                         key: 'createtime'
                     },
                     {
-                        title: 'updateTime',
+                        title: '更新时间',
                         key: 'updatetime'
                     },
                     {
@@ -168,7 +188,7 @@
             },
             edit(){//编辑
                 if(this.myform.currentRow){
-                    PB.showFormPage('sys/sysrole_detail?id=' + this.myform.currentRow.id, this.title, {width:650});
+                    PB.showFormPage('sys/sysrole_detail?id=' + this.myform.currentRow.roleid, this.title, {width:650});
                 }else{
                     PB.showFormPage('sys/sysrole_detail' , this.title,{width:650});
                 }

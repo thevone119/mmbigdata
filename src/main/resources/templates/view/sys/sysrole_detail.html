@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-     <title>ç³»ç»è§è²_明细</title>
+     <title>角色管理_明细</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta http-equiv="pragma" content="no-cache">
 	<meta http-equiv="cache-control" content="no-cache">
@@ -23,23 +23,23 @@
 <body>
 <div id="app">
     <i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="80">
-        <Form-item label="roleType" prop="roletype">
-            <i-input v-model="myform.roletype" placeholder="请输入"></i-input>
-        </Form-item>
-        <Form-item label="roleName" prop="rolename">
+        <Form-item label="角色名称" prop="rolename">
             <i-input v-model="myform.rolename" placeholder="请输入"></i-input>
         </Form-item>
-        <Form-item label="roleCode" prop="rolecode">
+        <Form-item label="角色编码" prop="rolecode">
             <i-input v-model="myform.rolecode" placeholder="请输入"></i-input>
         </Form-item>
-        <Form-item label="roleState" prop="rolestate">
-            <i-input v-model="myform.rolestate" placeholder="请输入"></i-input>
+        <Form-item label="角色类型" prop="roletype">
+            <i-select v-model="myform.roletype" :value="myform.roletype">
+                <i-option value=0>普通角色</i-option>
+                <i-option value=1>管理员角色</i-option>
+            </i-select>
         </Form-item>
-        <Form-item label="createTime" prop="createtime">
-            <i-input v-model="myform.createtime" placeholder="请输入"></i-input>
-        </Form-item>
-        <Form-item label="updateTime" prop="updatetime">
-            <i-input v-model="myform.updatetime" placeholder="请输入"></i-input>
+        <Form-item label="状态" prop="rolestate">
+            <i-switch v-model="myform.rolestate" size="large" :true-value="1" :false-value="0">
+                <span slot="open">有效</span>
+                <span slot="close">无效</span>
+            </i-switch>
         </Form-item>
     </i-form>
 </div>
@@ -56,8 +56,8 @@
         data() {
             return {
                 myform: {
-                    isState:true,
-                    state: 1,
+                    roletype:0,
+                    rolestate: 1,
                     id:null//主键
                 },
                 ruleValidate: {
@@ -78,7 +78,9 @@
                 let that = this;
                 PB.ajax({url:urls.query,data:this.myform}, function (d) {
                     that.myform = d.data;
-                    //that.myform.isState = !!that.myform.state;
+                    //这里好垃圾，要自己转换
+                    that.myform.roletype=that.myform.roletype+""
+                    //that.myform.rolestate;
                 });
             },
             save () {
