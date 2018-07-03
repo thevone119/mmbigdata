@@ -1,5 +1,7 @@
 package com.bingo.business.sys.controller;
 
+import com.bingo.business.sys.model.SysRoleRes;
+import com.bingo.business.sys.service.SysRoleResService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.utility.PubClass;
@@ -10,25 +12,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
-import com.bingo.business.sys.model.*;
-import com.bingo.business.sys.service.*;
-
 /**
  * @author huangtw
  * 2018-06-25 00:30:49
- * 对象功能: 角色资源关联 Controller管理
+ * 对象功能: 角色用户关联 Controller管理
  */
 @RestController
 @RequestMapping("/api/sys/sysroleres")
-public class SysRoleResController  {
-	
+public class SysRoleUserController {
+
 	@Resource
     private PubClass pubClass;
-    
+
 	@Resource
 	private SysRoleResService sysroleresService;
 
-	public SysRoleResController(){
+	public SysRoleUserController(){
 		
 	}
 	

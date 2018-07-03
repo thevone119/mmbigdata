@@ -17,7 +17,7 @@ import com.bingo.business.sys.repository.*;
 /**
  * @author huangtw
  * 2018-06-25 00:30:49
- * 对象功能: ç³»ç»è§è²èµæºå³è service管理
+ * 对象功能: 角色，资源关联 service管理
  */
 @Service
 @Transactional
@@ -25,6 +25,9 @@ public class SysRoleResService{
 	
 	@Resource
 	private SysRoleResRepository sysroleresRepository;
+
+	@Resource
+	private SysResRepository sysresRepository;
 
 	/**
 	 * @description: <保存对象>
@@ -73,6 +76,25 @@ public class SysRoleResService{
 		}
 		**/
 		return sysroleresRepository.findPage(hql.toString(), vo, fldValues);
+	}
+
+	/**
+	 * 查询角色下的资源，根据角色ID查询
+	 * @param roleid
+	 * @param vo
+	 * @return
+	 */
+	public Page<SysRes> findPageByRole(Long roleid,SysRes vo){
+		StringBuffer hql = new StringBuffer(" from SysRes where resid in(select resid from SysRoleRes where roleid=?) ");
+		List<Object> fldValues = new ArrayList<Object>();
+		fldValues.add(roleid);
+		/**
+		 if(StringUtils.isNotEmpty(vo.getUserAccount())){
+		 hql.append(" and userAccount = ?");
+		 fldValues.add(vo.getUserAccount());
+		 }
+		 **/
+		return sysresRepository.findPage(hql.toString(), vo, fldValues);
 	}
 	
 }
