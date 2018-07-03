@@ -32,8 +32,16 @@
             </Form-item>
             <Form-item label="角色类型">
                 <i-select v-model="myform.roletype" :value="myform.roletype" style="width:150px">
+                    <i-option value="-1">所有角色</i-option>
                     <i-option value="0">普通角色（默认）</i-option>
                     <i-option value="1">管理员角色</i-option>
+                </i-select>
+            </Form-item>
+            <Form-item label="角色状态">
+                <i-select v-model="myform.rolestate" :value="myform.rolestate" style="width:150px">
+                    <i-option value="-1">所有角色</i-option>
+                    <i-option value="0">无效</i-option>
+                    <i-option value="1">有效</i-option>
                 </i-select>
             </Form-item>
 
@@ -69,7 +77,8 @@
                     ,currentRow:null//选中的行
                     ,pageNo: 1
                     ,pageSize: 10
-                    ,state:-1
+                    ,roletype:"",
+                    rolestate:""
                 },
                 total: 0,
                 dtData: [],
@@ -139,7 +148,23 @@
                                             },100);
                                         }
                                     },
-                                }, '修改')
+                                }, '修改'),
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style:{
+                                        marginRight:'5px'
+                                    },
+                                    on: {
+                                        click:() => {
+                                            setTimeout(()=>{ // 延迟一下，让选中行事件先执行，才能拿到currentRow
+                                                this.editUser();
+                                            },100);
+                                        }
+                                    },
+                                }, '管理用户')
                             ]);
                         }
                     }
@@ -164,7 +189,7 @@
             },
             onSelRows(selection){
                 if(selection){
-                    this.myform.selRows = selection.map(q => q.id).toString();
+                    this.myform.selRows = selection.map(q => q.roleid).toString();
                 }
             },
             reload(){
@@ -191,6 +216,11 @@
                     PB.showFormPage('sys/sysrole_detail?id=' + this.myform.currentRow.roleid, this.title, {width:650});
                 }else{
                     PB.showFormPage('sys/sysrole_detail' , this.title,{width:650});
+                }
+            },
+            editUser(){//编辑用户
+                if(this.myform.currentRow){
+                    PB.showFormPage('sys/sysrole_user_list?roleid=' + this.myform.currentRow.roleid, "角色用户管理", {width:750});
                 }
             },
             remove(){

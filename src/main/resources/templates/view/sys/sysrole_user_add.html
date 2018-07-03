@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>用户表_列表</title>
+    <title>选择角色下的用户_列表</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
@@ -30,25 +30,11 @@
             <Form-item label="用户名称">
             <i-input v-model="myform.nikename" placeholder="请输入"></i-input>
     	 	 </Form-item>
-            <Form-item label="用户类型">
-                <i-select v-model="myform.usertype" :value="myform.usertype" style="width:150px">
-                    <i-option value="0">普通用户</i-option>
-                    <i-option value="1">管理员</i-option>
-                </i-select>
-    	 	 </Form-item>
-            <Form-item label="用户状态">
-                <i-select v-model="myform.state" :value="myform.state" style="width:150px">
-                    <i-option value="-1">所有</i-option>
-                    <i-option value="0">无效</i-option>
-                    <i-option value="1">有效</i-option>
-                </i-select>
-            </Form-item>
         </i-form>
     </div>
     <div class="g-dg-toolbar">
         <i-button type="info" icon="search" @click="reload">查询</i-button>
-        <i-button type="primary" icon="android-add-circle" @click="add()">新增</i-button>
-        <i-button type="error" icon="android-remove-circle" @click="remove()">删除</i-button>
+        <i-button type="primary" icon="android-add-circle" @click="add()">选择</i-button>
     </div>
     <i-table :data="dtData" :columns="dtCols" :height="getTableHeight" size="small" :highlight-row="true"
              @on-current-change="onCurrentChange" stripe  @on-selection-change="onSelRows" @on-row-dblclick="edit"></i-table>
@@ -62,7 +48,7 @@
 <script>
     const urls = {
         fildPage:'/api/sys/sysuser/findPage'
-        ,delete:'/api/sys/sysuser/delete'
+        ,delete:'/api/sys/sysroleuser/delete2'
     };
     let vm = new Vue({
         el: '#app',
@@ -75,9 +61,9 @@
                     ,currentRow:null//选中的行
                     ,pageNo: 1
                     ,pageSize: 10
-                    ,usertype:-1,
-                    state:-1
-
+                    ,usertype:-1
+                    ,state:-1
+                    ,roleid:0
                 },
                 total: 0,
                 dtData: [],
@@ -122,53 +108,15 @@
                                 return "有效";
                             }
                         }
-                    },
-                    {
-                        title: '手机号',
-                        key: 'mobile'
-                    },
-                    {
-                        title: '邮箱',
-                        key: 'email'
-                    },
-                    {
-                        title: 'qq号',
-                        key: 'qq'
-                    },
-
-                    {
-                        title: '创建时间',
-                        key: 'createtime'
-                    },
-                    {
-                        title: '操作',
-                        width: 150,
-                        render: (h, params) => {
-                            return h('div', [
-                                h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style:{
-                                        marginRight:'5px'
-                                    },
-                                    on: {
-                                        click:() => {
-                                            setTimeout(()=>{ // 延迟一下，让选中行事件先执行，才能拿到currentRow
-                                                this.edit();
-                                            },100);
-                                        }
-                                    },
-                                }, '修改')
-                            ]);
-                        }
                     }
                 ]
             }
         },
         created(){
-            this.loadData();
+            if (PB.getPara('roleid')) {
+                this.myform.roleid = PB.getPara('roleid');
+                this.loadData();
+            }
         },
         computed: {
             getTableHeight(){
@@ -205,22 +153,22 @@
                 this.loadData();
             },
             add(){//新增
-                PB.showFormPage('sys/sysuser_detail', this.title, {width:650});
-            },
-            edit(){//编辑
-                if(this.myform.currentRow){
-                    PB.showFormPage('sys/sysuser_detail?id=' + this.myform.currentRow.userid, this.title, {width:650});
-                }else{
-                    PB.showFormPage('sys/sysuser_detail' , this.title,{width:650});
+                if(this.myform.selRows) {
+                    let that = this;
+                    PB.ajax({url:'/api/sys/sysroleuser/save2',data:that.myform}, function (d) {
+                        parent.PB.formPageClose();
+                        //that.reload();
+                    });
                 }
             },
-            remove(){
 
+            remove(){
                 if(this.myform.selRows) {
                     let that = this;
                     PB.confirm('确定删除吗？', function () {
                         PB.ajax({url:urls.delete,data:that.myform}, function (d) {
-                            that.reload();
+                            //that.reload();
+                            parent.PB.formPageClose();
                         });
                     });
                 }
