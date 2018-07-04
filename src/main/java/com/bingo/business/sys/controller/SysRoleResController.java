@@ -13,6 +13,8 @@ import javax.annotation.Resource;
 import com.bingo.business.sys.model.*;
 import com.bingo.business.sys.service.*;
 
+import java.util.List;
+
 /**
  * @author huangtw
  * 2018-06-25 00:30:49
@@ -84,5 +86,42 @@ public class SysRoleResController  {
         return  new XJsonInfo().setPageData(sysroleresService.findPage(vo));
     }
 
-	
+	/**
+	 * @description: <查询>
+	 * @param:
+	 * @throws:
+	 */
+	@ResponseBody
+	@RequestMapping("/queryByRole")
+	public List<SysRoleRes> queryByRole(Long roleid) throws ServiceException, DaoException {
+		List<SysRoleRes> list = sysroleresService.queryByRole(roleid);
+		return list;
+	}
+
+
+	/**
+	 * @description: <修改、保存>
+	 * @param:
+	 * @throws:
+	 */
+	@ResponseBody
+	@RequestMapping("/save2")
+	public XJsonInfo save2(Long roleid,String  checkids) throws ServiceException, DaoException {
+		sysroleresService.deleteByRole(roleid);
+		String[] resids = checkids.split(";");
+		for(String resid:resids){
+			if(resid==null||resid.length()<=0){
+				continue;
+			}
+			SysRoleRes r = new SysRoleRes();
+			r.setRoleid(roleid);
+			r.setResid(new Long(resid));
+			sysroleresService.saveOrUpdate(r);
+		}
+		return new XJsonInfo();
+	}
+
+
+
+
 }

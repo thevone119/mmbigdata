@@ -1,7 +1,10 @@
 package com.bingo.business.sys.controller;
 
 import com.bingo.business.sys.model.SysRoleRes;
+import com.bingo.business.sys.model.SysRoleUser;
+import com.bingo.business.sys.model.SysUser;
 import com.bingo.business.sys.service.SysRoleResService;
+import com.bingo.business.sys.service.SysRoleUserService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.utility.PubClass;
@@ -18,14 +21,14 @@ import javax.annotation.Resource;
  * 对象功能: 角色用户关联 Controller管理
  */
 @RestController
-@RequestMapping("/api/sys/sysroleres")
+@RequestMapping("/api/sys/sysroleuser")
 public class SysRoleUserController {
 
 	@Resource
     private PubClass pubClass;
 
 	@Resource
-	private SysRoleResService sysroleresService;
+	private SysRoleUserService sysRoleUserService;
 
 	public SysRoleUserController(){
 		
@@ -38,10 +41,27 @@ public class SysRoleUserController {
 	 */
 	@ResponseBody
     @RequestMapping("/save")
-    public XJsonInfo save(SysRoleRes vo) throws ServiceException, DaoException {
-        sysroleresService.saveOrUpdate(vo);
+    public XJsonInfo save(SysRoleUser vo) throws ServiceException, DaoException {
+		sysRoleUserService.saveOrUpdate(vo);
         return new XJsonInfo();
     }
+
+
+	@ResponseBody
+	@RequestMapping("/save2")
+	public XJsonInfo save2(Long roleid,String[] selRows) throws ServiceException, DaoException {
+		for(String id:selRows){
+			SysRoleUser r = sysRoleUserService.query(roleid,new Long(id));
+			if(r!=null){
+				return new XJsonInfo();
+			}
+			r = new SysRoleUser();
+			r.setRoleid(roleid);
+			r.setUserid(new Long(id));
+			sysRoleUserService.saveOrUpdate(r);
+		}
+		return new XJsonInfo();
+	}
 
 	/**
 	 * @description: <删除>
@@ -52,10 +72,19 @@ public class SysRoleUserController {
     @RequestMapping("/delete")
     public XJsonInfo delete(String[] selRows) throws ServiceException, DaoException {
 		for(String id:selRows){
-			sysroleresService.delete(new Long(id));
+			sysRoleUserService.delete(new Long(id));
 		}
         return new XJsonInfo();
     }
+
+	@ResponseBody
+	@RequestMapping("/delete2")
+	public XJsonInfo delete2(Long roleid,String[] selRows) throws ServiceException, DaoException {
+		for(String id:selRows){
+			sysRoleUserService.delete(roleid,new Long(id));
+		}
+		return new XJsonInfo();
+	}
 
 	/**
 	 * @description: <查询>
@@ -65,22 +94,23 @@ public class SysRoleUserController {
     @ResponseBody
     @RequestMapping("/query")
     public XJsonInfo query(Long id) throws ServiceException, DaoException {
-        SysRoleRes vo = sysroleresService.get(id);
+		SysRoleUser vo = sysRoleUserService.get(id);
         if(vo==null){
-            vo = new SysRoleRes();
+            vo = new SysRoleUser();
         }
         return new XJsonInfo().setData(vo);
     }
 
 	/**
+	 * 查询某个角色下的用户，分页查询
 	 * @description: <分页查询>
 	 * @param:
 	 * @throws:
 	 */
     @ResponseBody
-    @RequestMapping("/findPage")
-    public XJsonInfo findPage(SysRoleRes vo) throws ServiceException, DaoException {
-        return  new XJsonInfo().setPageData(sysroleresService.findPage(vo));
+    @RequestMapping("/findPageUser")
+    public XJsonInfo findPage(Long roleid,SysUser vo) throws ServiceException, DaoException {
+        return  new XJsonInfo().setPageData(sysRoleUserService.findPageByRole(roleid,vo));
     }
 
 	

@@ -125,9 +125,9 @@
                 <i-menu mode="horizontal" theme="light" ref="menuModule" :active-name="currentModule"
                         @on-select="selectModule">
                     <template v-for="item in menuData">
-                        <Menu-item :name="item.key">
+                        <Menu-item :name="item.resid">
                             <Icon :type="item.icon"></Icon>
-                            {{item.name}}
+                            {{item.resname}}
                         </Menu-item>
                     </template>
                 </i-menu>
@@ -156,19 +156,19 @@
                 <i-menu @on-select="selectMenu" :accordion="true" theme="dark"
                         width="auto">
                     <template v-for="i in leftMenu">
-                        <template v-if="i.children">
-                            <Submenu :name="i.key">
+                        <template v-if="treeMap['l_'+i.resid]">
+                            <Submenu :name="i.resid">
                                 <template slot="title">
                                     <Icon :type="i.icon"></Icon>
-                                    <span class="layout-text">{{i.name}}</span>
+                                    <span class="layout-text">{{i.resname}}</span>
                                 </template>
-                                <template v-for="j in i.children">
-                                    <Menu-item :name="j.key">{{j.name}}</Menu-item>
+                                <template v-for="j in treeMap['l_'+i.resid]">
+                                    <Menu-item :name="j.resid">{{j.resname}}</Menu-item>
                                 </template>
                             </Submenu>
                         </template>
                         <template v-else>
-                            <Menu-item :name="i.key">{{i.name}}</Menu-item>
+                            <Menu-item :name="i.resid">{{i.resname}}</Menu-item>
                         </template>
                     </template>
                 </i-menu>
@@ -180,8 +180,8 @@
                         <iframe id="ifrIndexPage" :src="indexpageUrl" class="g-fit" frameborder="0"></iframe>
                     </Tab-pane>
                     <template v-for="(item, index) in tabPanels">
-                        <Tab-pane closable :label="item.Title" :name="item.Key" :key="item.Key" class="g-fit">
-                            <iframe :id="item.IfrName" :src="item.Url" class="g-fit"
+                        <Tab-pane closable :label="item.resname" :name="item.resid" :key="item.resid" class="g-fit">
+                            <iframe :id="item.IfrName" :src="item.resurl" class="g-fit"
                                     frameborder="0"></iframe>
                         </Tab-pane>
                     </template>
@@ -207,10 +207,10 @@
 <script>
     const m_apis = {
         getTreeForCurrentUser() {
-            return PB.apiRoute('/api/sys/menu/getTreeForCurrentUser', 'GET')
+            return PB.apiRoute('/api/sys/sysres/getTreeForCurrentUser', 'GET')
         },
         loginOut() {
-            return PB.apiRoute('/api/sys/user/loginOut', 'POST')
+            return PB.apiRoute('/api/sys/login/loginOut', 'POST')
         }
     };
     let vm = new Vue({
@@ -225,6 +225,7 @@
                 currentModule: '',
                 leftMenu: [],
                 menuData: [],
+                treeMap:{},//整个树节点的map
                 openMenuNames: [],
                 formPageTitle: '',
                 formPageURL: '',
@@ -244,17 +245,7 @@
         },
         computed: {
             showChangePWD() {
-                return PB.getLoginUser().source == '6';
-            },
-            getOpenMenuNames() {
-                let arrOpenNames = [];
-                for (let node of this.leftMenu) {
-                    if (node.children) {
-                        arrOpenNames.push(node.key);
-                    }
-                }
-
-                return arrOpenNames;
+                //return PB.getLoginUser().source == '6';
             },
             getFormPageHeight() {
                 return (window.innerHeight * .8 - 150) + 'px';
@@ -264,97 +255,47 @@
             initUserInfo() {
                 this.loginUser = PB.getLoginUser();
                 if (!this.loginUser) {
-                    PB.alert('请重新登录');
+                    //PB.alert('请重新登录');
                 }
+                this.loginUser={'userName':'测试','userid':1}
             },
             initMenu() {
                 let that = this;
-
                 PB.ajax(this.apis.getTreeForCurrentUser(), function (d2) {
-                    let endMenu = createMenu(d2.data);
-                    that.menuData = endMenu;
-
-                    if (endMenu.length > 0) {
-                        let def = endMenu[0];
-                        that.leftMenu = def.data;
-                        that.currentModule = def.key;
-
+                    //构建树结构
+                    for(i=0;i<d2.data.length;i++){
+                        m = d2.data[i];
+                        m.resid = m.resid+"";
+                        m.presid = m.presid+"";
+                        lkey = "l_"+m.presid;
+                        okey = "o_"+m.resid;
+                        var mlist = that.treeMap[lkey];
+                        if(mlist==null){
+                            mlist = [];
+                        }
+                        mlist.push(m);
+                        that.treeMap[lkey]=mlist;
+                        that.treeMap[okey]=m;
+                    }
+                    that.menuData = that.treeMap["l_0"];
+                    if(that.menuData.length>0){
+                        that.currentModule = that.menuData[0].resid+"";
+                        that.leftMenu = that.treeMap["l_"+that.currentModule];
+                        //alert(that.leftMenu.length);
                     }
                     that.$nextTick(function () {
                         vm.$refs.menuModule.updateActiveName();
                     });
-
                 });
+                //that.menuData = [{'key':'key1','name':'name1','icon':'icon1'},{'key':'key2','name':'name2','icon':'icon1'},{'key':'key3','name':'name3','icon':'icon1'}]
+
+                //that.leftMenu = [{'key':'key1','name':'name1','icon':'icon1'},{'key':'key2','name':'name2','icon':'icon1'},{'key':'key3','name':'name3','icon':'icon1'}]
 
 
-                function createMenu(p_dbMenuData) {
-
-                    let allMenuData = [];
-                    for (let module of p_dbMenuData) {
-                        let arrModule = [];
-                        if (module.children) {
-                            for (let node of module.children) {
-
-                                // 判断是否有children下级结构的节点
-                                if (node.children) {
-                                    // 如果是具有下级结构的节点，则该节点是否显示，由其下级是否有权限查看而决定
-                                    let childrenArr = [];
-                                    for (let c_node of node.children) {
-                                        let info = checkMenuPower(c_node);
-                                        if (info) { // 必需同时具备open权限才可以看到该菜单
-                                            childrenArr.push(info);
-                                        }
-                                    }
-
-                                    if (childrenArr.length > 0) {
-                                        let info = {};
-                                        info.key = node.key;
-                                        info.name = node.name;
-                                        info.icon = node.icon;
-                                        info.children = childrenArr;
-                                        arrModule.push(info);
-                                    }
-                                }
-                                else {
-                                    // 如果没下级节点，表示改节点就是具体功能的节点，则需要开始判断是否有权限
-                                    let info = checkMenuPower(node);
-                                    if (info) { // 必需同时具备open权限才可以看到该菜单
-                                        arrModule.push(info);
-                                    }
-                                }
-                            }
-                        }
-                        if (arrModule.length > 0) {
-                            // 构建大模块信息
-                            let moduleInfo = {};
-                            moduleInfo.key = module.key;
-                            moduleInfo.name = module.name;
-                            moduleInfo.icon = module.icon;
-                            moduleInfo.data = arrModule;
-
-                            allMenuData.push(moduleInfo);
-                        }
-                    }
-
-                    return allMenuData;
-
-                    function checkMenuPower(p_node) {
-                        //if (p_userPowerList.includes(p_node.key) && p_userPowerList.includes(p_node.key + '-open')) { // 必需同时具备open权限才可以看到该菜单
-                        let info = {};
-                        info.key = p_node.key;
-                        info.name = p_node.name;
-                        info.uri = p_node.uri;
-                        info.icon = p_node.icon;
-
-                        return info;
-                        //}
-                        //return null;
-                    }
-                }
             },
 
-            tabClose(key) {
-                let indx = this.tabPanels.findIndex(q => q.Key === key);
+            tabClose(resid) {
+                let indx = this.tabPanels.findIndex(q => q.resid === resid);
                 if (indx >= 0) {
                     this.tabPanels.splice(indx, 1);
 //                    if (this.tabPanels.length === 0) {
@@ -366,10 +307,10 @@
 
                 }
             },
-            selectModule(key) {
-                let modelData = this.menuData.filter(q => q.key == key)[0].data;
-                this.leftMenu = modelData;
-                this.currentModule = key;
+            selectModule(resid) {
+                //let modelData = this.menuData.filter(q => q.resid == resid)[0].data;
+                this.leftMenu = this.treeMap['l_'+resid];
+                this.currentModule = resid;
 
 //                let arrOpenNames = [];
 //                for (let node of modelData) {
@@ -380,45 +321,27 @@
 //
 //                this.openMenuNames = arrOpenNames;
             },
-            selectMenu(key) {
-                let currentMenu;
-                for (let node of this.leftMenu) {
-                    if (node.children) {
-                        for (let c_node of node.children) {
-                            if (c_node.key == key) {
-                                currentMenu = c_node;
-                                break;
-                            }
-                        }
-                    }
-                    else {
-                        if (node.key == key) {
-                            currentMenu = node;
-                            break;
-                        }
-                    }
-
-                }
-
-                if (currentMenu.uri) {
-
+            selectMenu(resid) {
+                that = this;
+                let currentMenu = that.treeMap['o_'+resid];
+                if (currentMenu.resurl) {
                     // 检查tab中是否已经打开该页面
-                    if (this.tabPanels.some(q => q.Key === key)) {
-                        this.tabCurrntName = key;
+                    if (this.tabPanels.some(q => q.resid === resid)) {
+                        this.tabCurrntName = resid;
                     }
                     else {
                         // 判断tab数量是否超过一定数量，是则删除第一个tab
-                        if (this.tabPanels.length === 6) {
-                            this.tabClose(this.tabPanels[0].Key);
+                        if (this.tabPanels.length >= 6) {
+                            this.tabClose(this.tabPanels[0].resid);
                         }
                         // 添加新的tabPanel
                         let p = {};
-                        p.Key = currentMenu.key;
-                        p.Title = currentMenu.name;
-                        p.Url = '/view/' + PB.fmtUri(currentMenu.uri);
-                        p.IfrName = 'ifr' + key;
+                        p.resid = currentMenu.resid;
+                        p.resname = currentMenu.resname;
+                        p.resurl =  PB.fmtUri(currentMenu.resurl);
+                        p.IfrName = 'ifr' + resid;
                         this.tabPanels.push(p);
-                        this.tabCurrntName = key;
+                        this.tabCurrntName = resid;
                     }
                 }
             },

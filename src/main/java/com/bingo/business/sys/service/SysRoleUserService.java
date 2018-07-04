@@ -55,19 +55,38 @@ public class SysRoleUserService {
 	public SysRoleUser get(Serializable id) throws DaoException{
 		return sysRoleUserRepository.getById(id);
 	}
+
+	/**
+	 * 根据角色ID，用户ID查询对象
+	 * @description: <取对象>
+	 * @return
+	 * @throws DaoException
+	 */
+	public SysRoleUser query(Long roleid,Long userid) throws DaoException{
+		String hql = "from SysRoleUser where roleid=? and userid=?";
+		return sysRoleUserRepository.find(hql,new Long[]{roleid,userid});
+	}
 	
 	/**
 	 * @description: <删除对象>
 	 * @param id
 	 * @return
-	 * @throws DaoException
+			 * @throws DaoException
 	 */
 	public void delete(Serializable id) throws DaoException{
 		sysRoleUserRepository.deleteById(id);
 	}
 
-
-
+	/**
+	 * 根据角色ID和用户ID删除
+	 * @param roleid
+	 * @param userid
+	 * @throws DaoException
+	 */
+	public void delete(Long roleid,Long userid) throws DaoException{
+		String hql = new String(" delete from SysRoleUser where roleid=? and userid=? ");
+		sysRoleUserRepository.executeByHql(hql,new Long[]{roleid,userid});
+	}
 
 
 

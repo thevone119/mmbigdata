@@ -69,6 +69,15 @@ public class SysResService{
 	}
 
 	/**
+	 * 查询所有资源
+	 * @return
+	 * @throws DaoException
+	 */
+	public List<SysRes> queryAll() throws DaoException{
+		return sysresRepository.queryAll();
+	}
+
+	/**
 	 * 根据资源类型查询资源列表
 	 * @param restype
 	 * @return

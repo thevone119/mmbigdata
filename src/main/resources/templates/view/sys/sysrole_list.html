@@ -124,13 +124,10 @@
                         title: '创建时间',
                         key: 'createtime'
                     },
-                    {
-                        title: '更新时间',
-                        key: 'updatetime'
-                    },
+
                     {
                         title: '操作',
-                        width: 150,
+                        width: 250,
                         render: (h, params) => {
                             return h('div', [
                                 h('Button', {
@@ -164,7 +161,23 @@
                                             },100);
                                         }
                                     },
-                                }, '管理用户')
+                                }, '管理用户'),
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style:{
+                                        marginRight:'5px'
+                                    },
+                                    on: {
+                                        click:() => {
+                                            setTimeout(()=>{ // 延迟一下，让选中行事件先执行，才能拿到currentRow
+                                                this.editRes();
+                                            },100);
+                                        }
+                                    },
+                                }, '管理资源')
                             ]);
                         }
                     }
@@ -221,6 +234,11 @@
             editUser(){//编辑用户
                 if(this.myform.currentRow){
                     PB.showFormPage('sys/sysrole_user_list?roleid=' + this.myform.currentRow.roleid, "角色用户管理", {width:750});
+                }
+            },
+            editRes(){//编辑资源
+                if(this.myform.currentRow){
+                    PB.showFormPage('sys/sysrole_res_list?roleid=' + this.myform.currentRow.roleid, "角色资源管理", {width:750});
                 }
             },
             remove(){

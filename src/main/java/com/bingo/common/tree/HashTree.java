@@ -41,7 +41,7 @@ public class HashTree {
 	
 	/**
 	 * 删除一个节点
-	 * @param node
+	 * @param id
 	 */
 	public void delNode(int id){
 		String key = "obj_" + id;
@@ -89,7 +89,7 @@ public class HashTree {
 	
 	/**
 	 * 取下级节点
-	 * @param psid
+	 * @param pid
 	 * @return
 	 */
 	public List getNextNodes(int pid){

@@ -148,7 +148,7 @@
 <script>
     const m_apis = {
         loginByPwd(p_form, p_imgcodeKey) {
-            return PB.apiRoute('/api/sys/sysuser/Login?imgcodeKey=' + p_imgcodeKey, 'POST', p_form)
+            return PB.apiRoute('/api/sys/login/Login?imgcodeKey=' + p_imgcodeKey, 'POST', p_form)
         }
     };
     let vu = new Vue({
@@ -214,7 +214,7 @@
                 this.form2.acc = PB.getStorage('def_sms_acc') || '';
             },
             loadVCode() {
-                this.vcodeurl = "/api/sys/sysuser/getRandomImg?rd="+new Date().getTime() ;
+                this.vcodeurl = "/api/sys/login/getRandomImg?rd="+new Date().getTime() ;
             },
             loginByPwd() {
                 this.$refs['myForm1'].validate((valid) => {

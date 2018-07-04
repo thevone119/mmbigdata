@@ -59,6 +59,16 @@ public class SysRoleResService{
 	public void delete(Serializable id) throws DaoException{
 		sysroleresRepository.deleteById(id);
 	}
+
+	/**
+	 * 根据角色ID删除关联
+	 * @param roleid
+	 * @throws DaoException
+	 */
+	public void deleteByRole(Long roleid) throws DaoException{
+		String hql = " delete from SysRoleRes where roleid=? ";
+		sysroleresRepository.executeByHql(hql,new Long[]{roleid});
+	}
 	
 	/**
 	 * @description: <取分页列表>
@@ -95,6 +105,16 @@ public class SysRoleResService{
 		 }
 		 **/
 		return sysresRepository.findPage(hql.toString(), vo, fldValues);
+	}
+
+	/**
+	 * 根据角色ID查询关联
+	 * @param roleid
+	 * @return
+	 */
+	public List<SysRoleRes> queryByRole(Long roleid){
+		String hql = " from SysRoleRes where roleid=? ";
+		return sysroleresRepository.query(hql,new Long[]{roleid});
 	}
 	
 }

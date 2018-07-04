@@ -10,7 +10,7 @@ import javax.persistence.*;
  * 对象功能: 角色用户关联 Model对象
  */
 @Entity
-@Table(name="T_sys_role_res")
+@Table(name="T_sys_role_user")
 public class SysRoleUser extends PageModel{
 
 	@Id

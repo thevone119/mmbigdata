@@ -38,7 +38,7 @@
         <i-button type="error" icon="android-remove-circle" @click="remove()">删除</i-button>
     </div>
     <i-table :data="dtData" :columns="dtCols" :height="getTableHeight" size="small" :highlight-row="true"
-             @on-current-change="onCurrentChange" stripe  @on-selection-change="onSelRows" @on-row-dblclick="edit"></i-table>
+             @on-current-change="onCurrentChange" stripe  @on-selection-change="onSelRows" ></i-table>
     <div class="g-dg-footbar">
         <div>
             <Page :total="total" :current="myform.pageNo" show-elevator show-sizer show-total placement="top"

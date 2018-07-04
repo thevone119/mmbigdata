@@ -64,6 +64,18 @@ public class SysResController  {
 	}
 
 	/**
+	 * 查询所有资源
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/listAll")
+	@ResponseBody
+	public List<SysRes> listAll() throws Exception{
+		List<SysRes> nodeList =sysresService.queryAll();
+		return nodeList;
+	}
+
+	/**
 	 * 删除某些菜单下的子菜单
 	 * @return
 	 * @throws Exception
