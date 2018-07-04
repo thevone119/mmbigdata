@@ -155,7 +155,7 @@
             add(){//新增
                 if(this.myform.selRows) {
                     let that = this;
-                    PB.ajax({url:'/api/sys/sysroleuser/save2',data:that.myform}, function (d) {
+                    PB.ajax({url:'/api/sys/sysroleuser/save_role_user',data:that.myform}, function (d) {
                         parent.PB.formPageClose();
                         //that.reload();
                     });

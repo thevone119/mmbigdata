@@ -160,7 +160,23 @@
                                             },100);
                                         }
                                     },
-                                }, '修改')
+                                }, '修改'),
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style:{
+                                        marginRight:'5px'
+                                    },
+                                    on: {
+                                        click:() => {
+                                            setTimeout(()=>{ // 延迟一下，让选中行事件先执行，才能拿到currentRow
+                                                this.editRole();
+                                            },100);
+                                        }
+                                    },
+                                }, '分配角色')
                             ]);
                         }
                     }
@@ -212,6 +228,11 @@
                     PB.showFormPage('sys/sysuser_detail?id=' + this.myform.currentRow.userid, this.title, {width:650});
                 }else{
                     PB.showFormPage('sys/sysuser_detail' , this.title,{width:650});
+                }
+            },
+            editRole(){//分配角色
+                if(this.myform.currentRow){
+                    PB.showFormPage('sys/sysuser_role_list?userid=' + this.myform.currentRow.userid, "用户角色分配--"+this.myform.currentRow.nikename, {width:750});
                 }
             },
             remove(){
