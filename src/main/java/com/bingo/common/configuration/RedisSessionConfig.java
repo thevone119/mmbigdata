@@ -8,11 +8,11 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import java.lang.reflect.Method;
 
 /**
- * 配置redisSession的超时时间(8小时)
+ * 配置redisSession的超时时间(8小时),不使用这个配置，使用配置文件配置
  * Created by Administrator on 2018-06-25.
  */
 @Configuration
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 60*60*8)
+//@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 60*60*8)
 public class RedisSessionConfig  extends CachingConfigurerSupport {
 
     /**
