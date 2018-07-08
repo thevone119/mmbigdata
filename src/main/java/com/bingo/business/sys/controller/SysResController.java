@@ -2,6 +2,8 @@ package com.bingo.business.sys.controller;
 
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.filter.ControllerFilter;
+import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.XJsonInfo;
@@ -15,9 +17,7 @@ import com.bingo.business.sys.model.*;
 import com.bingo.business.sys.service.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author huangtw
@@ -26,6 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/sys/sysres")
+@ControllerFilter(LoginType = 1,UserType = 0)
 public class SysResController  {
 	
 	@Resource
@@ -33,6 +34,9 @@ public class SysResController  {
     
 	@Resource
 	private SysResService sysresService;
+
+	@Resource
+	private SysRoleService sysRoleService;
 
 	@Resource
 	private SessionCacheService sessionCache;
@@ -91,7 +95,7 @@ public class SysResController  {
 	// 获得当前登录用户菜单权限
 	@RequestMapping(value = "/getTreeForCurrentUser")
 	public XJsonInfo getTreeForCurrentUser() throws DaoException {
-		SysUser user =(SysUser)sessionCache.getLoginUser();
+		SessionUser user =(SessionUser)sessionCache.getLoginUser();
 		if (user == null) {
 			return new XJsonInfo(false, "无法获得登录用户信息");
 		}
@@ -106,6 +110,26 @@ public class SysResController  {
 			}
 		}
 		//3.查询当前用户的角色，资源权限列表
+		if(user.getUsertype()!=1){
+			List<SysRole> listrole = sysRoleService.queryByUser(user.getUserid());
+			List<Long> roleids = new ArrayList<Long>();
+			for(SysRole role : listrole){
+				roleids.add(role.getRoleid());
+			}
+			List<SysRes> listres  = sysresService.queryByRole((Long[])roleids.toArray(new Long[0]));
+			Map<Long,String> hasres = new HashMap();
+			for(SysRes res:listres){
+				hasres.put(res.getResid(),null);
+			}
+			//判断是否存在,不存在则删除
+			for(int i=0;i<menuList.size();i++){
+				SysRes m = menuList.get(i);
+				if(!hasres.containsKey(m.getResid())){
+					menuList.remove(i);
+					i--;
+				}
+			}
+		}
 
 		return new XJsonInfo().setData(menuList);
 	}

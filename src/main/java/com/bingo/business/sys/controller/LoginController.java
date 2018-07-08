@@ -1,15 +1,20 @@
 package com.bingo.business.sys.controller;
 
+import com.bingo.business.sys.model.SysRole;
 import com.bingo.business.sys.model.SysUser;
+import com.bingo.business.sys.service.SysRoleService;
 import com.bingo.business.sys.service.SysUserService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.filter.ControllerFilter;
+import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.RedisCacheService;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.RandomImg;
 import com.bingo.common.utility.SecurityClass;
 import com.bingo.common.utility.XJsonInfo;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,12 +26,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Administrator on 2018-07-03.
  */
 @RestController
 @RequestMapping("/api/sys/login")
+@ControllerFilter(LoginType = 0,UserType = 0)
 public class LoginController {
     @Resource
     private PubClass pubClass;
@@ -36,6 +44,9 @@ public class LoginController {
 
     @Resource
     private RedisCacheService redis;
+
+    @Resource
+    private SysRoleService sysRoleService;
 
     @Resource
     private SessionCacheService sessionCache;
@@ -102,9 +113,25 @@ public class LoginController {
             ret.setMsg("用户名或密码错误，请重试");
             return ret;
         }
-        user.setPwd(null);
+        //查询用户的角色列表
+        List<SysRole> listrole = sysRoleService.queryByUser(user.getUserid());
+        List<Long> roleids = new ArrayList<Long>();
+        List<String> rolecodes = new ArrayList<String>();
+        for(SysRole role : listrole){
+            roleids.add(role.getRoleid());
+            rolecodes.add(role.getRolecode());
+        }
+        //构建sessionuser
+        SessionUser suser = new SessionUser();
+        suser.nikename = user.getNikename();
+        suser.userid = user.getUserid();
+        suser.username = user.getUsername();
+        suser.usertype = user.getUsertype();
+        suser.rolecodes = rolecodes;
+        suser.roleids = roleids;
+
         //登录成功，把用户放入session
-        sessionCache.setloginUser(user);
+        sessionCache.setloginUser(suser);
         return new XJsonInfo();
     }
 

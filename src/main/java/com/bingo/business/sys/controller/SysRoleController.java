@@ -2,6 +2,7 @@ package com.bingo.business.sys.controller;
 
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.filter.ControllerFilter;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.XJsonInfo;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,10 +20,11 @@ import java.util.Date;
 /**
  * @author huangtw
  * 2018-06-25 00:31:07
- * 对象功能: ç³»ç»è§è² Controller管理
+ * 对象功能: 角色管理 Controller管理
  */
 @RestController
 @RequestMapping("/api/sys/sysrole")
+@ControllerFilter(LoginType = 1,UserType = 1)
 public class SysRoleController  {
 	
 	@Resource

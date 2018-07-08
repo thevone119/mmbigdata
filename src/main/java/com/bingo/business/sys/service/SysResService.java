@@ -89,6 +89,21 @@ public class SysResService{
 	}
 
 	/**
+	 * 根据角色查找资源
+	 * @param roleids
+	 * @return
+	 * @throws DaoException
+	 */
+	public List<SysRes> queryByRole(Long[] roleids) throws DaoException{
+		StringBuffer rs = new StringBuffer("0");
+		for(Long roleid:roleids){
+			rs.append(","+roleid);
+		}
+		String hql  = "from SysRes where resid in (select resid from SysRoleRes where roleid in("+rs.toString()+"))";
+		return sysresRepository.query(hql);
+	}
+
+	/**
 	 * 删除父节点下的子节点
 	 * @param pid
 	 */

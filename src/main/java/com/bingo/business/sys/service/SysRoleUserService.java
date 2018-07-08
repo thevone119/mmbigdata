@@ -168,14 +168,7 @@ public class SysRoleUserService {
 			hql.append(" and rolecode like ?");
 			fldValues.add("%"+vo.getRolecode()+"%");
 		}
-		if(vo.getRoletype()!=null && vo.getRoletype()!=-1){
-			hql.append(" and roletype = ?");
-			fldValues.add(vo.getRoletype());
-		}
-		if(vo.getRolestate()!=null && vo.getRolestate()!=-1){
-			hql.append(" and rolestate = ?");
-			fldValues.add(vo.getRolestate());
-		}
+
 
 		return sysroleRepository.findPage(hql.toString(), vo, fldValues);
 	}

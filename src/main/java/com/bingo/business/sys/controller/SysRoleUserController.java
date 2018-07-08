@@ -1,5 +1,6 @@
 package com.bingo.business.sys.controller;
 
+import com.bingo.business.sys.model.SysRole;
 import com.bingo.business.sys.model.SysRoleRes;
 import com.bingo.business.sys.model.SysRoleUser;
 import com.bingo.business.sys.model.SysUser;
@@ -48,8 +49,8 @@ public class SysRoleUserController {
 
 
 	@ResponseBody
-	@RequestMapping("/save2")
-	public XJsonInfo save2(Long roleid,String[] selRows) throws ServiceException, DaoException {
+	@RequestMapping("/save_role_user")
+	public XJsonInfo save_role_user(Long roleid,String[] selRows) throws ServiceException, DaoException {
 		for(String id:selRows){
 			SysRoleUser r = sysRoleUserService.query(roleid,new Long(id));
 			if(r!=null){
@@ -58,6 +59,23 @@ public class SysRoleUserController {
 			r = new SysRoleUser();
 			r.setRoleid(roleid);
 			r.setUserid(new Long(id));
+			sysRoleUserService.saveOrUpdate(r);
+		}
+		return new XJsonInfo();
+	}
+
+	@ResponseBody
+	@RequestMapping("/save_user_role")
+	public XJsonInfo save_user_role(Long userid,String[] selRows) throws ServiceException, DaoException {
+		for(String id:selRows){
+			Long roleid = new Long(id);
+			SysRoleUser r = sysRoleUserService.query(roleid,userid);
+			if(r!=null){
+				return new XJsonInfo();
+			}
+			r = new SysRoleUser();
+			r.setRoleid(roleid);
+			r.setUserid(userid);
 			sysRoleUserService.saveOrUpdate(r);
 		}
 		return new XJsonInfo();
@@ -78,10 +96,20 @@ public class SysRoleUserController {
     }
 
 	@ResponseBody
-	@RequestMapping("/delete2")
-	public XJsonInfo delete2(Long roleid,String[] selRows) throws ServiceException, DaoException {
+	@RequestMapping("/delete_role_user")
+	public XJsonInfo delete_role_user(Long roleid,String[] selRows) throws ServiceException, DaoException {
 		for(String id:selRows){
 			sysRoleUserService.delete(roleid,new Long(id));
+		}
+		return new XJsonInfo();
+	}
+
+	@ResponseBody
+	@RequestMapping("/delete_user_role")
+	public XJsonInfo delete_user_role(Long userid,String[] selRows) throws ServiceException, DaoException {
+		for(String id:selRows){
+			Long roleid = new Long(id);
+			sysRoleUserService.delete(roleid,userid);
 		}
 		return new XJsonInfo();
 	}
@@ -109,9 +137,23 @@ public class SysRoleUserController {
 	 */
     @ResponseBody
     @RequestMapping("/findPageUser")
-    public XJsonInfo findPage(Long roleid,SysUser vo) throws ServiceException, DaoException {
+    public XJsonInfo findPageUser(Long roleid,SysUser vo) throws ServiceException, DaoException {
         return  new XJsonInfo().setPageData(sysRoleUserService.findPageByRole(roleid,vo));
     }
+
+	/**
+	 * 查询某个用户下的角色
+	 * @param userid
+	 * @param vo
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ResponseBody
+	@RequestMapping("/findPageRole")
+	public XJsonInfo findPageRole(Long userid,SysRole vo) throws ServiceException, DaoException {
+		return  new XJsonInfo().setPageData(sysRoleUserService.findPageByUser(userid,vo));
+	}
 
 	
 }

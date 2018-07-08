@@ -2,6 +2,8 @@ package com.bingo.common.filter;
 
 
 
+import com.bingo.common.model.SessionUser;
+import com.bingo.common.service.SessionCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -10,6 +12,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -31,6 +34,10 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
     private static Map<String,String> currThreadMap = new HashMap<String,String>();
     private static final int  maxThread = 50;//最大允许并发线程数
 
+
+    @Resource
+    private SessionCacheService sessionCache;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
         currTime=System.currentTimeMillis();
@@ -39,15 +46,74 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
             return false;
         }
         boolean ret = preHandleProxy(request,response,handler);
-        String param=request.getParameter(METHOD);
-        String actionname = handler.getClass().getName()+",method:"+param;
+        HandlerMethod hm = (HandlerMethod)handler;
+        String actionname = hm.getMethod().toString();
         if(ret){
             threadadd(actionname+currTime);
+        }else{
+            //直接跳转到首页
+            response.sendRedirect("/");
         }
         return ret;
     }
 
+    /**
+     * 前置拦截处理
+     * @param request
+     * @param response
+     * @param handler
+     * @return
+     * @throws Exception
+     */
     private boolean preHandleProxy(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
+        HandlerMethod hm = (HandlerMethod)handler;
+        //1.获取方法的注解
+        ControllerFilter filter = hm.getMethodAnnotation(ControllerFilter.class);
+        //2.如果方法上没有注解，则获取类上的注解
+        if(filter==null){
+            filter = hm.getBean().getClass().getAnnotation(ControllerFilter.class);
+        }
+        //3.如果方法和类上都没有注解，则直接返回
+        if(filter==null){
+            return true;
+        }
+        //4.获取登录用户
+        SessionUser user =(SessionUser)sessionCache.getLoginUser();
+
+        //4.判断注解权限，判断是否登录
+        if(filter.LoginType()==ControllerType.LOGIN_TYPE_LOGIN){
+            if(user==null){
+                logger.info("当前用户没有权限访问此页面01");
+                return false;
+            }
+        }
+        //4.判断注解权限，判断是否管理员
+        if(filter.UserType()==ControllerType.USER_TYPE_ADMIN){
+            if(user==null||user.getUsertype()!=1){
+                logger.info("当前用户没有权限访问此页面02");
+                return false;
+            }
+        }
+        //4.判断注解权限，判断角色
+        if(filter.roles()!=null && filter.roles().length>0){
+            if(user==null){
+                logger.info("当前用户没有权限访问此页面031");
+                return false;
+            }
+            boolean hasrole = false;
+            for(String role:filter.roles()){
+                for(String urole:user.getRolecodes()){
+                    if(role.equals(urole)){
+                        hasrole = true;
+                        break;
+                    }
+                }
+            }
+            if(!hasrole){
+                logger.info("当前用户没有权限访问此页面032");
+                return false;
+            }
+        }
 
         return true;
     }

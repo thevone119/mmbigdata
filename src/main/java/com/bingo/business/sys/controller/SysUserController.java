@@ -2,6 +2,7 @@ package com.bingo.business.sys.controller;
 
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.filter.ControllerFilter;
 import com.bingo.common.service.RedisCacheService;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
@@ -32,6 +33,7 @@ import java.io.OutputStream;
  */
 @RestController
 @RequestMapping("/api/sys/sysuser")
+@ControllerFilter(LoginType = 1,UserType = 1)
 public class SysUserController  {
 	
 	@Resource

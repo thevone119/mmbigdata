@@ -1,5 +1,6 @@
 package com.bingo.common.service;
 
+import com.bingo.common.model.SessionUser;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -23,7 +24,7 @@ public class SessionCacheService {
      * 获取登录用户
      * @return
      */
-    public Object getLoginUser(){
+    public SessionUser getLoginUser(){
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         Object luser= request.getSession().getAttribute("_LOGIN_USER");
@@ -31,7 +32,7 @@ public class SessionCacheService {
             String sessionid = getCurrSessionId();
             luser =  redis.get("_LOGIN_USER"+sessionid);
         }
-        return luser;
+        return (SessionUser)luser;
     }
 
     /**
@@ -53,7 +54,7 @@ public class SessionCacheService {
      * 登录成功，则把登录用户放入session
      * @param obj
      */
-    public void setloginUser(Object obj){
+    public void setloginUser(SessionUser obj){
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         String sessionid = request.getParameter("token");

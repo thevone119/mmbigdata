@@ -1,7 +1,5 @@
 package com.bingo.action;
 
-import com.bingo.common.filter.AuthTarget;
-import com.bingo.common.filter.AuthType;
 import com.bingo.common.utility.PubClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,21 +22,18 @@ public class index {
     @Resource
     private PubClass pubClass;
 
-    @AuthTarget(AuthType.NONE)
     @RequestMapping(method = {RequestMethod.GET})
     public ModelAndView index() {
         pubClass.showLog("index");
         return new ModelAndView("view/index");
     }
 
-    @AuthTarget(AuthType.USER)
     @RequestMapping("/main")
     public ModelAndView main() {
         // T_OS_User info = userService.getUserByToken(token);
         return new ModelAndView("view/main");
     }
 
-    @AuthTarget(AuthType.USER)
     @RequestMapping(value = "/view/**", method = RequestMethod.GET)
     public ModelAndView osPage() {
         String route = request.getRequestURI();

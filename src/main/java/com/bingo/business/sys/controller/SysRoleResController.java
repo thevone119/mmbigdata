@@ -2,6 +2,7 @@ package com.bingo.business.sys.controller;
 
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.filter.ControllerFilter;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.XJsonInfo;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/sys/sysroleres")
+@ControllerFilter(LoginType = 1,UserType = 1)
 public class SysRoleResController  {
 	
 	@Resource

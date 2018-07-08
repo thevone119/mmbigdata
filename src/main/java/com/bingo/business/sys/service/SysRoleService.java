@@ -87,5 +87,15 @@ public class SysRoleService{
 
 		return sysroleRepository.findPage(hql.toString(), vo, fldValues);
 	}
+
+	/**
+	 * 根据用户查找角色
+	 * @param userid
+	 * @return
+	 */
+	public List<SysRole> queryByUser(Long userid){
+		String hql  = "from SysRole where roleid in (select roleid from SysRoleUser where userid =?)";
+		return sysroleRepository.query(hql,new Object[]{userid});
+	}
 	
 }
