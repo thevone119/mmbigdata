@@ -58,7 +58,7 @@
         el: '#app',
         data() {
             return {
-                title: ' ç³»ç»èµæº',
+                title: '资源管理',
                 myform: {
                     plevel : 0
                     ,selRows: null//选中的行 字符串，用,号隔开
@@ -172,13 +172,13 @@
                 this.loadData();
             },
             add(){//新增
-                PB.showFormPage('sys/sysres_detail', this.title, {width:650});
+                PB.showFormPage('/view/sys/sysres_detail.html', this.title, {width:650});
             },
             edit(){//编辑
                 if(this.myform.currentRow){
-                    PB.showFormPage('sys/sysres_detail?id=' + this.myform.currentRow.id, this.title, {width:650});
+                    PB.showFormPage('/view/sys/sysres_detail.html?id=' + this.myform.currentRow.id, this.title, {width:650});
                 }else{
-                    PB.showFormPage('sys/sysres_detail' , this.title,{width:650});
+                    PB.showFormPage('/view/sys/sysres_detail.html' , this.title,{width:650});
                 }
             },
             remove(){

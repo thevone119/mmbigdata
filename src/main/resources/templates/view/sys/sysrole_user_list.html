@@ -80,7 +80,7 @@
                     },
                     {
                         title: '登录账号',
-                        key: 'username'
+                        key: 'useracc'
                     },
                     {
                         title: '昵称',
@@ -95,6 +95,9 @@
                             }
                             if(params.row.usertype==1){
                                 return "管理员";
+                            }
+                            if(params.row.usertype==2){
+                                return "商户";
                             }
                         }
                     },

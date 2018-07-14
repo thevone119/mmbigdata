@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+
+<#include "/pay/include/head.html" />
+
+</head>
+
+<body>
+	<#include "/pay/include/header.html" />
+	
+	<!------------banner---------->
+	<#include "/pay/include/banner.html" />
+	
+	<!-------主体------------->
+	
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="title">
+					
+					<h1>为什么无需签约支付宝、微信支付？</h1>
+					
+						支付宝和微信早已不再支持个人接入即时到账收款接口。但是，使用我们的接口，您只需拥有支付宝、微信个人账户，就可以完成即时到账收款接口，并能实时通知到您的自定义网址<br/>
+
+ 收款人需要1台安卓手机，无需Root，安装我们的APP。付款人不需要装App<br/>
+ 确保您资金账户安全。无需在我们APP中登录支付宝、微信，只要您手机里安装了支付宝、微信APP即可<br/>
+ 支付流程顺畅。网速正常情况，从用户付款到您后台收到收款通知，过程不到2秒<br/>
+						
+					
+				</div>
+			</div>
+			<div class="col-xs-12">
+				<div class="who">
+					<div class="ig">
+						<img src="/pay/images/a1.png" />
+					</div>
+					<div class="ron">
+						<ul>
+							<li>
+								<img src="/pay/images/a2.png" />
+								<p>注册商户，配置微信，支付宝支付信息，配置回调地址等</p>
+								<div class="clear"></div>
+							</li>
+							<li>
+								<img src="/pay/images/a3.png" />
+								<p>安卓手机下载安卓APP，用于接收微信、支付宝收款结果</p>
+								<div class="clear"></div>
+							</li>
+							<li>
+								<img src="/pay/images/a4.png" />
+								<p>系统对支付接口，完成支付对接</p>
+								<div class="clear"></div>
+							</li>
+				
+				
+
+						</ul>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	
+<!---------footer-------------->
+<#include "/pay/include/footer.html" />
+<!---------------------QQ客服浮动窗口------------------------------------>
+<div id="rightArrow"><a href="javascript:;" title="在线客户"></a></div>
+<div id="floatDivBoxs">
+	<div class="floatDtt">在线客服</div>
+    <div class="floatShadow">
+        <ul class="floatDqq">
+            <li style="padding-left:0px;"><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=3120728514&amp;site=qq&amp;menu=yes"><img src="images/qq.png" align="absmiddle">&nbsp;&nbsp;在线客服1号</a></li>
+            <li style="padding-left:0px;"><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=2109558299&amp;site=qq&amp;menu=yes"><img src="images/qq.png" align="absmiddle">&nbsp;&nbsp;在线客服2号</a></li>
+            
+        </ul>
+      
+        <!-----
+        <div class="floatDtxt">热线电话</div>
+        <div class="floatDtel"><img src="images/online_phone.jpg" width="155" height="45" alt=""></div>
+        <div style="text-align:center;padding:10PX 0 5px 0;background:#EBEBEB;"><img src="images/wap_ico.jpg"><br>微信公众账号</div>
+        ----->
+    </div>
+    <div class="floatDbg"></div>
+</div>
+
+<script type="text/javascript">
+var flag=1;
+$('#rightArrow').click(function(){
+	if(flag==1){
+		$("#floatDivBoxs").animate({right: '-175px'},300);
+		$(this).animate({right: '-5px'},300);
+		$(this).css('background-position','-50px 0');
+		flag=0;
+	}else{
+		$("#floatDivBoxs").animate({right: '0'},300);
+		$(this).animate({right: '170px'},300);
+		$(this).css('background-position','0px 0');
+		flag=1;
+	}
+});
+</script>
+
+<!---------------------QQ结束-------------------------------------------------->
+</body>
+<script>
+		$(".play").mouseover(function(){
+			$(".play_box").addClass("fadeInUp");
+		});
+	</script>
+</html>

@@ -150,6 +150,7 @@
         getLoginUser: function () {
             var dbUser = PB.getStorage('user');
             if (!dbUser) {
+                //
                 return null;
             }
             return dbUser;
@@ -158,7 +159,6 @@
             this.setStorage('user', d);
         },
         showLoading: function (msg) {
-
             msg = msg || '加载中...';
             if (!window.isShowLoading) {
                 window.showLoadingCOM = new Vue().$Message.loading({
@@ -400,7 +400,7 @@
 
             PB.extend(def, p_options);
 
-            def.url = PB.fmtUri('/view/' + p_uri);
+            def.url = PB.fmtUri( p_uri);
             def.title = p_title;
 
             if (window.pbMyModel) {

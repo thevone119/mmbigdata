@@ -34,6 +34,7 @@
                 <i-select v-model="myform.usertype" :value="myform.usertype" style="width:150px">
                     <i-option value="0">普通用户</i-option>
                     <i-option value="1">管理员</i-option>
+                    <i-option value="2">商户</i-option>
                 </i-select>
     	 	 </Form-item>
             <Form-item label="用户状态">
@@ -221,18 +222,18 @@
                 this.loadData();
             },
             add(){//新增
-                PB.showFormPage('sys/sysuser_detail', this.title, {width:650});
+                PB.showFormPage('/view/sys/sysuser_detail.html', this.title, {width:650});
             },
             edit(){//编辑
                 if(this.myform.currentRow){
-                    PB.showFormPage('sys/sysuser_detail?id=' + this.myform.currentRow.userid, this.title, {width:650});
+                    PB.showFormPage('/view/sys/sysuser_detail.html?id=' + this.myform.currentRow.userid, this.title, {width:650});
                 }else{
-                    PB.showFormPage('sys/sysuser_detail' , this.title,{width:650});
+                    PB.showFormPage('/view/sys/sysuser_detail.html' , this.title,{width:650});
                 }
             },
             editRole(){//分配角色
                 if(this.myform.currentRow){
-                    PB.showFormPage('sys/sysuser_role_list?userid=' + this.myform.currentRow.userid, "用户角色分配--"+this.myform.currentRow.nikename, {width:750});
+                    PB.showFormPage('/view/sys/sysuser_role_list.html?userid=' + this.myform.currentRow.userid, "用户角色分配--"+this.myform.currentRow.nikename, {width:750});
                 }
             },
             remove(){

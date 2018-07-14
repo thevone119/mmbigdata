@@ -222,23 +222,23 @@
                 this.loadData();
             },
             add(){//新增
-                PB.showFormPage('sys/sysrole_detail', this.title, {width:650});
+                PB.showFormPage('/view/sys/sysrole_detail.html', this.title, {width:650});
             },
             edit(){//编辑
                 if(this.myform.currentRow){
-                    PB.showFormPage('sys/sysrole_detail?id=' + this.myform.currentRow.roleid, this.title, {width:650});
+                    PB.showFormPage('/view/sys/sysrole_detail.html?id=' + this.myform.currentRow.roleid, this.title, {width:650});
                 }else{
-                    PB.showFormPage('sys/sysrole_detail' , this.title,{width:650});
+                    PB.showFormPage('/view/sys/sysrole_detail.html' , this.title,{width:650});
                 }
             },
             editUser(){//编辑用户
                 if(this.myform.currentRow){
-                    PB.showFormPage('sys/sysrole_user_list?roleid=' + this.myform.currentRow.roleid, "角色用户管理", {width:750});
+                    PB.showFormPage('/view/sys/sysrole_user_list.html?roleid=' + this.myform.currentRow.roleid, "角色用户管理", {width:750});
                 }
             },
             editRes(){//编辑资源
                 if(this.myform.currentRow){
-                    PB.showFormPage('sys/sysrole_res_list?roleid=' + this.myform.currentRow.roleid, "角色资源管理", {width:750});
+                    PB.showFormPage('/view/sys/sysrole_res_list.html?roleid=' + this.myform.currentRow.roleid, "角色资源管理", {width:750});
                 }
             },
             remove(){

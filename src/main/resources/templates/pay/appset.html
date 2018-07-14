@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head.html" />
+</head>
+
+<body>
+<#include "/pay/include/header.html" />
+	
+	<!------------banner---------->
+	<#include "/pay/include/banner.html" />
+   
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="title_3">
+					<h3>联系我们</h3>
+					<div class="list_line "></div>
+					<p>感谢使用金盾产品和服务<br>您宝贵的建议是金盾前进的动力，我们期待您的反馈和建议</p>
+				</div>
+			</div>
+			<div class="col-xs-12">
+				<div class="row contact_box">
+					<div class="col-xs-4">
+						<i class="icon iconfont"></i>
+						<span>服务热线<br/>4000-798-369</span>
+					</div>
+					<div class="col-xs-4">
+						<i class="icon iconfont">&#xe636;</i>
+						<span>服务邮箱<br/>jdwlkf@126.com</span>
+					</div>
+					<div class="col-xs-4">
+						<i class="icon iconfont">&#xe61c;</i>
+						<span>公司地址<br/>山东省烟台市莱山区迎春大街133号</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-12">
+				<div class="row contact">
+					<div class="col-xs-6">
+						<!--百度地图容器-->
+    					<div style="width:100%;height:300px;border:#ccc solid 1px;font-size:12px" id="map"></div>
+					</div>
+					<div class="col-xs-6 idea">
+						<ul>
+							<li>
+								<input type="text" class="form-control" placeholder="联系人姓名" />
+							</li>
+							<li>
+								<input type="text" class="form-control" placeholder="请输入你的电话，以便联系您" />
+							</li>
+							<li>
+								<textarea class=" form-control" placeholder="反馈意见" style="width: 100%; height:150px;"></textarea>
+							</li>
+							<li>
+								<button class="col-xs-12 btn btn-danger">提交信息</button>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	
+<!---------footer-------------->
+<#include "/pay/include/footer.html" />
+</body>
+   
+    <!--引用百度地图API-->
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=HQnEzD1dQywg1vTedOUqZ3LR6pkY12LG"></script>
+  <script type="text/javascript">
+    //创建和初始化地图函数：
+    function initMap(){
+      createMap();//创建地图
+      setMapEvent();//设置地图事件
+      addMapControl();//向地图添加控件
+      addMapOverlay();//向地图添加覆盖物
+    }
+    function createMap(){ 
+      map = new BMap.Map("map"); 
+      map.centerAndZoom(new BMap.Point(121.449201,37.475054),19);
+    }
+    function setMapEvent(){
+      map.enableScrollWheelZoom();
+      map.enableKeyboard();
+      map.enableDragging();
+      map.enableDoubleClickZoom()
+    }
+    function addClickHandler(target,window){
+      target.addEventListener("click",function(){
+        target.openInfoWindow(window);
+      });
+    }
+    function addMapOverlay(){
+      var markers = [
+        {content:"金盾网联是由省有关部门牵头发起面向全省推行的惠民直通车项目，其携手中国银行、中国石化等多家百强企业全新联合打造，为有车一族提供便捷、安全、实惠、省时的客户绿色通道。整个服务系统由中国银行提供全程金融保障，并由中国银行发行的金盾网联信用卡作为身份识别与结算平台。",title:"金盾网联智能车联网服务平台",imageOffset: {width:-46,height:-21},position:{lat:37.474972,lng:121.448581}}
+      ];
+      for(var index = 0; index < markers.length; index++ ){
+        var point = new BMap.Point(markers[index].position.lng,markers[index].position.lat);
+        var marker = new BMap.Marker(point,{icon:new BMap.Icon("http://api.map.baidu.com/lbsapi/createmap/images/icon.png",new BMap.Size(20,25),{
+          imageOffset: new BMap.Size(markers[index].imageOffset.width,markers[index].imageOffset.height)
+        })});
+        var label = new BMap.Label(markers[index].title,{offset: new BMap.Size(25,5)});
+        var opts = {
+          width: 200,
+          title: markers[index].title,
+          enableMessage: false
+        };
+        var infoWindow = new BMap.InfoWindow(markers[index].content,opts);
+        marker.setLabel(label);
+        addClickHandler(marker,infoWindow);
+        map.addOverlay(marker);
+      };
+    }
+    //向地图添加控件
+    function addMapControl(){
+      var navControl = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+      map.addControl(navControl);
+    }
+    var map;
+      initMap();
+  </script>
+ <script>
+		$(".play").mouseover(function(){
+			$(".play_box").addClass("fadeInUp");
+		});
+	</script> 
+  
+</html>

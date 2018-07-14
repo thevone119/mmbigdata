@@ -1,0 +1,92 @@
+<div class="header">
+    <div class="container">
+        <div class="row header_box">
+            <a href="index.html"><img src="/pay/images/logo.png" class="pull-left logo" /></a>
+            <div class="pull-right call">
+                <ul>
+                    <li class="border_rt">
+                        <i class="icon iconfont"></i>
+                        24小时服务热线<br/>18125901841
+                    </li>
+                    <li class="play">
+                        微信关注<br/>下载APP
+                        <div class="play_box animated">
+
+                            <div class="pull-left box">
+                                <h4>下载APP</h4>
+                                <img src="images/mg.png" />
+                            </div>
+                            <div class="clear"></div>
+                            <span></span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="nav_box">
+        <div class="container warp">
+            <ul class="pull-left">
+                <li id="li_index">
+                    <a href="/pay/index.html">
+                        <i class="icon iconfont">&#xe606;</i>
+                        网站首页
+                    </a>
+                </li>
+                <li id="li_serve">
+                    <a href="/pay/serve.html">
+                        <i class="icon iconfont">&#xe634;</i>
+                        资费套餐
+                    </a>
+                </li>
+                <li id="li_help">
+                    <a href="/pay/help.html">
+                        <i class="icon iconfont">&#xe6cb;</i>
+                        接入文档
+                    </a>
+                </li>
+                <li id="li_appset">
+                    <a href="/pay/appset.html">
+                        <i class="icon iconfont">&#xe605;</i>
+                        app设置
+                    </a>
+                </li>
+                <li id="li_work">
+                    <a href="/pay/record.html">
+                        <i class="icon iconfont">&#xe66c;</i>
+                        商户管理平台
+                    </a>
+                </li>
+                <div class="clear"></div>
+            </ul>
+            <div class="logoin pull-right">
+                <a href="/pay/logoin.html" class="ac">
+                    <i class="icon iconfont">&#xe60c;</i>
+                    登录
+                </a>
+                <a href="/pay/enroll.html" >
+                    <i class="icon iconfont" >&#xe697;</i>
+                    注册
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //选中设置
+    var url = window.location.href;
+    if(url.indexOf("help")>0){
+        $('#li_help').attr({"class" : "ac"});
+    }else if(url.indexOf("serve")>0){
+        $('#li_serve').attr({"class" : "ac"});
+        //alert($('#li_serve'));
+    }else if(url.indexOf("appset")>0){
+        $('#li_appset').attr({"class" : "ac"});
+    }else if(url.indexOf("work")>0){
+        $('#li_work').attr({"class" : "ac"});
+    }else{
+        $('#li_index').attr({"class" : "ac"});
+    }
+
+</script>
