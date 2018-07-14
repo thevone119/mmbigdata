@@ -125,7 +125,7 @@ public class LoginController {
         SessionUser suser = new SessionUser();
         suser.nikename = user.getNikename();
         suser.userid = user.getUserid();
-        suser.username = user.getUsername();
+        suser.useracc = user.getUseracc();
         suser.usertype = user.getUsertype();
         suser.rolecodes = rolecodes;
         suser.roleids = roleids;

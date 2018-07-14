@@ -63,24 +63,31 @@ public class SysUserController  {
 	@ResponseBody
     @RequestMapping("/save")
     public XJsonInfo save(SysUser vo) throws ServiceException, DaoException {
-		if(vo.getUsername()==null || vo.getUsername().length()<5){
+		if(vo.getUseracc()==null || vo.getUseracc().length()<5){
 			return new XJsonInfo(false,"用户账号错误");
 		}
 		if(vo.getNikename()==null || vo.getNikename().length()<2){
 			return new XJsonInfo(false,"请输入用户昵称");
 		}
 
-
 		SysUser _vo = sysuserService.get(vo.getUserid());
+		if(_vo==null){
+			_vo = new SysUser();
+		}
+		//修改密码
 		if(vo.getPwd()!=null && vo.getPwd().length()>5){
-			vo.setPwd(SecurityClass.encryptMD5(vo.getPwd()));
+			_vo.setPwd(SecurityClass.encryptMD5(vo.getPwd()));
 		}
-		if(_vo!=null){
-			if(vo.getPwd()==null || vo.getPwd().length()<6){
-				vo.setPwd(_vo.getPwd());
-			}
-		}
-        sysuserService.saveOrUpdate(vo);
+		//修改用户名
+		_vo.setUseracc(vo.getUseracc());
+		_vo.setUsertype(vo.getUsertype());
+		_vo.setGobackUrl(vo.getGobackUrl());
+		_vo.setNikename(vo.getNikename());
+		_vo.setEmail(vo.getEmail());
+		_vo.setMobile(vo.getMobile());
+		_vo.setNotifyUrl(vo.getNotifyUrl());
+		_vo.setState(vo.getState());
+        sysuserService.saveOrUpdate(_vo);
         return new XJsonInfo();
     }
 
