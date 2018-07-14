@@ -122,9 +122,9 @@ public class SysRoleUserService {
 		StringBuffer hql = new StringBuffer(" from SysUser where userid in(select userid from SysRoleUser where roleid=?) ");
 		List<Object> fldValues = new ArrayList<Object>();
 		fldValues.add(roleid);
-		if(StringUtils.isNotEmpty(vo.getUsername())){
-			hql.append(" and username like ?");
-			fldValues.add("%"+vo.getUsername()+"%");
+		if(StringUtils.isNotEmpty(vo.getUseracc())){
+			hql.append(" and useracc like ?");
+			fldValues.add("%"+vo.getUseracc()+"%");
 		}
 		if(StringUtils.isNotEmpty(vo.getNikename())){
 			hql.append(" and nikename like ?");
