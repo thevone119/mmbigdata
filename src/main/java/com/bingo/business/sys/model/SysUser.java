@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author huangtw
@@ -17,26 +18,34 @@ import java.util.Date;
 @Table(name="T_sys_user")
 public class SysUser extends PageModel{
 
-	@Column(name = "username")
-	protected String  username;//用户名，登录账号
+	@Id
+	@GeneratedValue //相当于native  相当于mysql的表内自增
+	@Column(name = "userid",updatable = false)
+	protected Long  userid;//userid
+
+	@Column(name = "uuid")
+	protected String  uuid;//用户ID
+
+	@Column(name = "sign_key")
+	protected String  signKey;//用户的签名秘钥
+
+	@Column(name = "useracc",updatable = false)
+	protected String  useracc;//用户名，登录账号
 	
 	
 	@Column(name = "pwd")
 	protected String  pwd;//用户密码，MD5加密存储
 	
 	
-	@Column(name = "createtime")
+	@Column(name = "createtime",updatable = false)
 	protected String  createtime;//创建时间
 	
 	
 	@Column(name = "usertype")
-	protected Integer  usertype=0;//用户类型，0：普通用户，1：管理员
+	protected Integer  usertype=0;//用户类型，0：普通用户，1：管理员 2:支付商户
 
 
-	@Id
-	@GeneratedValue //相当于native  相当于mysql的表内自增
-	@Column(name = "userid")
-	protected Long  userid;//userid
+
 	
 	
 	@Column(name = "nikename")
@@ -56,7 +65,13 @@ public class SysUser extends PageModel{
 
 	@Column(name = "state")
 	protected Integer  state=0;//状态；0：无效 1：有效
-	
+
+
+	@Column(name = "notify_url")
+	protected String  notifyUrl;//支付通知地址
+
+	@Column(name = "goback_url")
+	protected String  gobackUrl;//支付跳转地址
 	
 	
 	/**
@@ -66,20 +81,20 @@ public class SysUser extends PageModel{
 	public SysUser(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		this.createtime=format.format(new Date());
+
+		this.uuid= UUID.randomUUID().toString().replace("-", "").toLowerCase();
+		this.signKey= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		//this.updatetime=format.format(new Date());
 	}
-	
-	public void setUsername(String username){
-		this.username = username;
+
+	public String getUseracc() {
+		return useracc;
 	}
-	/**
-	 * 返回 username
-	 * @return
-	 */
-	public String getUsername(){
-		return this.username;
+
+	public void setUseracc(String useracc) {
+		this.useracc = useracc;
 	}
-	
+
 	public void setPwd(String pwd){
 		this.pwd = pwd;
 	}
@@ -174,4 +189,35 @@ public class SysUser extends PageModel{
 		this.state = state;
 	}
 
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public String getSignKey() {
+		return signKey;
+	}
+
+	public void setSignKey(String signKey) {
+		this.signKey = signKey;
+	}
+
+	public String getNotifyUrl() {
+		return notifyUrl;
+	}
+
+	public void setNotifyUrl(String notifyUrl) {
+		this.notifyUrl = notifyUrl;
+	}
+
+	public String getGobackUrl() {
+		return gobackUrl;
+	}
+
+	public void setGobackUrl(String gobackUrl) {
+		this.gobackUrl = gobackUrl;
+	}
 }

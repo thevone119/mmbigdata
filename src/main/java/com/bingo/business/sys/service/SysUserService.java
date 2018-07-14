@@ -51,14 +51,14 @@ public class SysUserService{
 
 	/**
 	 * 根据用户名，密码查询用户
-	 * @param username
+	 * @param useracc
 	 * @param pwd
 	 * @return
 	 * @throws DaoException
 	 */
-	public SysUser queryByUserAndPwd(String username,String pwd) throws DaoException{
-		String hql = "from SysUser where username=? and pwd=?";
-		return sysuserRepository.find(hql,new String[]{username,pwd});
+	public SysUser queryByUserAndPwd(String useracc,String pwd) throws DaoException{
+		String hql = "from SysUser where useracc=? and pwd=?";
+		return sysuserRepository.find(hql,new String[]{useracc,pwd});
 	}
 	
 	/**

@@ -132,7 +132,9 @@ public class LoginController {
 
         //登录成功，把用户放入session
         sessionCache.setloginUser(suser);
-        return new XJsonInfo();
+        ret.setData(suser);
+        ret.setSuccess(true);
+        return ret;
     }
 
     /**
