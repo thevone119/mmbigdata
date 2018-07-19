@@ -29,20 +29,15 @@
 			<div class="row">
 				<div class="col-xs-4 pull-right">
 					<div class="logo_in">
-						<h2>立即注册</h2>
-						<form class="cmxform" id="regeditForm" method="post" action="#" onsubmit="return false">
+						<h2>用户登陆</h2>
+						<form class="cmxform" id="loginForm" method="post" action="#" onsubmit="return false">
 						<ul>
 							<li>
-								<input id="useracc" name="useracc" type="text" class="form-control" placeholder="请输入您的账号（邮箱/手机号/用户名）" required/>
+								<input id='acc' name="acc" type="text" class="form-control" placeholder="邮箱/手机号/用户名" />
+								
 							</li>
 							<li>
-								<input id="pwd" name="pwd" type="password" class="form-control " placeholder="设置您的账号密码"  required/>
-							</li>
-							<li>
-								<input id="pwd2" name="pwd2" type="password" class="form-control " placeholder="确认账号密码" required/>
-							</li>
-							<li>
-								<input id="email" name="email"  type="text" class="form-control" placeholder="请输入邮箱（重置密码用到）" required/>
+								<input id="pwd" name="pwd" type="password" class="form-control" placeholder="密码" />
 							</li>
 							<li class="verify">
 								<input id="imgcode" name="imgcode"  type="text" class="form-control input-text-style-1 " placeholder="请输入右侧验证码" required/>
@@ -51,16 +46,15 @@
 							</li>
 							<li>
 								<div class="pull-right pass">
-									
-									<a href="/pay/login.html" class="last_a">已有账户？去登陆</a>
+									<a href="/pay/repwd_1.html">忘记密码？</a>
+									<span>|</span>
+									<a href="/pay/enroll.html" class="last_a">免费注册</a>
 								</div>
 								<div class="clear"></div>
 							</li>
-
 							<li>
-								<button class="btn btn-danger" onclick="regedit()">立即注册</button>
+								<button onclick="login()" class="btn btn-danger">立即登陆</button>
 							</li>
-
 						</ul>
 						</form>
 					</div>
@@ -68,8 +62,7 @@
 			</div>
 		</div>
 	</div>
-
-
+	
 	
 	
 	
@@ -78,57 +71,60 @@
 <!---------footer-------------->
 <#include "/pay/include/footer.html" />
 </body>
-<script>
+	<script>
 		$(".play").mouseover(function(){
 			$(".play_box").addClass("fadeInUp");
 		});
 
-		//获取图像验证码
-		function loadVCode(){
-		    var imgurl = "/api/sys/login/getRandomImg?rd="+new Date().getTime() ;
+        //获取图像验证码
+        function loadVCode(){
+            var imgurl = "/api/sys/login/getRandomImg?rd="+new Date().getTime() ;
             $('#imgcc').attr({'src':imgurl})
             //this.vcodeurl = "/api/sys/login/getRandomImg?rd="+new Date().getTime() ;
-		}
-
+        }
         loadVCode();
 
         /**
-		 * 注册
+         * 登录
          */
-		function regedit(){
-			//判断输入框内容是否完整
-            var validatestatus = $('#regeditForm').valid();//与validate配合使用,必须先验证
-			if(!validatestatus){
-			    return false;
-			}
-			var post={
+        function login(){
+            //判断输入框内容是否完整
+            var validatestatus = $('#loginForm').valid();//与validate配合使用,必须先验证
+            if(!validatestatus){
+                return false;
+            }
+            //判断输入框内容是否完整
+            var post={
                 type: 'post', // 提交方式 get/post
-                url: '/api/sys/login/regedit', // 需要提交的 u
+                url: '/api/sys/login/Login', // 需要提交的 u
                 async:true,
                 cache:false,
                 dataType:'json',
                 success: function(data) {
                     if(data.success){
-                        layer.alert("注册成功,请登录");
+                        //alert("注册成功,请登录");
+						//登录成功，放入cookie
+						USER.setLoginUser(data.data);
+
                         window.location.href="/pay/login.html";
-					}else{
+                    }else{
                         layer.alert(data.msg);
-					}
+                        loadVCode();
+                    }
                 },
-				error:function(){
+                error:function(){
                     layer.alert("系统繁忙，请稍候再试");
-				}
-			}
+                }
+            }
 
-            $('#regeditForm').ajaxSubmit(post);
-			return false;
-
-		}
+            $('#loginForm').ajaxSubmit(post);
+            return false;
+        }
 
         // 在键盘按下并释放及提交后验证提交表单
-        $("#regeditForm").validate({
+        $("#loginForm").validate({
             rules: {
-                useracc:{
+                acc:{
                     required: true,
                     minlength: 6
                 },
@@ -136,22 +132,13 @@
                     required: true,
                     minlength: 6
                 },
-                pwd2:{
-                    required: true,
-                    minlength: 6,
-                    equalTo: "#pwd"
-                },
-                email: {
-                    required: true,
-                    email: true
-                },
                 imgcode:{
                     required: true,
                     minlength: 4
                 }
             },
             messages: {
-                useracc: {
+                acc: {
                     required: "请输入您的账号",
                     minlength: "账号长度不能小于6个字母"
                 },
@@ -172,5 +159,7 @@
 
             }
         })
+
+
 	</script>
 </html>

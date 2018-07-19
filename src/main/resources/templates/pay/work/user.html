@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head_view.html" />
+	<style>
+
+
+	</style>
+</head>
+
+<body>
+
+<div class="user_in" id="app">
+	<i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="10">
+		<table id="sample-table-1" class="table table-striped table-bordered table-hover">
+			<tbody>
+			<tr height="35px">
+				<td width="15%">
+					商户uid:
+				</td>
+				<td width="35%">
+					{{myform.uuid}}
+				</td>
+				<td width="15%">
+					商户账号:
+				</td>
+				<td width="35%">
+					{{myform.useracc}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					商户sign_key:
+				</td>
+				<td>
+					{{myform.signKey}}
+				</td>
+				<td>
+					商户名称:
+				</td>
+				<td>
+					<Form-item label="" prop="nikename">
+						<i-Input v-model="myform.nikename" placeholder="商户名称" style="width: 90%" ></i-Input>
+					</Form-item>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					回调地址:
+				</td>
+				<td>
+					<Form-item label="" prop="notifyUrl">
+						<i-Input v-model="myform.notifyUrl" placeholder="回调地址" style="width: 90%" ></i-Input>
+					</Form-item>
+				</td>
+				<td>
+					跳转地址:
+				</td>
+				<td>
+					<Form-item label="" prop="gobackUrl">
+					<i-Input v-model="myform.gobackUrl" placeholder="跳转地址" style="width: 90%" ></i-Input>
+					</Form-item>
+				</td>
+			</tr>
+
+
+			<tr>
+				<td>
+					email地址:
+				</td>
+				<td>
+					<Form-item label="" prop="email">
+					<i-Input v-model="myform.email" placeholder="email,找回密码使用" style="width: 90%" ></i-Input>
+					</Form-item>
+				</td>
+				<td>
+					QQ号码:
+				</td>
+				<td>
+					<Form-item label="" prop="qq">
+					<i-Input v-model="myform.qq" placeholder="qq" style="width: 90%" ></i-Input>
+					</Form-item>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					当前套餐
+				</td>
+				<td>
+					基础套餐
+				</td>
+				<td>
+					有效期
+				</td>
+				<td>
+					2018-11-11
+				</td>
+			</tr>
+
+			</tbody>
+		</table>
+
+
+	<div>
+		<i-button type="info" icon="shuffle" @click="save"> 保 存 设 置 </i-button>
+
+	</div>
+</div>
+
+
+</body>
+	<script>
+        const urls = {
+            query:'/api/sys/sysuser/queryCurrUser'
+            ,save:'/api/sys/sysuser/saveCurrUser'
+        };
+
+        var vm = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    myform: {
+                        isState:true,
+                        state: 1,
+                        restype:1,
+                        id:null,//主键
+						test:""
+                    },
+                    ruleValidate: {
+                        email: [
+                            { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                            { type: 'email', message: '邮箱地址格式不对', trigger: 'blur' }
+                        ],
+                        qq: [
+                            { required: false, message: '请输入QQ号码', trigger: 'blur' },
+                            { type: 'string', message: 'QQ号码格式不对', trigger: 'blur',pattern: /^[0-9]+$/ }
+                        ],
+                        notifyUrl: [
+                            { required: true, message: '请输入回调地址', trigger: 'blur' },
+                            { type: 'url', message: '回调地址必须是http://格式的地址', trigger: 'blur' }
+                        ],
+                        gobackUrl: [
+                            { required: true, message: '请输入跳转地址', trigger: 'blur' },
+                            { type: 'url', message: '跳转地址必须是http://格式的地址', trigger: 'blur' }
+                        ]
+                    }
+                }
+            },
+            created(){
+                this.loadData();
+            },
+            methods: {
+                loadData(){
+                    $.ajax(
+                        {
+                            type: 'post', // 提交方式 get/post
+                            url:urls.query, // 需要提交的 u
+                            async:true,
+                            cache:false,
+                            dataType:'json',
+                            success: function(ret){
+                                if(ret.success){
+                                    vm.myform = ret.data;
+                                }else{
+                                    alert("您还没登录，或登录超时，请重新登录");
+                                    window.top.location.href="/pay/login.html";
+                                }
+                            },
+                            error:function(){
+                                alert("系统错误，请稍候再试");
+                            }
+                        });
+                },
+                save () {
+                    this.$refs['myForm'].validate((valid) => {
+                        if (valid) {
+                            PB.ajax({url:urls.save,data:this.myform}, function (d) {
+                                PB.alert('保存成功!','success');
+                            });
+                        } else {
+                            //PB.alert('表单验证失败!');
+                            //PB.formPageSaveError();
+                        }
+                    })
+                }
+            }
+        });
+
+
+	</script>
+</html>

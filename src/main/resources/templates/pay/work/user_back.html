@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head.html" />
+	<script src="/pay/js/jquery.validate.min.js"></script>
+	<script src="/pay/js/messages_zh.min.js"></script>
+	<script src="/pay/js/jquery.form.js"></script>
+	<style>
+		input.error { border: 1px solid red; }
+		label.error {
+			padding-left: 16px;
+
+			padding-bottom: 2px;
+
+			font-weight: bold;
+
+			color: red;
+		}
+		.user_in{background: #fff;margin-top: 0px;}
+		.user_in h2{color:#fff;font-size: 22px ;background: #D64416;line-height: 45px; text-align: center;background-color: #FE5450;}
+		.user_in ul{padding: 10px 5px;}
+		.user_in li{list-style: none;padding-bottom: 10px;}
+		.user_in li input{}
+		.user_in li  button{width:100%;font-size: 16px;}
+
+	</style>
+</head>
+
+<body>
+
+<div class="user_in">
+
+	<form class="cmxform" id="loginForm" method="post" action="#" onsubmit="return false">
+		<ul>
+			<li>
+				商户账号：adfasdfsa
+			</li>
+
+			<li>
+				<input id='acc' name="acc" type="text" class="form-control" placeholder="邮箱/手机号/用户名" />
+			</li>
+
+			<li>
+				<input id='acc' name="acc" type="text" class="form-control" placeholder="邮箱/手机号/用户名" />
+			</li>
+			<li>
+				<input id="pwd" name="pwd" type="password" class="form-control" placeholder="密码" />
+			</li>
+			<li class="verify">
+				<input id="imgcode" name="imgcode"  type="text" class="form-control input-text-style-1 " placeholder="请输入右侧验证码" required/>
+				<img id="imgcc" src="" onclick="loadVCode()" alt="" width="100" />
+				<div class="clear"></div>
+			</li>
+			<li>
+				<div class="pull-right pass">
+					<a href="/pay/repwd_1.html">忘记密码？</a>
+					<span>|</span>
+					<a href="/pay/enroll.html" class="last_a">免费注册</a>
+				</div>
+				<div class="clear"></div>
+			</li>
+			<li>
+				<button onclick="login()" class="btn btn-danger">立即登陆</button>
+			</li>
+		</ul>
+	</form>
+</div>
+
+
+</body>
+	<script>
+		$(".play").mouseover(function(){
+			$(".play_box").addClass("fadeInUp");
+		});
+
+        //获取图像验证码
+        function loadVCode(){
+            var imgurl = "/api/sys/login/getRandomImg?rd="+new Date().getTime() ;
+            $('#imgcc').attr({'src':imgurl})
+            //this.vcodeurl = "/api/sys/login/getRandomImg?rd="+new Date().getTime() ;
+        }
+        loadVCode();
+
+        /**
+         * 登录
+         */
+        function login(){
+            //判断输入框内容是否完整
+            var validatestatus = $('#loginForm').valid();//与validate配合使用,必须先验证
+            if(!validatestatus){
+                return false;
+            }
+            //判断输入框内容是否完整
+            var post={
+                type: 'post', // 提交方式 get/post
+                url: '/api/sys/login/Login', // 需要提交的 u
+                async:true,
+                cache:false,
+                dataType:'json',
+                success: function(data) {
+                    if(data.success){
+                        //alert("注册成功,请登录");
+						//登录成功，放入cookie
+						USER.setLoginUser(data.data);
+
+                        window.location.href="/pay/login.html";
+                    }else{
+                        alert(data.msg);
+                        loadVCode();
+                    }
+                },
+                error:function(){
+                    alert("系统繁忙，请稍候再试");
+                }
+            }
+
+            $('#loginForm').ajaxSubmit(post);
+            return false;
+        }
+
+        // 在键盘按下并释放及提交后验证提交表单
+        $("#loginForm").validate({
+            rules: {
+                acc:{
+                    required: true,
+                    minlength: 6
+                },
+                pwd:{
+                    required: true,
+                    minlength: 6
+                },
+                imgcode:{
+                    required: true,
+                    minlength: 4
+                }
+            },
+            messages: {
+                acc: {
+                    required: "请输入您的账号",
+                    minlength: "账号长度不能小于6个字母"
+                },
+                pwd: {
+                    required: "请输入密码",
+                    minlength: "密码长度不能小于 6 个字母"
+                },
+                pwd2: {
+                    required: "请输入密码",
+                    minlength: "密码长度不能小于 6 个字母",
+                    equalTo: "两次密码输入不一致"
+                },
+                email: "请输入一个正确的邮箱",
+                imgcode: {
+                    required: "请输入右侧验证码",
+                    minlength: "验证码长度不对"
+                }
+
+            }
+        })
+
+
+	</script>
+</html>

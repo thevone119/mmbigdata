@@ -14,7 +14,7 @@
 
                             <div class="pull-left box">
                                 <h4>下载APP</h4>
-                                <img src="images/mg.png" />
+                                <img src="/pay/images/mg.png" />
                             </div>
                             <div class="clear"></div>
                             <span></span>
@@ -51,22 +51,30 @@
                         app设置
                     </a>
                 </li>
-                <li id="li_work">
+                <!--
+                <li id="li_work" style="display:none;">
                     <a href="/pay/record.html">
                         <i class="icon iconfont">&#xe66c;</i>
                         商户管理平台
                     </a>
                 </li>
+                -->
                 <div class="clear"></div>
             </ul>
-            <div class="logoin pull-right">
-                <a href="/pay/logoin.html" class="ac">
+            <div class="logoin pull-right" id="div_nouser" style="display:none;">
+                <a href="/pay/login.html" class="ac">
                     <i class="icon iconfont">&#xe60c;</i>
                     登录
                 </a>
                 <a href="/pay/enroll.html" >
                     <i class="icon iconfont" >&#xe697;</i>
                     注册
+                </a>
+            </div>
+            <div class="logoin pull-right" id="div_user" style="display:none;">
+                <a href="/pay/work/index.html" class="ac">
+                    <i class="icon iconfont">&#xe60c;</i>
+                    商户管理
                 </a>
             </div>
         </div>
@@ -88,5 +96,38 @@
     }else{
         $('#li_index').attr({"class" : "ac"});
     }
+
+    //判断是否登录，登录则显示工作台菜单
+
+    if(USER.getuserid()!=null){
+        //先不用这个
+        //先不用这个
+    }
+
+    $.ajax(
+        {
+            type: 'post', // 提交方式 get/post
+            url: '/api/sys/login/getLoginUser', // 需要提交的 u
+            async:true,
+            cache:false,
+            dataType:'json',
+            success: function(ret){
+                if(ret.success){
+                    //已登录
+                    $('#div_user').show();
+                    $('#div_nouser').hide();
+                }else{
+                    $('#div_user').hide();
+                    $('#div_nouser').show();
+                }
+            },
+            error:function(){
+                $('#div_user').hide();
+                $('#div_nouser').show();
+            }
+        });
+
+
+
 
 </script>
