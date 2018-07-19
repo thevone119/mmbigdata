@@ -39,27 +39,25 @@
 					商户名称:
 				</td>
 				<td>
-					<Form-item label="" prop="nikename">
-						<i-Input v-model="myform.nikename" placeholder="商户名称" style="width: 90%" ></i-Input>
-					</Form-item>
+					{{myform.nikename}}
 				</td>
 			</tr>
 			<tr>
 				<td>
 					回调地址:
 				</td>
-				<td>
-					<Form-item label="" prop="notifyUrl">
-						<i-Input v-model="myform.notifyUrl" placeholder="回调地址" style="width: 90%" ></i-Input>
-					</Form-item>
+				<td colspan=3>
+					{{myform.notifyUrl}}
 				</td>
+
+			</tr>
+			<tr>
+
 				<td>
 					跳转地址:
 				</td>
-				<td>
-					<Form-item label="" prop="gobackUrl">
-					<i-Input v-model="myform.gobackUrl" placeholder="跳转地址" style="width: 90%" ></i-Input>
-					</Form-item>
+				<td colspan=3>
+					{{myform.gobackUrl}}
 				</td>
 			</tr>
 
@@ -69,17 +67,13 @@
 					email地址:
 				</td>
 				<td>
-					<Form-item label="" prop="email">
-					<i-Input v-model="myform.email" placeholder="email,找回密码使用" style="width: 90%" ></i-Input>
-					</Form-item>
+					{{myform.email}}
 				</td>
 				<td>
 					QQ号码:
 				</td>
 				<td>
-					<Form-item label="" prop="qq">
-					<i-Input v-model="myform.qq" placeholder="qq" style="width: 90%" ></i-Input>
-					</Form-item>
+					{{myform.qq}}
 				</td>
 			</tr>
 
@@ -102,10 +96,7 @@
 		</table>
 
 
-	<div>
-		<i-button type="info" icon="shuffle" @click="save"> 保 存 设 置 </i-button>
 
-	</div>
 </div>
 
 
