@@ -1,7 +1,32 @@
 <!doctype html>
 <html>
 <head>
-	<#include "/pay/include/head_view.html" />
+	<meta charset="utf-8">
+	<title>黑米支付-个人支付收款黑科技</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="keywords" content="个人网站支付;微信支付;支付宝支付收款;第四方支付平台" />
+	<meta name="description" content="专为个人收款而生的支付工具。为支付宝、微信支付的个人账户，提供即时到账收款API接口。安全可靠，费率低。">
+
+	<link rel="stylesheet" type="text/css" href="/lib/iview/iview.css">
+	<link rel="stylesheet" type="text/css" href="/css/global.css">
+	<link href="/pay/css/bootstrap.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="/js/vue.js"></script>
+
+	<script type="text/javascript" src="/js/zepto.min.js"></script>
+
+	<script type="text/javascript" src="/lib/iview/iview.min.js"></script>
+
+	<script type="text/javascript" src="/lib/iview/locale/zh-CN.js"></script>
+
+	<script type="text/javascript" src="/js/vue-components.js"></script>
+
+	<script type="text/javascript" src="/js/public.js"></script>
+
+	<script src="/pay/js/jquery-1.9.1.min.js"></script>
+
+
+	<link rel="icon" type="image/x-icon" href="/pay/images/favicon.ico">
 	<style>
 
 
@@ -101,48 +126,47 @@
 
 
 </body>
+
 	<script>
-        const urls = {
+        var urls = {
             query:'/api/sys/sysuser/queryCurrUser'
             ,save:'/api/sys/sysuser/saveCurrUser'
         };
 
         var vm = new Vue({
             el: '#app',
-            data() {
-                return {
-                    myform: {
-                        isState:true,
-                        state: 1,
-                        restype:1,
-                        id:null,//主键
-						test:""
-                    },
-                    ruleValidate: {
-                        email: [
-                            { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-                            { type: 'email', message: '邮箱地址格式不对', trigger: 'blur' }
-                        ],
-                        qq: [
-                            { required: false, message: '请输入QQ号码', trigger: 'blur' },
-                            { type: 'string', message: 'QQ号码格式不对', trigger: 'blur',pattern: /^[0-9]+$/ }
-                        ],
-                        notifyUrl: [
-                            { required: true, message: '请输入回调地址', trigger: 'blur' },
-                            { type: 'url', message: '回调地址必须是http://格式的地址', trigger: 'blur' }
-                        ],
-                        gobackUrl: [
-                            { required: true, message: '请输入跳转地址', trigger: 'blur' },
-                            { type: 'url', message: '跳转地址必须是http://格式的地址', trigger: 'blur' }
-                        ]
-                    }
-                }
+            data:{
+				myform: {
+					isState:true,
+					state: 1,
+					restype:1,
+					id:null,//主键
+					test:""
+				},
+				ruleValidate: {
+					email: [
+						{ required: true, message: '请输入邮箱地址', trigger: 'blur' },
+						{ type: 'email', message: '邮箱地址格式不对', trigger: 'blur' }
+					],
+					qq: [
+						{ required: false, message: '请输入QQ号码', trigger: 'blur' },
+						{ type: 'string', message: 'QQ号码格式不对', trigger: 'blur',pattern: /^[0-9]+$/ }
+					],
+					notifyUrl: [
+						{ required: true, message: '请输入回调地址', trigger: 'blur' },
+						{ type: 'url', message: '回调地址必须是http://格式的地址', trigger: 'blur' }
+					],
+					gobackUrl: [
+						{ required: true, message: '请输入跳转地址', trigger: 'blur' },
+						{ type: 'url', message: '跳转地址必须是http://格式的地址', trigger: 'blur' }
+					]
+				}
             },
-            created(){
+            created:function(){
                 this.loadData();
             },
             methods: {
-                loadData(){
+                loadData:function(){
                     $.ajax(
                         {
                             type: 'post', // 提交方式 get/post
@@ -163,20 +187,17 @@
                             }
                         });
                 },
-                save () {
-                    this.$refs['myForm'].validate((valid) => {
-                        if (valid) {
-                            PB.ajax({url:urls.save,data:this.myform}, function (d) {
-                                PB.alert('保存成功!','success');
-                            });
-                        } else {
-                            //PB.alert('表单验证失败!');
-                            //PB.formPageSaveError();
-                        }
-                    })
+                save:function(){
+                    var valid = this.$refs['myForm'].validate();
+                    //alert(valid);
+                    PB.ajax({url:urls.save,data:this.myform}, function (d) {
+                        PB.alert('保存成功!','success');
+                    });
                 }
             }
         });
+
+
 
 
 	</script>
