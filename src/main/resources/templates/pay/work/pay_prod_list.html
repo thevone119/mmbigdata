@@ -70,6 +70,11 @@
                         key: 'prodPrice'
                     },
                     {
+                        title: '二维码价格',
+                        key: 'payImgPrice'
+                    },
+
+                    {
                         title: '支付类型',
                         key: 'payType',
                         render: function(h, params) {
@@ -97,44 +102,57 @@
                         title: '创建时间',
                         key: 'createtime'
                     },
-
                     {
-                        title: '操作',
-                        width: 250,
+                        title: '查看二维码',
                         render: function(h, params) {
                             return h('div', [
-                                h('Button', {
+                                 h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                     on: {
+                                         click:function(){
+                                             vm.Imgview(params.row.prodId);
+                                         }
+                                     }
+                                }, '查看')
+                            ]);
+                        }
+                    },
+                    {
+                        title: '上传二维码',
+                        key: 'prodId',
+                        render: function(h, params) {
+                            return h('div', [
+                                h('Upload', {
+                                    props: {
+                                        action: '/api/pay/payprod/upload_qr_img',
+                                        data:{"prodId":params.row.prodId},
+                                        name:"uploadfile",
+                                        accept:"image/*",
+                                        showUploadList:false,
+                                        'on-success':function(res, file){
+                                            if(res.success){
+                                                layer.msg('上传成功');
+                                            }else{
+                                                layer.msg('上传失败,请稍候再试...');
+                                            }
+                                        }
+                                    },
+                                    style:{
+                                        marginRight:'5px'
+                                    }
+                                }, [ h('Button', {
                                     props: {
                                         type: 'primary',
                                         size: 'small'
                                     },
                                     style:{
                                         marginRight:'5px'
-                                    },
-                                    on: {
-                                        click:function() {
-                                            setTimeout(function(){ // 延迟一下，让选中行事件先执行，才能拿到currentRow
-                                                vm.edit();
-                                            },100);
-                                        }
-                                    },
-                                }, '修改'),
-                                h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style:{
-                                        marginRight:'5px'
-                                    },
-                                    on: {
-                                        click:function()  {
-                                            setTimeout(function(){ // 延迟一下，让选中行事件先执行，才能拿到currentRow
-                                                vm.editImg();
-                                            },100);
-                                        }
-                                    },
-                                }, '上传支付二维码')
+                                    }
+                                }, '上传二维码')])
+
                             ]);
                         }
                     }
@@ -171,6 +189,12 @@
                             //layer.alert("系统错误，请稍候再试");
                         }
                     });
+            },
+            uploadSuccess:function(res, file) {
+                //file.url = 'https://o5wwk8baw.qnssl.com/7eb99afb9d5f317c912f08b5212fd69a/avatar';
+                //file.name = '7eb99afb9d5f317c912f08b5212fd69a';
+                alert(11);
+                file=null;
             },
             onSelRows:function(selection){
                 if(selection){
@@ -217,10 +241,15 @@
                     this.add();
                 }
             },
-            editImg:function(){//上传支付二维码
-                if(this.myform.currentRow){
-                    //PB.showFormPage('/pay/work/pay_prod_upimg.html?id=' + this.myform.currentRow.prodId, "商品二维码上传", {width:550});
-                }
+            Imgview:function(prodId){//查看支付二维码
+                layer.open({
+                    type: 2,
+                    title: '查看支付二维码',
+                    maxmin: true,
+                    shadeClose: true, //点击遮罩关闭层
+                    area : ['400px' , '400px'],
+                    content: '/api/pay/payprod/qr_img_view?prodId='+prodId
+                });
             },
 
             remove:function(){

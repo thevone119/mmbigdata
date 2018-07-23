@@ -6,11 +6,14 @@
 <body>
 <div id="app">
     <i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="120">
-        <Form-item label="支付商品名称" prop="prodName">
+        <Form-item label="商品名称" prop="prodName">
             <i-input v-model="myform.prodName"  placeholder="请输入"></i-input>
         </Form-item>
-        <Form-item label="支付商品价格" prop="prodPrice">
+        <Form-item label="商品价格" prop="prodPrice">
             <i-input v-model="myform.prodPrice" placeholder="请输入"></i-input>
+        </Form-item>
+        <Form-item label="二维码价格" prop="payImgPrice">
+            <i-input v-model="myform.payImgPrice" placeholder="请输入"></i-input>
         </Form-item>
         <Form-item label="支付类型" prop="payType">
             <i-select v-model="myform.payType" :value="myform.payType">
@@ -54,7 +57,12 @@
                     prodPrice: [
                         { required: true, message: '请输入商品价格', trigger: 'blur' },
                         { type: 'string', message: '商品价格格式不对', trigger: 'blur',pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/ }
+                    ],
+                    payImgPrice: [
+                        { required: true, message: '请输入二维码价格', trigger: 'blur' },
+                        { type: 'string', message: '二维码价格格式不对', trigger: 'blur',pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/ }
                     ]
+
                 }
         },
         created:function(){
