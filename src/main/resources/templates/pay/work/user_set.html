@@ -96,15 +96,14 @@
 
 </body>
 	<script>
-        const urls = {
+        var urls = {
             query:'/api/sys/sysuser/queryCurrUser'
             ,save:'/api/sys/sysuser/saveCurrUser'
         };
 
         var vm = new Vue({
             el: '#app',
-            data() {
-                return {
+            data: {
                     myform: {
                         isState:true,
                         state: 1,
@@ -130,13 +129,12 @@
                             { type: 'url', message: '跳转地址必须是http://格式的地址', trigger: 'blur' }
                         ]
                     }
-                }
             },
-            created(){
+            created:function(){
                 this.loadData();
             },
             methods: {
-                loadData(){
+                loadData:function(){
                     $.ajax(
                         {
                             type: 'post', // 提交方式 get/post
@@ -148,26 +146,43 @@
                                 if(ret.success){
                                     vm.myform = ret.data;
                                 }else{
-                                    alert("您还没登录，或登录超时，请重新登录");
+                                    layer.alert("您还没登录，或登录超时，请重新登录");
                                     window.top.location.href="/pay/login.html";
                                 }
                             },
                             error:function(){
-                                alert("系统错误，请稍候再试");
+                                layer.alert("系统错误，请稍候再试");
                             }
                         });
                 },
-                save () {
-                    this.$refs['myForm'].validate((valid) => {
+                save:function () {
+                    var valid;
+                    this.$refs['myForm'].validate(function(valid){
                         if (valid) {
-                            PB.ajax({url:urls.save,data:this.myform}, function (d) {
-                                PB.alert('保存成功!','success');
-                            });
+                            $.ajax(
+                                {
+                                    type: 'post', // 提交方式 get/post
+                                    url:urls.save, // 需要提交的 u
+                                    async:true,
+                                    cache:false,
+                                    dataType:'json',
+									data:vm.myform,
+                                    success: function(ret){
+                                        if(ret.success){
+                                            layer.alert('保存成功!','success');
+                                        }else{
+                                            layer.alert(ret.msg);
+                                        }
+                                    },
+                                    error:function(){
+                                        layer.alert("系统错误，请稍候再试");
+                                    }
+                                });
                         } else {
                             //PB.alert('表单验证失败!');
                             //PB.formPageSaveError();
                         }
-                    })
+					});
                 }
             }
         });
