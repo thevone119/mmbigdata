@@ -6,26 +6,31 @@
 <body>
 <div id="app">
     <div class="g-dg-search-banner">
-        <i-form ref="myformRef" :model="myform" :label-width="80" inline>
-            <Form-item label="商品名称">
-                <i-input v-model="myform.prodName" placeholder="请输入"></i-input>
+        <i-form ref="myformRef" :model="myform" :label-width="70" inline>
+            <Form-item label="订单ID">
+                <i-input v-model="myform.orderid" placeholder="请输入"></i-input>
             </Form-item>
-            <Form-item label="商品价格">
-                <i-input v-model="myform.prodPrice" placeholder="请输入"></i-input>
+            <Form-item label="订单日期">
+                <i-select v-model="myform.createtime" :value="myform.createtime" style="width:150px">
+                    <i-option value="-1">所有</i-option>
+                    <template v-for="d in datalist">
+                    <i-option :value="d">{{d}}</i-option>
+                    </template>
+                </i-select>
             </Form-item>
-            <Form-item label="商品分类">
+            <Form-item label="支付类型">
                 <i-select v-model="myform.payType" :value="myform.payType" style="width:150px">
                     <i-option value="-1">所有</i-option>
                     <i-option value="1">微信支付</i-option>
                     <i-option value="2">支付宝支付</i-option>
                 </i-select>
             </Form-item>
+
         </i-form>
     </div>
     <div class="g-dg-toolbar">
         <i-button type="info" icon="search" @click="reload">查询</i-button>
-        <i-button type="primary" icon="android-add-circle" @click="add()">新增</i-button>
-        <i-button type="error" icon="android-remove-circle" @click="remove">删除</i-button>
+        <i-button type="success" icon="ios-cloud-download-outline" @click="ExportToExcel">导出</i-button>
     </div>
     <i-table :data="dtData" :columns="dtCols" :height="getTableHeight" size="small" :highlight-row="true"
              @on-current-change="onCurrentChange" stripe  @on-selection-change="onSelRows" @on-row-dblclick="edit"></i-table>
@@ -38,7 +43,7 @@
 </div>
 <script>
     const urls = {
-        fildPage:'/api/pay/payprod/findPage'
+        fildPage:'/api/pay/paylog/findPage'
         ,delete:'/api/pay/payprod/delete'
     };
     var vm = new Vue({
@@ -51,8 +56,11 @@
                     ,currentRow:null//选中的行
                     ,pageNo: 1
                     ,pageSize: 10
-                    ,payType:"-1"
+                    ,payType:"-1",
+                    createtime:"-1"
+
                 },
+                datalist:[],
                 total: 0,
                 dtData: [],
                 dtCols: [
@@ -62,18 +70,21 @@
                         ,align: 'center'
                     },
                     {
-                        title: '商品名称',
-                        key: 'prodName'
+                        title: '商户账号',
+                        key: 'busAcc'
                     },
                     {
-                        title: '商品价格',
+                        title: '订单ID',
+                        key: 'orderid'
+                    },
+                    {
+                        title: '订单金额',
                         key: 'prodPrice'
                     },
                     {
-                        title: '二维码价格',
+                        title: '实付金额',
                         key: 'payImgPrice'
                     },
-
                     {
                         title: '支付类型',
                         key: 'payType',
@@ -87,26 +98,15 @@
                         }
                     },
                     {
-                        title: '状态',
-                        key: 'state',
-                        render: function(h, params) {
-                            if(params.row.payImgContent==null||params.row.payImgContent.length<5){
-                                return "缺二维码";
-                            }
-                            if(params.row.state==0){
-                                return "无效";
-                            }
-                            if(params.row.state==1){
-                                return "有效";
-                            }
-                        }
+                        title: '支付状态',
+                        key: 'payStateStr',
                     },
                     {
                         title: '创建时间',
                         key: 'createtime'
                     },
                     {
-                        title: '查看二维码',
+                        title: '查看',
                         render: function(h, params) {
                             return h('div', [
                                  h('Button', {
@@ -116,46 +116,10 @@
                                     },
                                      on: {
                                          click:function(){
-                                             vm.Imgview(params.row.prodId);
+                                             vm.logview(params.row.logId);
                                          }
                                      }
                                 }, '查看')
-                            ]);
-                        }
-                    },
-                    {
-                        title: '上传二维码',
-                        key: 'prodId',
-                        render: function(h, params) {
-                            return h('div', [
-                                h('Upload', {
-                                    props: {
-                                        action: '/api/pay/payprod/upload_qr_img',
-                                        data:{"prodId":params.row.prodId},
-                                        name:"uploadfile",
-                                        accept:"image/*",
-                                        showUploadList:false,
-                                        'on-success':function(res, file){
-                                            if(res.success){
-                                                layer.msg('上传成功');
-                                            }else{
-                                                layer.msg('上传失败,请稍候再试...');
-                                            }
-                                        }
-                                    },
-                                    style:{
-                                        marginRight:'5px'
-                                    }
-                                }, [ h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style:{
-                                        marginRight:'5px'
-                                    }
-                                }, '上传二维码')])
-
                             ]);
                         }
                     }
@@ -171,6 +135,14 @@
         },
         methods: {
             loadData:function () {
+                this.datalist=[];
+                var now = new Date();
+                for(var i = 0; i < 24; i++) {
+                    var m = now.getMonth()+1;
+                    now.setMonth(now.getMonth() - 1);
+                    m = m < 10 ? "0" + m : m;
+                    this.datalist.push(now.getFullYear() + "" + m + '');
+                }
                 var ii = layer.load();
                 $.ajax(
                     {
@@ -193,25 +165,32 @@
                         }
                     });
             },
-            uploadSuccess:function(res, file) {
-                //file.url = 'https://o5wwk8baw.qnssl.com/7eb99afb9d5f317c912f08b5212fd69a/avatar';
-                //file.name = '7eb99afb9d5f317c912f08b5212fd69a';
-                alert(11);
-                file=null;
-            },
+
             onSelRows:function(selection){
                 if(selection){
 
                     this.myform.selRows = selection.map(function(q){
-                        return q.prodId
+                        return q.logId
                     }).toString();
-                    //this.myform.selRows = selection.map(q => q.prodId).toString();
+
                 }
             },
             reload:function(){
                 this.myform.pageNo = 1;
                 this.loadData();
             },
+            ExportToExcel:function(){
+                if(this.myform.orderid==null){
+                    this.myform.orderid="";
+                }
+                if(this.myform.createtime==null){
+                    this.myform.createtime="";
+                }
+                var downulr = "/api/pay/paylog/Export?pageNo=1&orderid="+this.myform.orderid+"&createtime="+this.myform.createtime+"&payType="+this.myform.payType
+                window.open(downulr);
+                //this.loadData();
+            },
+
             onCurrentChange:function(currentRow, oldCurrentRow){
                 this.myform.currentRow = currentRow;
             },
@@ -224,60 +203,20 @@
                 this.myform.pageSize = e;
                 this.loadData();
             },
-            add:function(id){//新增
-                if(!id){
-                    id=0;
-                }
-                layer.open({
-                    type: 2,
-                    title: '支付商品管理',
-                    maxmin: true,
-                    shadeClose: true, //点击遮罩关闭层
-                    area : ['650px' , '500px'],
-                    content: '/pay/work/pay_prod_detail.html?id='+id
-                });
-            },
             edit:function(){//编辑
                 if(this.myform.currentRow){
-                    this.add(this.myform.currentRow.prodId);
-                }else{
-                    this.add();
+                    this.logview(this.myform.currentRow.logId);
                 }
             },
-            Imgview:function(prodId){//查看支付二维码
+            logview:function(logId){//查看支付二维码
                 layer.open({
                     type: 2,
-                    title: '查看支付二维码',
+                    title: '查看支付明细',
                     maxmin: true,
                     shadeClose: true, //点击遮罩关闭层
-                    area : ['400px' , '400px'],
-                    content: '/api/pay/payprod/qr_img_view?prodId='+prodId
+                    area : ['700px' , '500px'],
+                    content: '/pay/work/pay_log_detail.html?logId='+logId
                 });
-            },
-
-            remove:function(){
-                if(this.myform.selRows) {
-                    layer.confirm('确定删除?', function(){
-                        var ii = layer.load();
-                        $.ajax(
-                            {
-                                type: 'post', // 提交方式 get/post
-                                url:urls.delete, // 需要提交的 u
-                                async:true,
-                                cache:false,
-                                dataType:'json',
-                                data:vm.myform,
-                                success: function(ret){
-                                    layer.close(ii);
-                                    layer.msg('删除成功！');
-                                },
-                                error:function(){
-                                    layer.close(ii);
-                                    //layer.alert("系统错误，请稍候再试");
-                                }
-                            });
-                    });
-                }
             }
         }
     })

@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head_view.html" />
+	<style>
+
+
+	</style>
+</head>
+
+<body>
+
+<div class="user_in" id="app">
+	<i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="10">
+		<table id="sample-table-1" class="table table-striped table-bordered table-hover">
+			<tbody>
+			<tr height="35px">
+				<td width="15%">
+					商户uid:
+				</td>
+				<td width="35%">
+					{{myform.uid}}
+				</td>
+				<td width="15%">
+					商户账号:
+				</td>
+				<td width="35%">
+					{{myform.busAcc}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					支付订单名称:
+				</td>
+				<td>
+					{{myform.payName}}
+				</td>
+				<td>
+					支付订单备注:
+				</td>
+				<td>
+					{{myform.payDemo}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					业务订单号:
+				</td>
+				<td>
+					{{myform.orderid}}
+				</td>
+				<td>
+					平台订单号:
+				</td>
+				<td>
+					{{myform.logId}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					订单金额:
+				</td>
+				<td>
+					{{myform.prodPrice}}
+				</td>
+				<td>
+					支付金额:
+				</td>
+				<td>
+					{{myform.payImgPrice}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					支付类型:
+				</td>
+				<td>
+					{{myform.payType}}
+				</td>
+				<td>
+					支付状态:
+				</td>
+				<td>
+					{{myform.payStateStr}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					创建时间:
+				</td>
+				<td>
+					{{myform.createtime}}
+				</td>
+				<td>
+					支付时间:
+				</td>
+				<td>
+					{{myform.payTime}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					支付扩展字段1:
+				</td>
+				<td>
+					{{myform.payExt1}}
+				</td>
+				<td>
+					支付扩展字段2:
+				</td>
+				<td>
+					{{myform.payExt2}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					回调通知:
+				</td>
+				<td>
+					{{myform.notifyStateStr}}
+				</td>
+				<td>
+					回调次数:
+				</td>
+				<td>
+					{{myform.notifyCount}}
+				</td>
+			</tr>
+			</tbody>
+		</table>
+
+		<div>
+			<i-button type="primary" icon="shuffle" @click="save"> 再次发起回调 </i-button>
+			<i-button type="error" icon="shuffle" @click="save"> 强制支付成功 </i-button>
+		</div>
+</div>
+
+
+</body>
+
+	<script>
+        var urls = {
+            query:'/api/pay/paylog/queryone'
+            ,save:'/api/pay/paylog/saveCurrUser'
+        };
+
+        var vm = new Vue({
+            el: '#app',
+            data:{
+				myform: {
+					isState:true,
+					state: 1,
+					restype:1,
+                    logId:null,//主键
+					test:""
+				},
+                ruleValidate: {
+                    email: [
+                        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                        { type: 'email', message: '邮箱地址格式不对', trigger: 'blur' }
+                    ]
+                }
+            },
+            created:function(){
+                if (this.getPara('logId')) {
+                    this.myform.logId = this.getPara('logId');
+                    this.loadData();
+                }
+            },
+            methods: {
+                loadData:function(){
+                    $.ajax(
+                        {
+                            type: 'post', // 提交方式 get/post
+                            url:urls.query, // 需要提交的 u
+                            async:true,
+                            cache:false,
+                            dataType:'json',
+                            data:this.myform,
+                            success: function(ret){
+                                if(ret.success){
+                                    vm.myform = ret.data;
+                                }
+                            },
+                            error:function(){
+                                layer.alert("系统错误，请稍候再试");
+                            }
+                        });
+                },
+                getPara:function(name) {
+                    var r = new RegExp("(\\?|#|&)" + name + "=([^&#]*)(&|#|$)");
+                    var m = location.href.match(r);
+                    return (!m ? "" : m[2]);
+                },
+                save:function(){
+                    var valid = this.$refs['myForm'].validate();
+                    //alert(valid);
+                    PB.ajax({url:urls.save,data:this.myform}, function (d) {
+                        PB.alert('保存成功!','success');
+                    });
+                }
+            }
+        });
+
+
+
+
+	</script>
+</html>
