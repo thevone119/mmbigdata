@@ -60,6 +60,40 @@ public class SysUserService{
 		String hql = "from SysUser where useracc=? and pwd=?";
 		return sysuserRepository.find(hql,new String[]{useracc,pwd});
 	}
+
+	/**
+	 * 根据账号，邮箱查询用户
+	 * @param useracc
+	 * @param email
+	 * @return
+	 * @throws DaoException
+	 */
+	public SysUser queryByUserAndEmail(String useracc,String email) throws DaoException{
+		String hql = "from SysUser where useracc=? and email=?";
+		return sysuserRepository.find(hql,new String[]{useracc,email});
+	}
+
+	/**
+	 * 根据账号，邮箱查询用户
+	 * @param useracc
+	 * @return
+	 * @throws DaoException
+	 */
+	public SysUser queryByUseracc(String useracc) throws DaoException{
+		String hql = "from SysUser where useracc=? ";
+		return sysuserRepository.find(hql,new String[]{useracc});
+	}
+
+	/**
+	 * 通过用户的uuid获取用户
+	 * @param uuid
+	 * @return
+	 * @throws DaoException
+	 */
+	public SysUser queryByUuid(String uuid) throws DaoException{
+		String hql = "from SysUser where uuid=? ";
+		return sysuserRepository.find(hql,new String[]{uuid});
+	}
 	
 	/**
 	 * @description: <删除对象>

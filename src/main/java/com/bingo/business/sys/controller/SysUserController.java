@@ -3,6 +3,7 @@ package com.bingo.business.sys.controller;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.filter.ControllerFilter;
+import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.RedisCacheService;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
@@ -123,6 +124,61 @@ public class SysUserController  {
 
         return new XJsonInfo().setData(t);
     }
+
+	/**
+	 * 获取当前的用户完整信息
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ControllerFilter(LoginType = 0)
+	@ResponseBody
+	@RequestMapping("/queryCurrUser")
+	public XJsonInfo queryCurrUser() throws ServiceException, DaoException {
+		XJsonInfo ret= new XJsonInfo(false);
+		SessionUser loginuser= sessionCache.getLoginUser();
+		if(loginuser==null){
+			ret.setMsg("您还没登录，或登录超时，无法获取当前用户信息");
+			return ret;
+		}
+		SysUser vo = sysuserService.get(loginuser.getUserid());
+		if(vo==null){
+			vo = new SysUser();
+		}
+		SysUser t = new SysUser();
+		BeanUtils.copyProperties(vo,t);
+		t.setPwd(null);
+		return new XJsonInfo().setData(t);
+	}
+
+	/**
+	 * 保存当前用户的设置
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ControllerFilter(LoginType = 0)
+	@ResponseBody
+	@RequestMapping("/saveCurrUser")
+	public XJsonInfo saveCurrUser(SysUser vo) throws ServiceException, DaoException {
+		XJsonInfo ret= new XJsonInfo(false);
+		SessionUser loginuser= sessionCache.getLoginUser();
+		if(loginuser==null){
+			ret.setMsg("您还没登录，或登录超时，无法获取当前用户信息");
+			return ret;
+		}
+		SysUser user = sysuserService.get(loginuser.getUserid());
+		//修改用户名
+		user.setGobackUrl(vo.getGobackUrl());
+		user.setNikename(vo.getNikename());
+		user.setEmail(vo.getEmail());
+		user.setMobile(vo.getMobile());
+		user.setNotifyUrl(vo.getNotifyUrl());
+		user.setQq(vo.getQq());
+		sysuserService.saveOrUpdate(user);
+
+		return new XJsonInfo();
+	}
 
 	/**
 	 * @description: <分页查询>

@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author huangtw
@@ -17,30 +18,42 @@ import java.util.Date;
 @Table(name="T_PAY_PROD")
 public class PayProd extends PageModel{
 
-	@Column(name = "bus_id",updatable = false)
-	protected Long  busId;//bus_id
+	@Column(name = "user_id",updatable = false)
+	protected Long  userId;//用户ID
 	
 	
 	@Id
 	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "prod_id")
-	protected Long  prodId;//prod_id
+	protected Long  prodId;//产品ID
 	
 	
 	@Column(name = "prod_name")
-	protected String  prodName;//prod_name
+	protected String  prodName;//产品名称
 	
 	
-	@Column(name = "prod_momey")
-	protected Long  prodMomey;//prod_momey
+	@Column(name = "prod_price")
+	protected Float  prodPrice;//产品价格
+
+	@Column(name = "pay_img_price")
+	protected Float  payImgPrice;//二维码支付价格
 	
 	
 	@Column(name = "pay_img_path")
-	protected String  payImgPath;//pay_img_path
+	protected String  payImgPath;//图片路径,uuid作为图片路径
+
+	@Column(name = "pay_img_type")
+	protected String  payImgType;//图片类型，png,jpg等
+
+	@Column(name = "pay_img_content")
+	protected String  payImgContent;//图片二维码内容
 	
 	
 	@Column(name = "pay_type")
-	protected Long  payType;//pay_type
+	protected Long  payType;//pay_type 1：支付宝；2：微信支付
+
+	@Column(name = "state")
+	private int state=1;//状态 0无效，1有效
 	
 	
 	@Column(name = "createtime",updatable = false)
@@ -55,19 +68,17 @@ public class PayProd extends PageModel{
 	public PayProd(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		this.createtime=format.format(new Date());
+		this.payImgPath= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 	}
-	
-	public void setBusId(Long busId){
-		this.busId = busId;
+
+	public Long getUserId() {
+		return userId;
 	}
-	/**
-	 * 返回 bus_id
-	 * @return
-	 */
-	public Long getBusId(){
-		return this.busId;
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
-	
+
 	public void setProdId(Long prodId){
 		this.prodId = prodId;
 	}
@@ -90,12 +101,12 @@ public class PayProd extends PageModel{
 		return this.prodName;
 	}
 
-	public Long getProdMomey() {
-		return prodMomey;
+	public Float getProdPrice() {
+		return prodPrice;
 	}
 
-	public void setProdMomey(Long prodMomey) {
-		this.prodMomey = prodMomey;
+	public void setProdPrice(Float prodPrice) {
+		this.prodPrice = prodPrice;
 	}
 
 	public void setPayImgPath(String payImgPath){
@@ -130,6 +141,36 @@ public class PayProd extends PageModel{
 	public String getCreatetime(){
 		return this.createtime;
 	}
-	
-	
+
+	public String getPayImgContent() {
+		return payImgContent;
+	}
+
+	public void setPayImgContent(String payImgContent) {
+		this.payImgContent = payImgContent;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
+	public String getPayImgType() {
+		return payImgType;
+	}
+
+	public void setPayImgType(String payImgType) {
+		this.payImgType = payImgType;
+	}
+
+	public Float getPayImgPrice() {
+		return payImgPrice;
+	}
+
+	public void setPayImgPrice(Float payImgPrice) {
+		this.payImgPrice = payImgPrice;
+	}
 }

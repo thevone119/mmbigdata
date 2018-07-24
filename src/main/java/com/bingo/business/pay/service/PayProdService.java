@@ -3,6 +3,7 @@ package com.bingo.business.pay.service;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.model.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -66,12 +67,33 @@ public class PayProdService{
 	public Page<PayProd> findPage(PayProd vo){
 		StringBuffer hql = new StringBuffer(" from PayProd where prodId is not null ");
 		List<Object> fldValues = new ArrayList<Object>();
-		/**
-		if(StringUtils.isNotEmpty(vo.getUserAccount())){
-			hql.append(" and userAccount = ?");
-			fldValues.add(vo.getUserAccount());
+
+		if(StringUtils.isNotEmpty(vo.getProdName())){
+			hql.append(" and prodName like ?");
+			fldValues.add("%"+vo.getProdName()+"%");
 		}
-		**/
+
+		if(vo.getUserId()!=null){
+			hql.append(" and userId = ?");
+			fldValues.add(vo.getUserId());
+		}
+
+		if(vo.getPayType()!=null&& vo.getPayType()>0){
+			hql.append(" and payType = ?");
+			fldValues.add(vo.getPayType());
+		}
+		if(vo.getState()>=0){
+			hql.append(" and state = ?");
+			fldValues.add(vo.getState());
+		}
+		if(vo.getProdPrice()!=null && vo.getProdPrice()>=0){
+			hql.append(" and prodPrice = ?");
+			fldValues.add(vo.getProdPrice());
+		}
+
+
+
+
 		return payprodRepository.findPage(hql.toString(), vo, fldValues);
 	}
 	

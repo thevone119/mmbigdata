@@ -8,12 +8,14 @@ import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.filter.ControllerFilter;
 import com.bingo.common.model.SessionUser;
+import com.bingo.common.service.MailService;
 import com.bingo.common.service.RedisCacheService;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.RandomImg;
 import com.bingo.common.utility.SecurityClass;
 import com.bingo.common.utility.XJsonInfo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Administrator on 2018-07-03.
@@ -50,6 +53,13 @@ public class LoginController {
 
     @Resource
     private SessionCacheService sessionCache;
+
+    @Resource
+    private MailService mailService;
+
+    @Value("${BASE_URL}")
+    private String base_url;
+
 
     /**
      * 获取随机验证码(有效期5分钟)
@@ -134,6 +144,7 @@ public class LoginController {
         sessionCache.setloginUser(suser);
         ret.setData(suser);
         ret.setSuccess(true);
+        redis.delete("RandomImg:"+sessid);
         return ret;
     }
 
@@ -147,6 +158,168 @@ public class LoginController {
     public XJsonInfo loginOut(HttpServletRequest request) throws ServiceException, DaoException {
         sessionCache.loginOut();
         return new XJsonInfo();
+    }
+
+    /**
+     * 获取登录用户
+     * @param response
+     * @param request
+     * @return
+     * @throws ServiceException
+     * @throws DaoException
+     */
+    @ResponseBody
+    @RequestMapping("/getLoginUser")
+    public XJsonInfo getLoginUser(HttpServletResponse response, HttpServletRequest request) throws ServiceException, DaoException {
+        SessionUser loginuser= sessionCache.getLoginUser();
+        XJsonInfo ret = new XJsonInfo(false);
+        if(loginuser!=null){
+            ret.setData(loginuser);
+            ret.setSuccess(true);
+        }
+        return ret;
+    }
+
+    /**
+     * 商户账号注册
+     * @param response
+     * @param request
+     * @return
+     * @throws ServiceException
+     * @throws DaoException
+     */
+    @ResponseBody
+    @RequestMapping("/regedit")
+    public XJsonInfo regedit(HttpServletResponse response, HttpServletRequest request,SysUser vo,String imgcode) throws ServiceException, DaoException {
+        XJsonInfo ret = new XJsonInfo(false);
+        //输入账号，密码，图像验证码，邮箱等判断
+        if(vo.getUseracc()==null||vo.getUseracc().length()<6){
+            ret.setMsg("用户账号不对，请输入6位以上的用户账号");
+            return ret;
+        }
+        if(vo.getPwd()==null||vo.getPwd().length()<6){
+            ret.setMsg("用户密码不对，请输入6位以上的密码");
+            return ret;
+        }
+        if(vo.getEmail()==null||vo.getEmail().length()<6){
+            ret.setMsg("用户邮箱地址不对，请输入正确的的邮箱地址");
+            return ret;
+        }
+        if(imgcode==null){
+            ret.setMsg("请输入图像验证码");
+            return ret;
+        }
+        String sessid = sessionCache.getCurrSessionId();
+        String code = (String)redis.get("RandomImg:"+sessid);
+        if(!imgcode.toUpperCase().equals(code)){
+            ret.setMsg("验证码错误，请重新输入");
+            return ret;
+        }
+
+
+        SysUser user = sysuserService.queryByUseracc(vo.getUseracc());
+        if(user!=null){
+            ret.setMsg("用户账号已存在，请重新输入账号注册");
+            return ret;
+        }
+        //注册用户
+        user = new SysUser();
+        user.setUseracc(vo.getUseracc());
+        user.setNikename(vo.getUseracc());
+        user.setUsertype(2);
+        user.setState(1);
+        user.setPwd(SecurityClass.encryptMD5(vo.getPwd()));
+        sysuserService.saveOrUpdate(user);
+        //注册成功后，不登录
+        ret.setSuccess(true);
+        return ret;
+    }
+
+    /**
+     * 密码重置,通过邮箱重置密码
+     * @param response
+     * @param request
+     * @return
+     * @throws ServiceException
+     * @throws DaoException
+     */
+    @ResponseBody
+    @RequestMapping("/repwd_mail")
+    public XJsonInfo repwd_mail(HttpServletResponse response, HttpServletRequest request,String acc,String imgcode) throws ServiceException, DaoException {
+        XJsonInfo ret = new XJsonInfo(false);
+        String sessid = sessionCache.getCurrSessionId();
+        String code = (String)redis.get("RandomImg:"+sessid);
+        if(!imgcode.toUpperCase().equals(code)){
+            ret.setMsg("验证码错误，请重新输入");
+            return ret;
+        }
+        SysUser loginuser = sysuserService.queryByUseracc(acc);
+        if(loginuser==null){
+            ret.setMsg("账号错误，请重新输入");
+            return ret;
+        }
+        String _repwd_code = (String)redis.get("repwd_code:"+loginuser.getUuid());
+        if(_repwd_code!=null){
+            //ret.setMsg("已发重设密码的链接发送到您的邮箱，请进入邮箱后重设密码（1小时内有效）");
+            //ret.setSuccess(true);
+            //return ret;
+        }
+        //随机生成一个验证码
+        String repwd_code= UUID.randomUUID().toString().replace("-", "").toLowerCase();
+        //存入缓存中
+        redis.set("repwd_code:"+loginuser.getUuid(),repwd_code,60);
+        //发送email
+        String rurl = base_url+"/pay/repwd_2.html?uuid="+loginuser.getUuid()+"&repwd_code="+repwd_code;
+        StringBuffer sendhtml = new StringBuffer();
+        sendhtml.append("<h>请点击下列链接进行密码重置(链接1个小时内有效)<h><br>");
+        sendhtml.append("<a href='");
+        sendhtml.append(rurl);
+        sendhtml.append("'>点击找回密码</a>");
+        sendhtml.append("<br><br>也可以复制以下链接到浏览器中进行密码找回<br><br>");
+        sendhtml.append(rurl);
+
+        mailService.sendMailHtml(loginuser.getEmail(),"找回密码",sendhtml.toString());
+
+        ret.setMsg("已发重设密码的链接发送到您的邮箱，请进入邮箱后重设密码（1小时内有效）");
+        ret.setSuccess(true);
+        return ret;
+    }
+
+    /**
+     * 通过邮件验证的code，重设密码
+     * @param response
+     * @param request
+     * @param repwd_code
+     * @return
+     * @throws ServiceException
+     * @throws DaoException
+     */
+    @ResponseBody
+    @RequestMapping("/repwd_mail_code")
+    public XJsonInfo repwd_mail_code(HttpServletResponse response, HttpServletRequest request,String uuid,String repwd_code,String newpwd) throws ServiceException, DaoException {
+        XJsonInfo ret = new XJsonInfo(false);
+        if(uuid==null||repwd_code==null||newpwd==null||newpwd.length()<6){
+            ret.setMsg("输入内容有误，请重新输入");
+            return ret;
+        }
+
+        SysUser loginuser = sysuserService.queryByUuid(uuid);
+        if(loginuser==null){
+            ret.setMsg("账号错误，请重新输入");
+            return ret;
+        }
+        String code = (String)redis.get("repwd_code:"+loginuser.getUuid());
+        if(!repwd_code.equals(code)){
+            ret.setMsg("当前链接无效，如需重置密码，请重新进入找回密码页面进行密码重置");
+            return ret;
+        }
+        //重设密码
+        loginuser.setPwd(SecurityClass.encryptMD5(newpwd));
+        sysuserService.saveOrUpdate(loginuser);
+        ret.setSuccess(true);
+        //删除code
+        redis.delete("repwd_code:"+loginuser.getUuid());
+        return ret;
     }
 
 }

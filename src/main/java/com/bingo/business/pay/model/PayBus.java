@@ -18,19 +18,14 @@ import java.util.Date;
 public class PayBus extends PageModel{
 
 	@Id
-	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "bus_id")
-	protected Long  busId;//bus_id
+	protected Long  busId;//商户ID,直接使用用户表的ID
 	
 	
 	@Column(name = "bus_acc",updatable = false)
-	protected String  busAcc;//bus_acc
+	protected String  busAcc;//商户账号
 	
-	
-	@Column(name = "bus_pwd")
-	protected String  busPwd;//bus_pwd
-	
-	
+
 	@Column(name = "goback_url")
 	protected String  gobackUrl;//goback_url
 	
@@ -44,8 +39,10 @@ public class PayBus extends PageModel{
 	
 	
 	@Column(name = "bus_type")
-	protected Long  busType;//bus_type
-	
+	protected Long  busType;//商户类型,0：默认，无套餐  1：商户基础版套餐，2：商户高级版套餐，3：商户专业版套餐
+
+	@Column(name = "bus_validity")
+	protected Long  busValidity;//套餐有效期
 	
 	@Column(name = "createtime",updatable = false)
 	protected String  createtime;//createtime
@@ -83,16 +80,7 @@ public class PayBus extends PageModel{
 		return this.busAcc;
 	}
 	
-	public void setBusPwd(String busPwd){
-		this.busPwd = busPwd;
-	}
-	/**
-	 * 返回 bus_pwd
-	 * @return
-	 */
-	public String getBusPwd(){
-		return this.busPwd;
-	}
+
 	
 	public void setGobackUrl(String gobackUrl){
 		this.gobackUrl = gobackUrl;
@@ -148,6 +136,12 @@ public class PayBus extends PageModel{
 	public String getCreatetime(){
 		return this.createtime;
 	}
-	
-	
+
+	public Long getBusValidity() {
+		return busValidity;
+	}
+
+	public void setBusValidity(Long busValidity) {
+		this.busValidity = busValidity;
+	}
 }
