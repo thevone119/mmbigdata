@@ -70,7 +70,7 @@
                         key: 'prodPrice'
                     },
                     {
-                        title: '二维码价格',
+                        title: '收款码价格',
                         key: 'payImgPrice'
                     },
 
@@ -91,7 +91,7 @@
                         key: 'state',
                         render: function(h, params) {
                             if(params.row.payImgContent==null||params.row.payImgContent.length<5){
-                                return "缺二维码";
+                                return "缺收款码";
                             }
                             if(params.row.state==0){
                                 return "无效";
@@ -106,7 +106,7 @@
                         key: 'createtime'
                     },
                     {
-                        title: '查看二维码',
+                        title: '查看收款码',
                         render: function(h, params) {
                             return h('div', [
                                  h('Button', {
@@ -154,7 +154,7 @@
                                     style:{
                                         marginRight:'5px'
                                     }
-                                }, '上传二维码')])
+                                }, '上传收款码')])
 
                             ]);
                         }

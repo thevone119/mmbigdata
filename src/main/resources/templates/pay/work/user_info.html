@@ -100,11 +100,10 @@
 					<font color="red">{{bus.eMoney}} 元</font>
 				</td>
 				<td>
-
+					套餐自动续费:
 				</td>
 				<td>
-
-
+					{{bus.autoReFeeStr}}
 				</td>
 			</tr>
 
@@ -192,6 +191,7 @@
                             success: function(ret){
                                 if(ret.success){
                                     vm.bus = ret.data;
+
                                 }
                             },
                             error:function(){

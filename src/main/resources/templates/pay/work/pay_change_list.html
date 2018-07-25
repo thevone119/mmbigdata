@@ -15,6 +15,13 @@
                     </template>
                 </i-select>
             </Form-item>
+            <Form-item label="类型">
+                <i-select v-model="myform.ctype" :value="myform.ctype" style="width:150px">
+                    <i-option value="-1">所有</i-option>
+                    <i-option value="1">充值</i-option>
+                    <i-option value="2">消费</i-option>
+                </i-select>
+            </Form-item>
             <i-button type="info" icon="search" @click="reload">查询</i-button>
         </i-form>
 
@@ -31,7 +38,7 @@
 </div>
 <script>
     const urls = {
-        fildPage:'/api/pay/paylog/paybuschange'
+        fildPage:'/api/pay/paybuschange/findPage'
         ,delete:'/api/pay/payprod/delete'
     };
     var vm = new Vue({
@@ -44,7 +51,8 @@
                     ,currentRow:null//选中的行
                     ,pageNo: 1
                     ,pageSize: 10
-                    ,createtime:"-1"
+                    ,createtime:"-1",
+                    ctype:"-1"
 
                 },
                 datalist:[],
@@ -60,10 +68,10 @@
                         title: '充值/消费',
                         key: 'ctype',
                         render: function(h, params) {
-                            if(params.row.payType==1){
+                            if(params.row.ctype==1){
                                 return "充值";
                             }
-                            if(params.row.payType==2){
+                            if(params.row.ctype==2){
                                 return "消费";
                             }
                         }
