@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 
@@ -84,6 +85,29 @@ public class QRCodeUtils {
             File file = new File(filePath);
 
             BufferedImage bufferedImage = ImageIO.read(file);
+            BinaryBitmap bitmap = new BinaryBitmap(
+                    new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage)));
+
+            HashMap hints = new HashMap<>();
+            hints.put(EncodeHintType.CHARACTER_SET, CHARTSET);
+            result = new MultiFormatReader().decode(bitmap, hints);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public static Result getQRresult(InputStream input) {
+        /**
+         * 如果用的jdk是1.9，需要配置下面这一行。
+         */
+        //System.setProperty("java.specification.version", "1.9");
+        Result result = null;
+        try {
+            BufferedImage bufferedImage = ImageIO.read(input);
             BinaryBitmap bitmap = new BinaryBitmap(
                     new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage)));
 

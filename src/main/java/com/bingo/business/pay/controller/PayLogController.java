@@ -88,7 +88,7 @@ public class PayLogController  {
 	public XJsonInfo query(Long id) throws ServiceException, DaoException {
 		PayLog vo = paylogService.get(id);
 		if(vo==null){
-			vo = new PayLog();
+			//vo = new PayLog();
 		}
 		return new XJsonInfo().setData(vo);
 	}

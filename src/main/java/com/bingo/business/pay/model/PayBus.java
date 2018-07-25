@@ -39,12 +39,12 @@ public class PayBus extends PageModel{
 	
 	
 	@Column(name = "bus_type")
-	protected Long  busType;//商户类型,0：默认，无套餐  1：商户基础版套餐，2：商户高级版套餐，3：商户专业版套餐
+	protected Integer  busType;//商户类型,0：默认，无套餐  1：商户基础版套餐，2：商户高级版套餐，3：商户专业版套餐
 
 	@Column(name = "bus_validity")
 	protected Long  busValidity;//套餐有效期
 
-	@Column(name = "emoney")
+	@Column(name = "emoney",updatable = false)
 	protected float  eMoney=0.0f;//商户金额，余额
 
 	@Column(name = "auto_re_fee")
@@ -52,6 +52,20 @@ public class PayBus extends PageModel{
 	
 	@Column(name = "createtime",updatable = false)
 	protected String  createtime;//createtime
+
+	@Column(name = "pay_img_content_zfb")
+	protected String  payImgContentZfb;//支付宝的收款二维码
+
+	@Column(name = "pay_img_content_wx")
+	protected String  payImgContentWx;//微信的收款二维码
+
+
+	@Transient
+	private String busTypeStr = "";//商户类型,0：默认，无套餐  1：商户基础版套餐，2：商户高级版套餐，3：商户专业版套餐
+
+	@Transient
+	private String autoReFeeStr = "";//到期自动续费0:不自动续费，1：自动续费套餐1，2自动续费套餐2,3：自动续费套餐3
+
 	
 	
 	
@@ -120,18 +134,15 @@ public class PayBus extends PageModel{
 	public String getBusName(){
 		return this.busName;
 	}
-	
-	public void setBusType(Long busType){
+
+	public Integer getBusType() {
+		return busType;
+	}
+
+	public void setBusType(Integer busType) {
 		this.busType = busType;
 	}
-	/**
-	 * 返回 bus_type
-	 * @return
-	 */
-	public Long getBusType(){
-		return this.busType;
-	}
-	
+
 	public void setCreatetime(String createtime){
 		this.createtime = createtime;
 	}
@@ -165,5 +176,58 @@ public class PayBus extends PageModel{
 
 	public void setAutoReFee(Integer autoReFee) {
 		this.autoReFee = autoReFee;
+	}
+
+	public String getPayImgContentZfb() {
+		return payImgContentZfb;
+	}
+
+	public void setPayImgContentZfb(String payImgContentZfb) {
+		this.payImgContentZfb = payImgContentZfb;
+	}
+
+	public String getPayImgContentWx() {
+		return payImgContentWx;
+	}
+
+	public void setPayImgContentWx(String payImgContentWx) {
+		this.payImgContentWx = payImgContentWx;
+	}
+
+	public String getBusTypeStr() {
+		switch (this.busType){
+			case 0:
+				return "无";
+			case 1:
+				return "基础版";
+			case 2:
+				return "高级版";
+			case 3:
+				return "专业版";
+		}
+		return "无";
+		//return busTypeStr;
+	}
+
+	public void setBusTypeStr(String busTypeStr) {
+		this.busTypeStr = busTypeStr;
+	}
+
+	public String getAutoReFeeStr() {
+		switch (this.autoReFee){
+			case 0:
+				return "无";
+			case 1:
+				return "自动续费至<基础版>";
+			case 2:
+				return "自动续费至<高级版>";
+			case 3:
+				return "自动续费至<专业版>";
+		}
+		return autoReFeeStr;
+	}
+
+	public void setAutoReFeeStr(String autoReFeeStr) {
+		this.autoReFeeStr = autoReFeeStr;
 	}
 }

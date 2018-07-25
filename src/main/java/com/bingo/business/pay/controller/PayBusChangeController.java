@@ -6,6 +6,8 @@ import com.bingo.business.pay.service.PayBusChangeService;
 import com.bingo.business.pay.service.PayBusService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.filter.ControllerFilter;
+import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.XJsonInfo;
@@ -34,44 +36,25 @@ public class PayBusChangeController {
 		
 	}
 	
-	/**
-	 * @description: <修改、保存>
-	 * @param:
-	 * @throws:
-	 */
-	@ResponseBody
-    @RequestMapping("/save")
-    public XJsonInfo save(PayBusChange vo) throws ServiceException, DaoException {
-		payBusChangeService.saveOrUpdate(vo);
-        return new XJsonInfo();
-    }
 
-	/**
-	 * @description: <删除>
-	 * @param:
-	 * @throws:
-	 */
-    @ResponseBody
-    @RequestMapping("/delete")
-    public XJsonInfo delete(String[] selRows) throws ServiceException, DaoException {
-		for(String id:selRows){
-			payBusChangeService.delete(new Long(id));
-		}
-        return new XJsonInfo();
-    }
+
+
 
 	/**
 	 * @description: <查询>
 	 * @param:
 	 * @throws:
 	 */
+	@ControllerFilter(LoginType = 1,UserType = 0)
     @ResponseBody
     @RequestMapping("/query")
     public XJsonInfo query(Long id) throws ServiceException, DaoException {
 		PayBusChange vo = payBusChangeService.get(id);
-        if(vo==null){
-            vo = new PayBusChange();
-        }
+		//权限控制，只能查看自己的
+		SessionUser loginuser = sessionCache.getLoginUser();
+		if(loginuser.getUsertype()!=1 && !vo.getBusId().equals(loginuser.getUserid())){
+			return null;
+		}
         return new XJsonInfo().setData(vo);
     }
 
@@ -83,6 +66,10 @@ public class PayBusChangeController {
     @ResponseBody
     @RequestMapping("/findPage")
     public XJsonInfo findPage(PayBusChange vo) throws ServiceException, DaoException {
+		SessionUser loginuser = sessionCache.getLoginUser();
+		if(vo.getBusId()==null||loginuser.getUsertype()!=1){
+			vo.setBusId(loginuser.getUserid());
+		}
         return  new XJsonInfo().setPageData(payBusChangeService.findPage(vo));
     }
 

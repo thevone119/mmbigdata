@@ -1,5 +1,7 @@
 package com.bingo.business.sys.controller;
 
+import com.bingo.business.pay.model.PayBus;
+import com.bingo.business.pay.service.PayBusService;
 import com.bingo.business.sys.model.SysRole;
 import com.bingo.business.sys.model.SysUser;
 import com.bingo.business.sys.service.SysRoleService;
@@ -46,6 +48,10 @@ public class LoginController {
 
     @Resource
     private SysUserService sysuserService;
+
+    @Resource
+    private PayBusService payBusService;
+
 
     @Resource
     private RedisCacheService redis;
@@ -213,8 +219,8 @@ public class LoginController {
      * @throws DaoException
      */
     @ResponseBody
-    @RequestMapping("/regedit")
-    public XJsonInfo regedit(HttpServletResponse response, HttpServletRequest request,SysUser vo,String imgcode) throws ServiceException, DaoException {
+    @RequestMapping("/regeditbus")
+    public XJsonInfo regeditbus(HttpServletResponse response, HttpServletRequest request,SysUser vo,String imgcode) throws ServiceException, DaoException {
         XJsonInfo ret = new XJsonInfo(false);
         //输入账号，密码，图像验证码，邮箱等判断
         if(vo.getUseracc()==null||vo.getUseracc().length()<6){
@@ -254,6 +260,15 @@ public class LoginController {
         user.setState(1);
         user.setPwd(SecurityClass.encryptMD5(vo.getPwd()));
         sysuserService.saveOrUpdate(user);
+        //注册商户
+        PayBus bus = new PayBus();
+        bus.setBusId(user.getUserid());
+        bus.setBusAcc(user.getUseracc());
+        bus.setBusType(0);
+        bus.seteMoney(0.0f);
+        payBusService.saveOrUpdate(bus);
+
+
         //注册成功后，不登录
         ret.setSuccess(true);
         return ret;
