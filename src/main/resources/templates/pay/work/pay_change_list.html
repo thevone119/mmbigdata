@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <#include "/pay/include/head_view.html" />
+</head>
+<body>
+<div id="app">
+    <div class="g-dg-search-banner">
+        <i-form ref="myformRef" :model="myform" :label-width="70" inline>
+            <Form-item label="时间">
+                <i-select v-model="myform.createtime" :value="myform.createtime" style="width:150px">
+                    <i-option value="-1">所有</i-option>
+                    <template v-for="d in datalist">
+                    <i-option :value="d">{{d}}</i-option>
+                    </template>
+                </i-select>
+            </Form-item>
+            <i-button type="info" icon="search" @click="reload">查询</i-button>
+        </i-form>
+
+    </div>
+
+    <i-table :data="dtData" :columns="dtCols" :height="getTableHeight" size="small" :highlight-row="true"
+             @on-current-change="onCurrentChange" stripe  @on-selection-change="onSelRows" ></i-table>
+    <div class="g-dg-footbar">
+        <div>
+            <Page :total="total" :current="myform.pageNo" show-elevator show-sizer show-total placement="top"
+                  @on-change="changePage" @on-page-size-change="changePageSize" ></Page>
+        </div>
+    </div>
+</div>
+<script>
+    const urls = {
+        fildPage:'/api/pay/paylog/paybuschange'
+        ,delete:'/api/pay/payprod/delete'
+    };
+    var vm = new Vue({
+        el: '#app',
+        data:{
+                title: '充值消费记录',
+                myform: {
+                    plevel : 0
+                    ,selRows: null//选中的行 字符串，用,号隔开
+                    ,currentRow:null//选中的行
+                    ,pageNo: 1
+                    ,pageSize: 10
+                    ,createtime:"-1"
+
+                },
+                datalist:[],
+                total: 0,
+                dtData: [],
+                dtCols: [
+                    {
+                        type: 'selection'
+                        ,width: 60
+                        ,align: 'center'
+                    },
+                    {
+                        title: '充值/消费',
+                        key: 'ctype',
+                        render: function(h, params) {
+                            if(params.row.payType==1){
+                                return "充值";
+                            }
+                            if(params.row.payType==2){
+                                return "消费";
+                            }
+                        }
+                    },
+                    {
+                        title: '金额',
+                        key: 'emoney'
+                    },
+                    {
+                        title: '时间',
+                        key: 'createtime'
+                    },
+                    {
+                        title: '备注',
+                        key: 'demo'
+                    }
+                ]
+        },
+        created:function(){
+            this.loadData();
+        },
+        computed: {
+            getTableHeight:function(){
+                return (window.innerHeight - 150);
+            }
+        },
+        methods: {
+            loadData:function () {
+                this.datalist=[];
+                var now = new Date();
+                for(var i = 0; i < 24; i++) {
+                    var m = now.getMonth()+1;
+                    now.setMonth(now.getMonth() - 1);
+                    m = m < 10 ? "0" + m : m;
+                    this.datalist.push(now.getFullYear() + "" + m + '');
+                }
+                var ii = layer.load();
+                $.ajax(
+                    {
+                        type: 'post', // 提交方式 get/post
+                        url:urls.fildPage, // 需要提交的 u
+                        async:true,
+                        cache:false,
+                        dataType:'json',
+                        data:this.myform,
+                        success: function(ret){
+                            layer.close(ii);
+                            if(ret.success){
+                                vm.dtData = ret.data;
+                                vm.total = ret.total;
+                            }
+                        },
+                        error:function(){
+                            layer.close(ii);
+                            //layer.alert("系统错误，请稍候再试");
+                        }
+                    });
+            },
+
+            onSelRows:function(selection){
+                if(selection){
+
+                    this.myform.selRows = selection.map(function(q){
+                        return q.logId
+                    }).toString();
+
+                }
+            },
+            reload:function(){
+                this.myform.pageNo = 1;
+                this.loadData();
+            },
+            ExportToExcel:function(){
+                if(this.myform.orderid==null){
+                    this.myform.orderid="";
+                }
+                if(this.myform.createtime==null){
+                    this.myform.createtime="";
+                }
+                var downulr = "/api/pay/paylog/Export?pageNo=1&orderid="+this.myform.orderid+"&createtime="+this.myform.createtime+"&payType="+this.myform.payType
+                window.open(downulr);
+                //this.loadData();
+            },
+
+            onCurrentChange:function(currentRow, oldCurrentRow){
+                this.myform.currentRow = currentRow;
+            },
+            changePage:function (e) {
+                this.myform.pageNo = e;
+                this.loadData();
+            },
+            changePageSize:function(e){
+                this.myform.pageNo = 1;
+                this.myform.pageSize = e;
+                this.loadData();
+            },
+            edit:function(){//编辑
+                if(this.myform.currentRow){
+                    this.logview(this.myform.currentRow.logId);
+                }
+            },
+            logview:function(logId){//查看支付二维码
+                layer.open({
+                    type: 2,
+                    title: '查看支付明细',
+                    maxmin: true,
+                    shadeClose: true, //点击遮罩关闭层
+                    area : ['700px' , '500px'],
+                    content: '/pay/work/pay_log_detail.html?logId='+logId
+                });
+            }
+        }
+    })
+
+    function saveOK() {
+        vm.reload();
+    }
+</script>
+</body>
+</html>
