@@ -43,6 +43,12 @@ public class PayBus extends PageModel{
 
 	@Column(name = "bus_validity")
 	protected Long  busValidity;//套餐有效期
+
+	@Column(name = "emoney")
+	protected float  eMoney=0.0f;//商户金额，余额
+
+	@Column(name = "auto_re_fee")
+	protected Integer  autoReFee=0;//到期自动续费0:不自动续费，1：自动续费套餐1，2自动续费套餐2,3：自动续费套餐3
 	
 	@Column(name = "createtime",updatable = false)
 	protected String  createtime;//createtime
@@ -143,5 +149,21 @@ public class PayBus extends PageModel{
 
 	public void setBusValidity(Long busValidity) {
 		this.busValidity = busValidity;
+	}
+
+	public float geteMoney() {
+		return eMoney;
+	}
+
+	public void seteMoney(float eMoney) {
+		this.eMoney = eMoney;
+	}
+
+	public Integer getAutoReFee() {
+		return autoReFee;
+	}
+
+	public void setAutoReFee(Integer autoReFee) {
+		this.autoReFee = autoReFee;
 	}
 }
