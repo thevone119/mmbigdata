@@ -50,7 +50,7 @@
 				</td>
 				<td>
 					<Form-item label="" prop="notifyUrl">
-						<i-Input v-model="myform.notifyUrl" placeholder="回调地址" style="width: 90%" ></i-Input>
+						<i-Input v-model="myform.notifyUrl"  placeholder="回调地址" style="width: 90%" ></i-Input>
 					</Form-item>
 				</td>
 				<td>
@@ -83,6 +83,54 @@
 				</td>
 			</tr>
 
+			<tr>
+				<td>
+					自动续费:
+				</td>
+				<td>
+					<Form-item label="" prop="autoReFee">
+						<i-select v-model="bus.autoReFee" :value="bus.autoReFee">
+							<i-option value="0">不自动续费</i-option>
+							<i-option value="1">自动续费至基础版</i-option>
+							<i-option value="2">自动续费至高级版</i-option>
+							<i-option value="3">自动续费至专业版</i-option>
+						</i-select>
+					</Form-item>
+				</td>
+				<td>
+
+				</td>
+				<td>
+
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					微信收款码:
+
+				</td>
+				<td>
+					<template>
+					<Upload action="/api/pay/paybus/upload_qr_img?payType=1"  name="uploadfile">
+						<i-Button type="primary" icon="ios-cloud-upload-outline">上传不限额微信收款码</i-Button>
+					</Upload>
+					</template>
+					<i-Button type="success" icon="search" @click="Imgview(1)">查看当前已上传收款码</i-Button>
+				</td>
+				<td>
+					支付宝收款码:
+				</td>
+				<td>
+					<template>
+					<Upload action="/api/pay/paybus/upload_qr_img?payType=2"  name="uploadfile">
+						<i-Button type="primary" icon="ios-cloud-upload-outline">上传不限额支付宝收款码</i-Button>
+					</Upload>
+					</template>
+					<i-Button type="success"  icon="search"  @click="Imgview(2)">查看当前已上传收款码</i-Button>
+				</td>
+			</tr>
+
 			</tbody>
 		</table>
 
@@ -98,7 +146,9 @@
 	<script>
         var urls = {
             query:'/api/sys/sysuser/queryCurrUser'
+            ,querybus:'/api/pay/paybus/queryCurrBus'
             ,save:'/api/sys/sysuser/saveCurrUser'
+            ,savebus:'/api/pay/paybus/saveCurrBus'
         };
 
         var vm = new Vue({
@@ -111,6 +161,10 @@
                         id:null,//主键
 						test:""
                     },
+					bus: {
+						isState:true,
+						state: 1
+					},
                     ruleValidate: {
                         email: [
                             { required: true, message: '请输入邮箱地址', trigger: 'blur' },
@@ -154,6 +208,34 @@
                                 layer.alert("系统错误，请稍候再试");
                             }
                         });
+
+                    $.ajax(
+                        {
+                            type: 'post', // 提交方式 get/post
+                            url:urls.querybus, // 需要提交的 u
+                            async:true,
+                            cache:false,
+                            dataType:'json',
+                            success: function(ret){
+                                if(ret.success){
+                                    vm.bus = ret.data;
+                                    vm.bus.autoReFee=vm.bus.autoReFee+'';
+                                }
+                            },
+                            error:function(){
+                                layer.alert("系统错误，请稍候再试");
+                            }
+                        });
+                },
+                Imgview:function(payType){//查看支付二维码
+                    layer.open({
+                        type: 2,
+                        title: '查看支付二维码',
+                        maxmin: true,
+                        shadeClose: true, //点击遮罩关闭层
+                        area : ['400px' , '400px'],
+                        content: '/api/pay/paybus/qr_img_view?payType='+payType
+                    });
                 },
                 save:function () {
                     this.$refs['myForm'].validate(function(valid){
@@ -172,6 +254,21 @@
                                         }else{
                                             layer.alert(ret.msg);
                                         }
+                                    },
+                                    error:function(){
+                                        layer.alert("系统错误，请稍候再试");
+                                    }
+                                });
+                            $.ajax(
+                                {
+                                    type: 'post', // 提交方式 get/post
+                                    url:urls.savebus, // 需要提交的 u
+                                    async:true,
+                                    cache:false,
+                                    dataType:'json',
+                                    data:vm.bus,
+                                    success: function(ret){
+
                                     },
                                     error:function(){
                                         layer.alert("系统错误，请稍候再试");
