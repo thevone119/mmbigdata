@@ -126,7 +126,7 @@ public class LoginController {
             error_pwd=0;
         }
         if(error_pwd>5){
-            ret.setMsg("用户名或密码错误，请重试");
+            ret.setMsg("您已连续多次输入错误密码，请稍候再试...");
             return ret;
         }
 
