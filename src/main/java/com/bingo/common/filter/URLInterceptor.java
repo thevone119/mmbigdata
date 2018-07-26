@@ -144,7 +144,7 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
         //String param=request.getParameter(METHOD);
         HandlerMethod hm = (HandlerMethod)handler;
 
-        String actionname = hm.getMethod().toString();
+        String actionname = hm.getMethod().getDeclaringClass().getName()+"."+hm.getMethod().getName().toString();
         threaddel(actionname+currTime);
         //Runtime imp = Runtime.getRuntime();
         //String memory = ",maxMemory:"+imp.maxMemory()/1024/1024+"M,freeMemory:"+imp.freeMemory()/1024/1024+"M"+",userMemory:"+(imp.maxMemory()-imp.freeMemory())/1024/1024+"M";
