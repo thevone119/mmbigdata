@@ -62,6 +62,17 @@ public class PayLogService{
 		paylogRepository.deleteById(id);
 	}
 
+	/**
+	 * 根据rid查询支付订单
+	 * @param rid
+	 * @return
+	 * @throws DaoException
+	 */
+	public PayLog queryByRid(String rid) throws DaoException{
+		StringBuffer qhtl = new StringBuffer(" from PayLog where rid =? ");
+		return paylogRepository.find(qhtl.toString(),new String[]{rid});
+	}
+
 
 
 	/**

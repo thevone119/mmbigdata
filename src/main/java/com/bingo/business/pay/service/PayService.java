@@ -73,16 +73,7 @@ public class PayService {
             float refee=0.0f;//续费金额
             Long busValidity = new Long(format.format(calendar.getTime()));//续费期限
             Integer busType = bus.getAutoReFee();//续费后的商户类型
-            //自动续费
-            if(bus.getAutoReFee()==1){
-                refee=19.9f;
-            }
-            if(bus.getAutoReFee()==1){
-                refee=39.9f;
-            }
-            if(bus.getAutoReFee()==1){
-                refee=59.9f;
-            }
+            refee = PayTaoCan.getPayTaoCanFee(busType);
             if(refee==0){
                 return false;
             }
@@ -106,15 +97,13 @@ public class PayService {
 
     /**
      * 确认收款接口
-     * @param rid 订单的随机ID
+     * @param paylog 支付订单
      * @param checkType 1:系统确认，2：手工确认
      */
-    public XJsonInfo checkPay(String rid, int checkType) throws Exception{
+    public XJsonInfo checkPay(PayLog paylog, int checkType) throws Exception{
         XJsonInfo ret = new XJsonInfo(false);
         ret.setCode(1);
-        //1.查询订单
-        StringBuffer qhtl = new StringBuffer(" from PayLog where rid =? ");
-        PayLog paylog = paylogRepository.find(qhtl.toString(),new String[]{rid});
+
         if(paylog==null){
             ret.setMsg("没有找到订单");
             return ret;
@@ -156,7 +145,7 @@ public class PayService {
         this.busChange(change,null,null);
 
         //2.设置为已收款
-        paylogRepository.executeByHql("update PayLog set payState=1 where rid=?",new String[]{rid});
+        paylogRepository.executeByHql("update PayLog set payState=1 where logId=?",new Long[]{paylog.getLogId()});
 
         //5.触发通知回调
         this.payNotify(paylog);
