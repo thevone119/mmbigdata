@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author huangtw
@@ -21,6 +22,10 @@ public class PayLog extends PageModel{
 	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "log_id")
 	protected Long  logId;//日志ID
+
+
+	@Column(name = "rid")
+	protected String  rid;//随机ID
 	
 	
 	@Column(name = "bus_id",updatable = false)
@@ -123,6 +128,7 @@ public class PayLog extends PageModel{
 	 */
 	public PayLog(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		this.rid= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		this.createtime=format.format(new Date());
 	}
 	
@@ -257,6 +263,14 @@ public class PayLog extends PageModel{
 
 	public void setPayName(String payName) {
 		this.payName = payName;
+	}
+
+	public String getRid() {
+		return rid;
+	}
+
+	public void setRid(String rid) {
+		this.rid = rid;
 	}
 
 	public Integer getPayType() {
