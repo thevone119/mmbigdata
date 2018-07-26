@@ -18,11 +18,14 @@ public class PayBusChange extends PageModel{
 	@Id
 	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "cid")
-	protected Long  cid;//商户ID,直接使用用户表的ID
+	protected Long  cid;//主键ID
 
 
 	@Column(name = "bus_id",updatable = false)
 	protected Long  busId;//商户ID
+
+	@Column(name = "log_id",updatable = false)
+	protected Long  logId;//对应的订单ID
 
 	@Column(name = "ctype",updatable = false)
 	protected Integer  ctype;//充值消费类型,1:充值，2：消费
@@ -112,5 +115,13 @@ public class PayBusChange extends PageModel{
 
 	public void setDemo(String demo) {
 		this.demo = demo;
+	}
+
+	public Long getLogId() {
+		return logId;
+	}
+
+	public void setLogId(Long logId) {
+		this.logId = logId;
 	}
 }

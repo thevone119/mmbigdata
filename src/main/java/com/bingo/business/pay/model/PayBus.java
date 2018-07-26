@@ -38,10 +38,10 @@ public class PayBus extends PageModel{
 	protected String  busName;//bus_name
 	
 	
-	@Column(name = "bus_type")
+	@Column(name = "bus_type",updatable = false)
 	protected Integer  busType;//商户类型,0：默认，无套餐  1：商户基础版套餐，2：商户高级版套餐，3：商户专业版套餐
 
-	@Column(name = "bus_validity")
+	@Column(name = "bus_validity",updatable = false)
 	protected Long  busValidity;//套餐有效期
 
 	@Column(name = "emoney",updatable = false)

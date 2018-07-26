@@ -3,6 +3,7 @@ package com.bingo.business.pay.service;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.model.Page;
+import com.bingo.common.utility.XJsonInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,9 @@ public class PayLogService{
 	
 	@Resource
 	private PayLogRepository paylogRepository;
+
+
+
 
 	/**
 	 * @description: <保存对象>
@@ -57,7 +61,9 @@ public class PayLogService{
 	public void delete(Serializable id) throws DaoException{
 		paylogRepository.deleteById(id);
 	}
-	
+
+
+
 	/**
 	 * @description: <取分页列表>
 	 * @param:

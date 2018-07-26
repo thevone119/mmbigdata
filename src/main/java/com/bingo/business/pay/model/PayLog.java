@@ -63,7 +63,7 @@ public class PayLog extends PageModel{
 	protected Float  payImgPrice;//二维码支付价格
 
 	@Column(name = "pay_service_change",updatable = false)
-	protected Float  payServiceChange;//支付平台服务费，手续费
+	protected Float  payServiceChange;//支付平台服务费，手续费,无效
 
 
 
