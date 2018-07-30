@@ -22,10 +22,7 @@ import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Administrator on 2018-07-26.
@@ -207,7 +204,7 @@ public class PayService {
             ret.setMsg("当前订单未支付，无法发起回调");
             return ret;
         }
-        String uhql = "update PayLog set notifyState=?,notifyCount=notifyCount+1 where logId=?";
+        String uhql = "update PayLog set notifyState=?,notifyCount=notifyCount+1 where logId=? and notifyState!=1";
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         PayLogNotify notify = new PayLogNotify();
@@ -308,6 +305,28 @@ public class PayService {
      */
     @Scheduled(cron = "0 0/1 * * * ?")
     public void payNotifyTask(){
+        //1.查询所有待通知的记录
+        logger.info("payNotifyTask start");
+        String hql = "from PayLog where payState=1 and notifyState!=1 and notifyCount<5";
+        List<PayLog> list = paylogRepository.query(hql);
+        //采用多线程执行,5个线程进行通知调用
+        MyThreadPool pool = new MyThreadPool(5,20);
+        for(PayLog paylog:list){
+            PayBus bus = payBusRepository.getById(paylog.getBusId());
+            try{
+                pool.execute(() -> {
+                    //String name = Thread.currentThread().getName();
+                    try {
+                        SpringUtil.getBean(PayService.class).payNotify(paylog,bus);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        pool.shutdown();
         logger.info("payNotifyTask end");
     }
 
@@ -316,8 +335,20 @@ public class PayService {
      * 每小时执行
      */
     @Scheduled(cron = "0 3 * * * ?")
-    public void reChange(){
-        logger.info("reChange end");
+    public void reChangeTask(){
+        logger.info("reChangeTask start");
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        //查询套餐过期的商户
+        String hql = "from PayBus where autoReFee>0 and busValidity<?";
+        List<PayBus> list = payBusRepository.query(hql,new Integer[]{new Integer(format.format(new Date()))});
+        for(PayBus bus:list){
+            try{
+                checkBusValidity(bus);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        logger.info("reChangeTask end");
     }
 
 
