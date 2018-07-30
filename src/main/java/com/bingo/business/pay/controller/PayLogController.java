@@ -39,6 +39,11 @@ public class PayLogController  {
 	@Resource
 	private PayLogService paylogService;
 
+	@Resource
+	private PayService payService;
+
+
+
 	public PayLogController(){
 		
 	}
@@ -233,6 +238,22 @@ public class PayLogController  {
 			}
 		}
 
+	}
+
+	/**
+	 * 我已收款,后台，手机APP通用
+	 * @param rid
+	 * @param uid
+	 * @param checkType
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ResponseBody
+	@RequestMapping("/checkPay")
+	public XJsonInfo checkPay(String rid,String uid,int checkType) throws Exception {
+		PayLog log = paylogService.queryByRidUid(rid,uid);
+		return payService.checkPay(log,checkType);
 	}
 
 	

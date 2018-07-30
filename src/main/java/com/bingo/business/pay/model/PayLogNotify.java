@@ -24,27 +24,27 @@ public class PayLogNotify extends PageModel{
 	
 	
 	@Column(name = "log_id",updatable = false)
-	protected Long  logId;//log_id
+	protected Long  logId;//支付记录ID
 	
 	
 	@Column(name = "notify_state",updatable = false)
-	protected Long  notifyState;//notify_state
+	protected Integer  notifyState;//通知状态,1成功，2失败
 	
 	
 	@Column(name = "notify_count",updatable = false)
-	protected Long  notifyCount;//notify_count
+	protected Long  notifyCount;//通知次数，无效，使用log表的次数
 	
 	
 	@Column(name = "notify_start_time",updatable = false)
-	protected String  notifyStartTime;//notify_start_time
+	protected String  notifyStartTime;//通知开始时间
 	
 	
 	@Column(name = "notify_end_time",updatable = false)
-	protected String  notifyEndTime;//notify_end_time
+	protected String  notifyEndTime;//通知结束时间
 	
 	
 	@Column(name = "notify_Result",updatable = false)
-	protected String  notifyResult;//notify_Result
+	protected String  notifyResult;//通知结果
 	
 	
 	
@@ -78,18 +78,15 @@ public class PayLogNotify extends PageModel{
 	public Long getLogId(){
 		return this.logId;
 	}
-	
-	public void setNotifyState(Long notifyState){
+
+	public Integer getNotifyState() {
+		return notifyState;
+	}
+
+	public void setNotifyState(Integer notifyState) {
 		this.notifyState = notifyState;
 	}
-	/**
-	 * 返回 notify_state
-	 * @return
-	 */
-	public Long getNotifyState(){
-		return this.notifyState;
-	}
-	
+
 	public void setNotifyCount(Long notifyCount){
 		this.notifyCount = notifyCount;
 	}
@@ -124,6 +121,9 @@ public class PayLogNotify extends PageModel{
 	}
 	
 	public void setNotifyResult(String notifyResult){
+		if(notifyResult!=null && notifyResult.length()>128){
+			notifyResult = notifyResult.substring(0,128);
+		}
 		this.notifyResult = notifyResult;
 	}
 	/**

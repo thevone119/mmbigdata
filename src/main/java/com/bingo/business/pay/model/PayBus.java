@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author huangtw
@@ -20,6 +21,12 @@ public class PayBus extends PageModel{
 	@Id
 	@Column(name = "bus_id")
 	protected Long  busId;//商户ID,直接使用用户表的ID
+
+	@Column(name = "uuid",updatable = false)
+	protected String  uuid;//用户的uuid
+
+	@Column(name = "sign_key",updatable = false)
+	protected String  signKey;//用户的签名秘钥
 	
 	
 	@Column(name = "bus_acc",updatable = false)
@@ -75,6 +82,8 @@ public class PayBus extends PageModel{
 	 */
 	public PayBus(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		this.uuid= UUID.randomUUID().toString().replace("-", "").toLowerCase();
+		this.signKey =  UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		this.createtime=format.format(new Date());
 	}
 	
@@ -88,7 +97,23 @@ public class PayBus extends PageModel{
 	public Long getBusId(){
 		return this.busId;
 	}
-	
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public String getSignKey() {
+		return signKey;
+	}
+
+	public void setSignKey(String signKey) {
+		this.signKey = signKey;
+	}
+
 	public void setBusAcc(String busAcc){
 		this.busAcc = busAcc;
 	}

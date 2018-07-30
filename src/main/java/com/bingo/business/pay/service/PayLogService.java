@@ -73,6 +73,11 @@ public class PayLogService{
 		return paylogRepository.find(qhtl.toString(),new String[]{rid});
 	}
 
+	public PayLog queryByRidUid(String rid,String uid) throws DaoException{
+		StringBuffer qhtl = new StringBuffer(" from PayLog where rid =? and uid=? ");
+		return paylogRepository.find(qhtl.toString(),new String[]{rid,uid});
+	}
+
 
 
 	/**
