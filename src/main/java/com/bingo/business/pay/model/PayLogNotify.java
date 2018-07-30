@@ -53,7 +53,7 @@ public class PayLogNotify extends PageModel{
 	 * @return
 	 */
 	public PayLogNotify(){
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		this.notifyStartTime=format.format(new Date());
 	}
 	

@@ -81,7 +81,7 @@ public class PayBus extends PageModel{
 	 * @return
 	 */
 	public PayBus(){
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		this.uuid= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		this.signKey =  UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		this.createtime=format.format(new Date());

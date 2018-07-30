@@ -66,7 +66,7 @@ public class PayProd extends PageModel{
 	 * @return
 	 */
 	public PayProd(){
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		this.createtime=format.format(new Date());
 		this.payImgPath= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 	}

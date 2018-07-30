@@ -51,7 +51,7 @@ public class PayBusChange extends PageModel{
 	 * @return
 	 */
 	public PayBusChange(){
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		this.createtime=format.format(new Date());
 	}
 	
