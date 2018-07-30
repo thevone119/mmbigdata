@@ -23,10 +23,10 @@ public class SysUser extends PageModel{
 	@Column(name = "userid",updatable = false)
 	protected Long  userid;//userid
 
-	@Column(name = "uuid")
+	@Column(name = "uuid",updatable = false)
 	protected String  uuid;//用户ID
 
-	@Column(name = "sign_key")
+	@Column(name = "sign_key",updatable = false)
 	protected String  signKey;//用户的签名秘钥
 
 	@Column(name = "useracc",updatable = false)
@@ -67,11 +67,7 @@ public class SysUser extends PageModel{
 	protected Integer  state=0;//状态；0：无效 1：有效
 
 
-	@Column(name = "notify_url")
-	protected String  notifyUrl;//支付通知地址
 
-	@Column(name = "goback_url")
-	protected String  gobackUrl;//支付跳转地址
 	
 	
 	/**
@@ -205,19 +201,5 @@ public class SysUser extends PageModel{
 		this.signKey = signKey;
 	}
 
-	public String getNotifyUrl() {
-		return notifyUrl;
-	}
 
-	public void setNotifyUrl(String notifyUrl) {
-		this.notifyUrl = notifyUrl;
-	}
-
-	public String getGobackUrl() {
-		return gobackUrl;
-	}
-
-	public void setGobackUrl(String gobackUrl) {
-		this.gobackUrl = gobackUrl;
-	}
 }

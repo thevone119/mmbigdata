@@ -264,6 +264,8 @@ public class LoginController {
         PayBus bus = new PayBus();
         bus.setBusId(user.getUserid());
         bus.setBusAcc(user.getUseracc());
+        bus.setUuid(user.getUuid());
+        bus.setSignKey(user.getSignKey());
         bus.setBusType(0);
         bus.seteMoney(0.0f);
         payBusService.saveOrUpdate(bus);

@@ -82,11 +82,11 @@ public class SysUserController  {
 		//修改用户名
 		_vo.setUseracc(vo.getUseracc());
 		_vo.setUsertype(vo.getUsertype());
-		_vo.setGobackUrl(vo.getGobackUrl());
+		//_vo.setGobackUrl(vo.getGobackUrl());
 		_vo.setNikename(vo.getNikename());
 		_vo.setEmail(vo.getEmail());
 		_vo.setMobile(vo.getMobile());
-		_vo.setNotifyUrl(vo.getNotifyUrl());
+		//_vo.setNotifyUrl(vo.getNotifyUrl());
 		_vo.setState(vo.getState());
         sysuserService.saveOrUpdate(_vo);
         return new XJsonInfo();
@@ -169,11 +169,11 @@ public class SysUserController  {
 		}
 		SysUser user = sysuserService.get(loginuser.getUserid());
 		//修改用户名
-		user.setGobackUrl(vo.getGobackUrl());
+		//user.setGobackUrl(vo.getGobackUrl());
 		user.setNikename(vo.getNikename());
 		user.setEmail(vo.getEmail());
 		user.setMobile(vo.getMobile());
-		user.setNotifyUrl(vo.getNotifyUrl());
+		//user.setNotifyUrl(vo.getNotifyUrl());
 		user.setQq(vo.getQq());
 		sysuserService.saveOrUpdate(user);
 

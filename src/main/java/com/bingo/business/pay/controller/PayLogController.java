@@ -42,6 +42,8 @@ public class PayLogController  {
 	@Resource
 	private PayService payService;
 
+	@Resource
+	private PayBusService paybusService;
 
 
 	public PayLogController(){
@@ -254,6 +256,21 @@ public class PayLogController  {
 	public XJsonInfo checkPay(String rid,String uid,int checkType) throws Exception {
 		PayLog log = paylogService.queryByRidUid(rid,uid);
 		return payService.checkPay(log,checkType);
+	}
+
+	/**
+	 * 发起通知，后台，手机APP通用
+	 * @param rid
+	 * @param uid
+	 * @return
+	 * @throws Exception
+	 */
+	@ResponseBody
+	@RequestMapping("/payNotify")
+	public XJsonInfo payNotify(String rid,String uid) throws Exception {
+		PayLog log = paylogService.queryByRidUid(rid,uid);
+		PayBus bus = paybusService.queryByUuid(uid);
+		return payService.payNotify(log,bus);
 	}
 
 	

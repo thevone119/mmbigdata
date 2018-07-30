@@ -111,7 +111,7 @@ public class PayLog extends PageModel{
 	
 	
 	@Column(name = "notify_count",updatable = false)
-	protected Long  notifyCount;//notify_count 支付通知次数
+	protected Integer  notifyCount=0;//notify_count 支付通知次数
 
 	@Transient
 	private String payStateStr = "";//支付状态 -1：未知状态，0：等待支付 1：支付成功，2：支付失败，11：账户余额不足，12：账户套餐过期，13：支付超时
@@ -375,15 +375,12 @@ public class PayLog extends PageModel{
 		this.notifyState = notifyState;
 	}
 
-	public void setNotifyCount(Long notifyCount){
-		this.notifyCount = notifyCount;
+	public Integer getNotifyCount() {
+		return notifyCount;
 	}
-	/**
-	 * 返回 notify_count
-	 * @return
-	 */
-	public Long getNotifyCount(){
-		return this.notifyCount;
+
+	public void setNotifyCount(Integer notifyCount) {
+		this.notifyCount = notifyCount;
 	}
 
 	public String getOrderid() {
