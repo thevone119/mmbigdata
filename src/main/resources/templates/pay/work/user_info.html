@@ -191,7 +191,8 @@
                             success: function(ret){
                                 if(ret.success){
                                     vm.bus = ret.data;
-
+                                    vm.myform.notifyUrl=vm.bus.notifyUrl;
+                                    vm.myform.gobackUrl=vm.bus.gobackUrl;
                                 }
                             },
                             error:function(){

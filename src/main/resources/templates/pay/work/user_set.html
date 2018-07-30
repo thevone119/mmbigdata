@@ -159,11 +159,15 @@
                         state: 1,
                         restype:1,
                         id:null,//主键
-						test:""
+						test:"",
+                        notifyUrl:"",
+                        gobackUrl:""
                     },
 					bus: {
 						isState:true,
-						state: 1
+						state: 1,
+                        notifyUrl:"",
+                        gobackUrl:""
 					},
                     ruleValidate: {
                         email: [
@@ -220,6 +224,8 @@
                                 if(ret.success){
                                     vm.bus = ret.data;
                                     vm.bus.autoReFee=vm.bus.autoReFee+'';
+                                    vm.myform.notifyUrl=vm.bus.notifyUrl;
+                                    vm.myform.gobackUrl=vm.bus.gobackUrl;
                                 }
                             },
                             error:function(){
@@ -259,6 +265,9 @@
                                         layer.alert("系统错误，请稍候再试");
                                     }
                                 });
+                            //通知地址保存到商户表
+                            vm.bus.notifyUrl=vm.myform.notifyUrl;
+                            vm.bus.gobackUrl=vm.myform.gobackUrl;
                             $.ajax(
                                 {
                                     type: 'post', // 提交方式 get/post

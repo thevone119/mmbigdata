@@ -130,8 +130,8 @@
 		</table>
 
 		<div>
-			<i-button type="primary" icon="shuffle" @click="save"> 再次发起回调 </i-button>
-			<i-button type="error" icon="shuffle" @click="save"> 强制支付成功 </i-button>
+			<i-button type="primary" icon="shuffle" @click="payNotify"> 发起回调 </i-button>
+			<i-button type="error" icon="shuffle" @click="checkPay"> 我已收款 </i-button>
 		</div>
 </div>
 
@@ -142,6 +142,8 @@
         var urls = {
             query:'/api/pay/paylog/queryone'
             ,save:'/api/pay/paylog/saveCurrUser'
+            ,checkPay:'/api/pay/paylog/checkPay'
+            ,payNotify:'/api/pay/paylog/payNotify'
         };
 
         var vm = new Vue({
@@ -152,7 +154,8 @@
 					state: 1,
 					restype:1,
                     logId:null,//主键
-					test:""
+					test:"",
+                    checkType:2
 				},
                 ruleValidate: {
                     email: [
@@ -192,12 +195,70 @@
                     var m = location.href.match(r);
                     return (!m ? "" : m[2]);
                 },
-                save:function(){
-                    var valid = this.$refs['myForm'].validate();
-                    //alert(valid);
-                    PB.ajax({url:urls.save,data:this.myform}, function (d) {
-                        PB.alert('保存成功!','success');
-                    });
+
+                payNotify:function(){
+                    var ii = layer.load();
+					$.ajax(
+						{
+							type: 'post', // 提交方式 get/post
+							url:urls.payNotify, // 需要提交的 u
+							async:true,
+							cache:false,
+							dataType:'json',
+							data:this.myform,
+							success: function(ret){
+                                layer.close(ii);
+								if(ret.success){
+									//vm.myform = ret.data;
+									parent.layer.msg('发起回调成功');
+									var i = parent.layer.getFrameIndex(window.name);
+									parent.layer.close(i);
+								}else{
+									parent.layer.msg(ret.msg);
+									var i = parent.layer.getFrameIndex(window.name);
+									parent.layer.close(i);
+								}
+							},
+							error:function(){
+                                layer.close(ii);
+								layer.alert("系统错误，请稍候再试");
+							}
+						});
+                },
+                checkPay:function(){
+
+                    layer.confirm('此操作会将此订单手动设置为已收款状态，确认要进行此操作么?', function(){
+                        vm.myform.checkType=2;
+                        $.ajax(
+                            {
+                                type: 'post', // 提交方式 get/post
+                                url:urls.checkPay, // 需要提交的 u
+                                async:true,
+                                cache:false,
+                                dataType:'json',
+                                data:vm.myform,
+                                success: function(ret){
+                                    if(ret.success){
+                                        //vm.myform = ret.data;
+                                        parent.layer.msg('收款设置成功');
+                                        var i = parent.layer.getFrameIndex(window.name);
+                                        parent.layer.close(i);
+                                    }else{
+                                        parent.layer.msg(ret.msg);
+                                        var i = parent.layer.getFrameIndex(window.name);
+                                        parent.layer.close(i);
+									}
+                                },
+                                error:function(){
+                                    layer.alert("系统错误，请稍候再试");
+                                }
+                            });
+                    })
+
+
+
+
+
                 }
             }
         });
