@@ -77,6 +77,18 @@ public class PayBusService{
 		return paybusRepository.findPage(hql.toString(), vo, fldValues);
 	}
 
+	/**
+	 * 根据商户ID查询商户
+	 * @param uuid
+	 * @return
+	 */
+	public PayBus queryByUuid(String uuid){
+		StringBuffer qhtl = new StringBuffer(" from PayBus where uuid =? ");
+		return paybusRepository.find(qhtl.toString(),new String[]{uuid});
+	}
+
+
+
 
 	
 }

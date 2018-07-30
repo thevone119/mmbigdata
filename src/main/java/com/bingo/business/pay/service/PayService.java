@@ -14,6 +14,7 @@ import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -202,6 +203,10 @@ public class PayService {
             ret.setMsg("已成功通知，无需重复通知");
             return ret;
         }
+        if(paylog.getPayState()!=1){
+            ret.setMsg("当前订单未支付，无法发起回调");
+            return ret;
+        }
         String uhql = "update PayLog set notifyState=?,notifyCount=notifyCount+1 where logId=?";
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -261,7 +266,7 @@ public class PayService {
             //post
             Connection.Response response = conn.method(Connection.Method.POST).execute();
             String body = response.body();
-            logger.info("payNotify end");
+
             if(body!=null && body.indexOf("SUCCESS")!=-1){
                 //通知成功
                 notify.setNotifyState(1);
@@ -294,6 +299,25 @@ public class PayService {
         }
         //ret.setSuccess(true);
         //return ret;
+    }
+
+
+    /**
+     * 定时通知任务
+     * 每分钟执行任务
+     */
+    @Scheduled(cron = "0 0/1 * * * ?")
+    public void payNotifyTask(){
+        logger.info("payNotifyTask end");
+    }
+
+    /**
+     * 定时续费
+     * 每小时执行
+     */
+    @Scheduled(cron = "0 3 * * * ?")
+    public void reChange(){
+        logger.info("reChange end");
     }
 
 
