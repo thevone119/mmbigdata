@@ -109,6 +109,10 @@ public class PayController {
             return ret;
         }
 
+        //验证是否有足够的手续费
+
+
+
 
 
         //查询是否已有订单
@@ -133,10 +137,10 @@ public class PayController {
             log = new PayLog();
             //1.查询是否有空闲的收款码
             List<PayProd> listprod = payProdService.queryByPrice(bus.getBusId(),payin.getPrice(),payin.getPay_type());
-            if(listprod==null){
+            if(listprod==null||listprod.size()==0){
                 //2.如果没有定额的收款码，则使用非定额的
                 List<PayLog> useinglog =  paylogService.queryByUseingLog(payin.getUid(),payin.getPay_type(),null);
-                if(useinglog!=null){
+                if(useinglog!=null && useinglog.size()>0){
                     ret.setCode(14);
                     ret.setMsg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
                     return ret;
