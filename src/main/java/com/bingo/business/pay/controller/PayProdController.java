@@ -131,28 +131,10 @@ public class PayProdController  {
 	@RequestMapping("/upload_qr_img")
 	public XJsonInfo upload_qr_img(@RequestParam("uploadfile") MultipartFile file,Long prodId) throws Exception {
 		PayProd vo = payprodService.get(prodId);
-
-		//创建根目录
-		File basepath = new File(PAY_QR_IMG_PATH);
-		if(!basepath.isDirectory()){
-			basepath.mkdirs();
-		}
-
-		String filename = file.getOriginalFilename();
-		String[] fnames = filename.split("\\.");
-		//文件扩展名
-		String extname = fnames[fnames.length-1];
-		vo.setPayImgType(extname);
-
-		//保存文件
-		String filepath =PAY_QR_IMG_PATH+"/"+vo.getPayImgPath()+"."+vo.getPayImgType();
-		file.transferTo(new File(filepath));
 		//二维码内容解码
-		Result ret = QRCodeUtils.getQRresult(filepath);
+		Result ret = QRCodeUtils.getQRresult(file.getInputStream());
 		vo.setPayImgContent(ret.getText());
-
 		payprodService.saveOrUpdate(vo);
-
 		return  new XJsonInfo();
 	}
 
