@@ -2,6 +2,7 @@
 <html>
 <head>
 	<#include "/pay/include/head.html" />
+	<script src="/pay/js/jquery.form.js"></script>
 </head>
 
 <body>
@@ -190,9 +191,11 @@
 								
 							</tbody>
 						</table>
+
 						<div class="state">
 							<h4>返回参数(适用接口：支付跳转POST，支付回调POST，支付查询json等接口通用)： </h4>
 						</div>
+
 						<table id="sample-table-1" class="table table-striped table-bordered table-hover">
 							<thead>
 								<tr>
@@ -379,7 +382,92 @@
 								
 							</tbody>
 						</table>
+						<div class="state">
+							<h4>接口测试： </h4>
+						</div>
+						<form class="cmxform" id="myform" id="myform" method="post" action="#" onsubmit="return false">
+						<div class="col-xs-12">
+							<ul>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">uid:</span>
+										<input type="text" name="uid" id="uid" class="form-control" placeholder="请输入uid" VALUE="662b292a41104fb28a0aa9507f22121d">
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">orderid:</span>
+										<input type="text" name="orderid" id="orderid" class="form-control" placeholder="请输入orderid" VALUE="20181010214521">
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">r:</span>
+										<input type="text" name="r" id="r" class="form-control" placeholder="请输入r" VALUE="20181010214521">
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">sign:</span>
+										<input type="text" name="sign" id="sign" class="form-control" placeholder="请输入sign">
+										<span class="input-group-btn">
+        									<button class="btn btn-default" type="button" onclick="markSign()">生成签名数据</button>
+      									</span>
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">price:</span>
+										<input type="text" name="price" id="price" class="form-control" placeholder="请输入price"  VALUE="0.05">
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">pay_type:</span>
+										<input type="text" name="pay_type" id="pay_type" class="form-control" placeholder="请输入pay_type" VALUE="1">
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">pay_name:</span>
+										<input type="text" name="pay_name" id="pay_name" class="form-control" placeholder="请输入pay_name" VALUE="测试商品支付">
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">pay_demo:</span>
+										<input type="text" name="pay_demo" id="pay_demo" class="form-control" placeholder="请输入pay_demo"  VALUE="支付备注">
+									</div>
+								</li>
+
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">return_url:</span>
+										<input type="text" name="return_url" id="return_url"  class="form-control" placeholder="请输入return_url" VALUE="http://www.heimipay.com/payapi/return">
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">pay_ext1:</span>
+										<input type="text" name="pay_ext1" id="pay_ext1" class="form-control" placeholder="请输入pay_ext1" VALUE="可以传用户等任意信息">
+									</div>
+								</li>
+								<li>
+									<div class="input-group">
+										<span class="input-group-addon">pay_ext2:</span>
+										<input type="text" name="pay_ext2" id="pay_ext2" class="form-control" placeholder="请输入pay_ext2" VALUE="可以传用户等任意信息">
+									</div>
+								</li>
+
+								<li>
+									<button class="col-xs-12 btn btn-danger" onclick="subTest()">提交测试</button>
+								</li>
+							</ul>
+
+						</div>
+						</form>
 					</div>
+
 				</div>
                 			
 			</div>
@@ -390,6 +478,65 @@
 
 <!---------footer-------------->
 <#include "/pay/include/footer.html" />
+
+<script type="text/javascript">
+	function subTest() {
+        myform.action="/payapi/create";
+        myform.submit();
+    }
+
+
+
+	function markSign() {
+        //判断输入框内容是否完整
+        var post={
+            type: 'post', // 提交方式 get/post
+            url: '/payapi/markSign', // 需要提交的 u
+            async:true,
+            cache:false,
+            dataType:'json',
+            success: function(data) {
+                if(data.success){
+                    $('#sign').val(data.msg);
+                }else{
+                    layer.alert(data.msg);
+                }
+            },
+            error:function(){
+                layer.alert("系统繁忙，请稍候再试");
+            }
+        }
+        $('#myform').ajaxSubmit(post);
+    }
+
+    /**
+	 * 如果登录了，则加载最新的商户ID
+     */
+    function loaduser() {
+        //判断输入框内容是否完整
+        var post={
+            type: 'post', // 提交方式 get/post
+            url: '/api/pay/paybus/queryCurrBus', // 需要提交的 u
+            async:true,
+            cache:false,
+            dataType:'json',
+            success: function(data) {
+                if(data.success){
+                    $('#uid').val(data.data.uuid);
+                }else{
+                    //layer.alert(data.msg);
+                }
+            },
+            error:function(){
+                //layer.alert("系统繁忙，请稍候再试");
+            }
+        }
+        $.ajax(post);
+    }
+
+    loaduser();
+
+</script>
 
 </body>
 </html>
