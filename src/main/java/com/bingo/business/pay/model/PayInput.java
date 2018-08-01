@@ -13,7 +13,7 @@ public class PayInput {
     private Float price;
     private String pay_ext1;
     private String pay_ext2;
-    private Integer pay_type;
+    private Integer pay_type; //1：支付宝；2：微信支付
     private String pay_name;
     private String pay_demo;
     private String return_url;

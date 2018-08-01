@@ -81,7 +81,7 @@ public class PayLog extends PageModel{
 	
 	
 	@Column(name = "pay_type",updatable = false)
-	protected Integer  payType;//pay_type
+	protected Integer  payType;//pay_type 1：支付宝；2：微信支付
 	
 	
 	@Column(name = "createtime",updatable = false)
@@ -124,7 +124,7 @@ public class PayLog extends PageModel{
 	private String notifyStateStr = "";//0：未通知，1：已成功通知 2：支付通知失败
 
 	@Transient
-	private String payTypeStr = "";//0：未知，1：微信支付 2：支付宝支付
+	private String payTypeStr = "";//0：未知， 1：支付宝；2：微信支付
 	
 	/**
 	 * 对象构建方法
@@ -311,16 +311,16 @@ public class PayLog extends PageModel{
 	}
 
 	public String getPayTypeStr() {
-		//0：未知，1：微信支付 2：支付宝支付
+		//0：未知，1：支付宝支付 2：微信支付
 		switch (this.payState){
 			case -1:
 				return "未知";
 			case 0:
 				return "未知";
 			case 1:
-				return "微信支付";
-			case 2:
 				return "支付宝支付";
+			case 2:
+				return "微信支付";
 		}
 		return payTypeStr;
 	}
