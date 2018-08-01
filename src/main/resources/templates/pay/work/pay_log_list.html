@@ -21,8 +21,8 @@
             <Form-item label="支付类型">
                 <i-select v-model="myform.payType" :value="myform.payType" style="width:150px">
                     <i-option value="-1">所有</i-option>
-                    <i-option value="1">微信支付</i-option>
-                    <i-option value="2">支付宝支付</i-option>
+                    <i-option value="1">支付宝支付</i-option>
+                    <i-option value="2">微信支付</i-option>
                 </i-select>
             </Form-item>
 
@@ -90,10 +90,10 @@
                         key: 'payType',
                         render: function(h, params) {
                             if(params.row.payType==1){
-                                return "微信支付";
+                                return "支付宝支付";
                             }
                             if(params.row.payType==2){
-                                return "支付宝支付";
+                                return "微信支付";
                             }
                         }
                     },
