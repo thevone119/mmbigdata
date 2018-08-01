@@ -55,32 +55,16 @@ public class PayLogController  {
 	 * @param:
 	 * @throws:
 	 */
-	@ControllerFilter(LoginType = 1,UserType = 0)
-	@ResponseBody
-    @RequestMapping("/save")
+	//@ControllerFilter(LoginType = 1,UserType = 0)
+	//@ResponseBody
+    //@RequestMapping("/save")
     public XJsonInfo save(PayLog vo) throws ServiceException, DaoException {
         paylogService.saveOrUpdate(vo);
         return new XJsonInfo();
     }
 
 
-	/**
-	 * 更改订单状态
-	 * @param vo
-	 * @return
-	 * @throws ServiceException
-	 * @throws DaoException
-	 */
-	@ResponseBody
-	@RequestMapping("/changeState")
-	public XJsonInfo changeState(PayLog vo) throws ServiceException, DaoException {
-		//1.把订单设置为已收款
 
-
-		//2.调用收款通知
-		paylogService.saveOrUpdate(vo);
-		return new XJsonInfo();
-	}
 
 
 

@@ -50,7 +50,7 @@ public class PayProd extends PageModel{
 	
 	
 	@Column(name = "pay_type")
-	protected Long  payType;//pay_type 1：支付宝；2：微信支付
+	protected Integer  payType;//pay_type 1：支付宝；2：微信支付
 
 	@Column(name = "state")
 	private int state=1;//状态 0无效，1有效
@@ -119,18 +119,15 @@ public class PayProd extends PageModel{
 	public String getPayImgPath(){
 		return this.payImgPath;
 	}
-	
-	public void setPayType(Long payType){
+
+	public Integer getPayType() {
+		return payType;
+	}
+
+	public void setPayType(Integer payType) {
 		this.payType = payType;
 	}
-	/**
-	 * 返回 pay_type
-	 * @return
-	 */
-	public Long getPayType(){
-		return this.payType;
-	}
-	
+
 	public void setCreatetime(String createtime){
 		this.createtime = createtime;
 	}

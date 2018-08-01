@@ -96,5 +96,17 @@ public class PayProdService{
 
 		return payprodRepository.findPage(hql.toString(), vo, fldValues);
 	}
+
+	/**
+	 * 根据用户，价格,支付类型查询可用支付商品
+	 * @param userId
+	 * @param prodPrice
+	 * @return
+	 */
+	public List<PayProd> queryByPrice(Long userId,Float prodPrice,Integer payType){
+		StringBuffer hql = new StringBuffer(" from PayProd where userId=? and  prodPrice=? and payType=? and state=1 and payImgContent is not null");
+		return payprodRepository.query(hql.toString(),new Object[]{userId,prodPrice,payType});
+	}
+
 	
 }

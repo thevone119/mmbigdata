@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.bingo.business.pay.model.*;
@@ -78,6 +80,38 @@ public class PayLogService{
 		return paylogRepository.find(qhtl.toString(),new String[]{rid,uid});
 	}
 
+	/**
+	 * 根据商户ID，和订单ID查询订单
+	 * @param uid
+	 * @param orderid
+	 * @return
+	 * @throws DaoException
+	 */
+	public PayLog queryByUidOrderid(String uid,String orderid) throws DaoException{
+		StringBuffer qhtl = new StringBuffer(" from PayLog where uid =? and orderid=? ");
+		return paylogRepository.find(qhtl.toString(),new String[]{uid,orderid});
+	}
+
+	/**
+	 * 查询正在使用的订单
+	 * 根据商户，价格查询
+	 * @return
+	 */
+	public List<PayLog> queryByUseingLog(String uid,Integer  payType,Float prodPrice){
+		StringBuffer qhtl = new StringBuffer(" from PayLog where uid =? and payType=? and createtime>? and payState!=1 ");
+		if(prodPrice!=null){
+			qhtl.append(" and prodPrice=? ");
+		}
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MINUTE,-5);
+		String validtime = format.format(cal.getTime());
+		if(prodPrice==null){
+			return paylogRepository.query(qhtl.toString(),new Object[]{uid,payType,validtime});
+		}else{
+			return paylogRepository.query(qhtl.toString(),new Object[]{uid,payType,validtime,prodPrice});
+		}
+	}
 
 
 	/**

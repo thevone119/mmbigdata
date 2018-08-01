@@ -166,6 +166,8 @@ public class PayService {
     }
 
 
+
+
     /**
      * 发起支付通知
      * 采用线程通知，避免通知IO线程阻塞
@@ -340,7 +342,7 @@ public class PayService {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         //查询套餐过期的商户
         String hql = "from PayBus where autoReFee>0 and busValidity<?";
-        List<PayBus> list = payBusRepository.query(hql,new Integer[]{new Integer(format.format(new Date()))});
+        List<PayBus> list = payBusRepository.query(hql,new Long[]{new Long(format.format(new Date()))});
         for(PayBus bus:list){
             try{
                 checkBusValidity(bus);

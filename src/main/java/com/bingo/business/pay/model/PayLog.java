@@ -32,7 +32,7 @@ public class PayLog extends PageModel{
 	protected Long  busId;//商户ID
 
 	@Column(name = "bus_type",updatable = false)
-	protected Long  busType;//商户类型
+	protected Integer  busType;//商户类型
 	
 	
 	@Column(name = "bus_acc",updatable = false)
@@ -104,6 +104,10 @@ public class PayLog extends PageModel{
 	
 	@Column(name = "pay_ext1",updatable = false)
 	protected String  payExt1;//pay_ext1
+
+	@Column(name = "return_url",updatable = false)
+	protected String  returnUrl;//return_url
+
 	
 	
 	@Column(name = "notify_state",updatable = false)
@@ -198,11 +202,11 @@ public class PayLog extends PageModel{
 		return this.prodName;
 	}
 
-	public Long getBusType() {
+	public Integer getBusType() {
 		return busType;
 	}
 
-	public void setBusType(Long busType) {
+	public void setBusType(Integer busType) {
 		this.busType = busType;
 	}
 
@@ -255,6 +259,14 @@ public class PayLog extends PageModel{
 
 	public void setUid(String uid) {
 		this.uid = uid;
+	}
+
+	public String getReturnUrl() {
+		return returnUrl;
+	}
+
+	public void setReturnUrl(String returnUrl) {
+		this.returnUrl = returnUrl;
 	}
 
 	public String getPayName() {
