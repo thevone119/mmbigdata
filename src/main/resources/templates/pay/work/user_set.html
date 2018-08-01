@@ -113,7 +113,7 @@
 				<td>
 					<template>
 					<Upload action="/api/pay/paybus/upload_qr_img?payType=1"  name="uploadfile">
-						<i-Button type="primary" icon="ios-cloud-upload-outline">上传不限额微信收款码</i-Button>
+						<i-Button type="primary" icon="ios-cloud-upload-outline">上传不定额微信收款码</i-Button>
 					</Upload>
 					</template>
 					<i-Button type="success" icon="search" @click="Imgview(1)">查看当前已上传收款码</i-Button>
@@ -124,7 +124,7 @@
 				<td>
 					<template>
 					<Upload action="/api/pay/paybus/upload_qr_img?payType=2"  name="uploadfile">
-						<i-Button type="primary" icon="ios-cloud-upload-outline">上传不限额支付宝收款码</i-Button>
+						<i-Button type="primary" icon="ios-cloud-upload-outline">上传不定额支付宝收款码</i-Button>
 					</Upload>
 					</template>
 					<i-Button type="success"  icon="search"  @click="Imgview(2)">查看当前已上传收款码</i-Button>
