@@ -18,13 +18,15 @@
                     </template>
                 </i-select>
             </Form-item>
-            <Form-item label="支付类型">
-                <i-select v-model="myform.payType" :value="myform.payType" style="width:150px">
+            <Form-item label="支付状态">
+                <i-select v-model="myform.payState" :value="myform.payState" style="width:150px">
                     <i-option value="-1">所有</i-option>
-                    <i-option value="1">支付宝支付</i-option>
-                    <i-option value="2">微信支付</i-option>
+                    <i-option value="0">未支付</i-option>
+                    <i-option value="1">已支付</i-option>
                 </i-select>
             </Form-item>
+
+
 
         </i-form>
     </div>
@@ -56,8 +58,9 @@
                     ,currentRow:null//选中的行
                     ,pageNo: 1
                     ,pageSize: 10
-                    ,payType:"-1",
-                    createtime:"-1"
+                    ,payType:"-1"
+                    ,payState:"-1"
+                    ,createtime:"-1"
 
                 },
                 datalist:[],
@@ -103,7 +106,7 @@
                     },
                     {
                         title: '创建时间',
-                        key: 'createtime'
+                        key: 'createtimeStr'
                     },
                     {
                         title: '查看',

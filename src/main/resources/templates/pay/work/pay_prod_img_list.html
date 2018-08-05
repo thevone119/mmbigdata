@@ -7,25 +7,36 @@
 <div id="app">
     <div class="g-dg-search-banner">
         <i-form ref="myformRef" :model="myform" :label-width="80" inline>
-            <Form-item label="商品名称">
-                <i-input v-model="myform.prodName" placeholder="请输入"></i-input>
+            <Form-item label="适用价格">
+                <i-input v-model="myform.imgPrice" placeholder="请输入"></i-input>
             </Form-item>
-            <Form-item label="商品价格">
-                <i-input v-model="myform.prodPrice" placeholder="请输入"></i-input>
-            </Form-item>
-            <Form-item label="商品分类">
+            <Form-item label="支付类型">
                 <i-select v-model="myform.payType" :value="myform.payType" style="width:150px">
                     <i-option value="-1">所有</i-option>
                     <i-option value="1">支付宝支付</i-option>
                     <i-option value="2">微信支付</i-option>
                 </i-select>
             </Form-item>
+            <i-button type="info" icon="search" @click="reload">查询</i-button>
+
+            <i-button type="error" icon="android-remove-circle" @click="remove">删除</i-button>
+
+            <i-button type="success" icon="help" @click="help_view">帮助</i-button>
+
+
         </i-form>
     </div>
     <div class="g-dg-toolbar">
-        <i-button type="info" icon="search" @click="reload">查询</i-button>
-        <i-button type="primary" icon="android-add-circle" @click="add()">新增</i-button>
-        <i-button type="error" icon="android-remove-circle" @click="remove">删除</i-button>
+
+        <template>
+            <Upload action="/api/pay/payprodimg/upload_qr_img"  name="uploadfile"  multiple  :show-upload-list="false" :on-success="uploadSuccess"
+                    :format="['jpg','jpeg','png']"
+                    :max-size="2048"
+            >
+                <i-Button type="primary" icon="ios-cloud-upload-outline">批量上传收款码</i-Button>
+            </Upload>
+        </template>
+
     </div>
     <i-table :data="dtData" :columns="dtCols" :height="getTableHeight" size="small" :highlight-row="true"
              @on-current-change="onCurrentChange" stripe  @on-selection-change="onSelRows" @on-row-dblclick="edit"></i-table>
@@ -38,13 +49,13 @@
 </div>
 <script>
     const urls = {
-        fildPage:'/api/pay/payprod/findPage'
-        ,delete:'/api/pay/payprod/delete'
+        fildPage:'/api/pay/payprodimg/findPage'
+        ,delete:'/api/pay/payprodimg/delete'
     };
     var vm = new Vue({
         el: '#app',
         data:{
-                title: '支付商品管理',
+                title: '二维码管理',
                 myform: {
                     plevel : 0
                     ,selRows: null//选中的行 字符串，用,号隔开
@@ -61,19 +72,15 @@
                         ,width: 60
                         ,align: 'center'
                     },
-                    {
-                        title: '商品名称',
-                        key: 'prodName'
-                    },
-                    {
-                        title: '商品价格',
-                        key: 'prodPrice'
-                    },
+
                     {
                         title: '收款码价格',
-                        key: 'payImgPrice'
+                        key: 'imgPrice'
                     },
-
+                    {
+                        title: '适配价格',
+                        key: 'fitPrice'
+                    },
                     {
                         title: '支付类型',
                         key: 'payType',
@@ -87,77 +94,8 @@
                         }
                     },
                     {
-                        title: '状态',
-                        key: 'state',
-                        render: function(h, params) {
-                            if(params.row.payImgContent==null||params.row.payImgContent.length<5){
-                                return "缺收款码";
-                            }
-                            if(params.row.state==0){
-                                return "无效";
-                            }
-                            if(params.row.state==1){
-                                return "有效";
-                            }
-                        }
-                    },
-                    {
                         title: '创建时间',
-                        key: 'createtimeStr'
-                    },
-                    {
-                        title: '查看收款码',
-                        render: function(h, params) {
-                            return h('div', [
-                                 h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                     on: {
-                                         click:function(){
-                                             vm.Imgview(params.row.prodId);
-                                         }
-                                     }
-                                }, '查看')
-                            ]);
-                        }
-                    },
-                    {
-                        title: '上传二维码',
-                        key: 'prodId',
-                        render: function(h, params) {
-                            return h('div', [
-                                h('Upload', {
-                                    props: {
-                                        action: '/api/pay/payprod/upload_qr_img',
-                                        data:{"prodId":params.row.prodId},
-                                        name:"uploadfile",
-                                        accept:"image/*",
-                                        showUploadList:false,
-                                        'on-success':function(res, file){
-                                            if(res.success){
-                                                layer.msg('上传成功');
-                                            }else{
-                                                layer.msg('上传失败,请稍候再试...');
-                                            }
-                                        }
-                                    },
-                                    style:{
-                                        marginRight:'5px'
-                                    }
-                                }, [ h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style:{
-                                        marginRight:'5px'
-                                    }
-                                }, '上传收款码')])
-
-                            ]);
-                        }
+                        key: 'createtime'
                     }
                 ]
         },
@@ -194,16 +132,17 @@
                     });
             },
             uploadSuccess:function(res, file) {
-                //file.url = 'https://o5wwk8baw.qnssl.com/7eb99afb9d5f317c912f08b5212fd69a/avatar';
-                //file.name = '7eb99afb9d5f317c912f08b5212fd69a';
-                alert(11);
-                file=null;
+                if(res.success){
+                    layer.msg('上传成功');
+                }else{
+                    layer.msg(res.msg);
+                }
             },
             onSelRows:function(selection){
                 if(selection){
 
                     this.myform.selRows = selection.map(function(q){
-                        return q.prodId
+                        return q.cid;
                     }).toString();
                     //this.myform.selRows = selection.map(q => q.prodId).toString();
                 }
@@ -224,34 +163,29 @@
                 this.myform.pageSize = e;
                 this.loadData();
             },
-            add:function(id){//新增
-                if(!id){
-                    id=0;
-                }
+            help_view:function(){//帮助
                 layer.open({
                     type: 2,
-                    title: '支付商品管理',
+                    title: '帮助说明',
                     maxmin: true,
                     shadeClose: true, //点击遮罩关闭层
                     area : ['650px' , '500px'],
-                    content: '/pay/work/pay_prod_detail.html?id='+id
+                    content: '/pay/work/pay_prod_img_help.html'
                 });
             },
             edit:function(){//编辑
                 if(this.myform.currentRow){
-                    this.add(this.myform.currentRow.prodId);
-                }else{
-                    this.add();
+                    this.Imgview(this.myform.currentRow.cid);
                 }
             },
-            Imgview:function(prodId){//查看支付二维码
+            Imgview:function(cid){//查看支付二维码
                 layer.open({
                     type: 2,
-                    title: '查看支付二维码',
+                    title: '查看二维码',
                     maxmin: true,
                     shadeClose: true, //点击遮罩关闭层
                     area : ['400px' , '400px'],
-                    content: '/api/pay/payprod/qr_img_view?prodId='+prodId
+                    content: '/api/pay/payprodimg/qr_img_view?cid='+cid
                 });
             },
 

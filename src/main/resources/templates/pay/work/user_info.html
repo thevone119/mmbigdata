@@ -172,6 +172,7 @@
                             success: function(ret){
                                 if(ret.success){
                                     vm.myform = ret.data;
+                                    vm.loadBus();
                                 }else{
                                     layer.alert("您还没登录，或登录超时，请重新登录");
                                     window.top.location.href="/pay/login.html";
@@ -181,6 +182,8 @@
                                 layer.alert("系统错误，请稍候再试");
                             }
                         });
+                },
+                loadBus:function(){
                     $.ajax(
                         {
                             type: 'post', // 提交方式 get/post
@@ -191,6 +194,8 @@
                             success: function(ret){
                                 if(ret.success){
                                     vm.bus = ret.data;
+                                    vm.bus.autoReFee=vm.bus.autoReFee+'';
+                                    vm.bus.payTimeOut=vm.bus.payTimeOut+'';
                                     vm.myform.notifyUrl=vm.bus.notifyUrl;
                                     vm.myform.gobackUrl=vm.bus.gobackUrl;
                                 }
