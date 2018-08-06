@@ -13,7 +13,7 @@ import java.util.UUID;
  * 创建订单的返回参数定义
  */
 public class PayReturn {
-    private Integer ret_code=0;//返回码
+    private Integer ret_code=-1;//返回码  1:才是成功
     private String ret_msg="创建订单成功";//消息
     private String nonce_str;//随机字符串
 
@@ -49,7 +49,7 @@ public class PayReturn {
         }
         this.create_time = log.getCreatetime();
         this.orderid = log.getOrderid();
-        this.pay_id=log.getLogId()+"";
+        this.pay_id=log.getRid()+"";
         this.qrcode = log.getPayImgContent();
         this.realprice = log.getPayImgPrice();
         this.pay_type = log.getPayType();
@@ -226,4 +226,14 @@ public class PayReturn {
         String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
         return _sign;
     }
+
+    /**
+     * 重设sign
+     * @param sign_key
+     * @throws IllegalAccessException
+     */
+    public void reSetSign(String sign_key) throws IllegalAccessException {
+        this.sign = MarkSign(sign_key);
+    }
+
 }

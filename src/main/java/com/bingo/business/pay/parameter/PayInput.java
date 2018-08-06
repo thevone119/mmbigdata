@@ -24,7 +24,7 @@ public class PayInput {
     private String pay_name;
     private String pay_demo;
     private String return_url;
-    private String return_type;//返回的数据类型，默认返回页面page,可以返回json
+
     private String sign;
 
 
@@ -122,13 +122,7 @@ public class PayInput {
         this.nonce_str = nonce_str;
     }
 
-    public String getReturn_type() {
-        return return_type;
-    }
 
-    public void setReturn_type(String return_type) {
-        this.return_type = return_type;
-    }
 
     /**
      * 对pay对象进行签名
