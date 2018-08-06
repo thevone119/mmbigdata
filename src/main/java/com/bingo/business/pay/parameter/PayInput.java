@@ -1,15 +1,22 @@
-package com.bingo.business.pay.model;
+package com.bingo.business.pay.parameter;
 
 import com.bingo.common.utility.SecurityClass;
+import org.apache.commons.lang3.StringUtils;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Administrator on 2018-08-01.
+ * 创建订单的表单参数
  * 支付订单内容录入参数，在这里定义
  */
 public class PayInput {
+    //针对订单创建
     private String uid;
     private String orderid;
-    private String r;//随机字符串
+    private String nonce_str;//随机字符串
     private Float price;
     private String pay_ext1;
     private String pay_ext2;
@@ -17,7 +24,11 @@ public class PayInput {
     private String pay_name;
     private String pay_demo;
     private String return_url;
+    private String return_type;//返回的数据类型，默认返回页面page,可以返回json
     private String sign;
+
+
+
 
     public PayInput(){
 
@@ -103,26 +114,57 @@ public class PayInput {
         this.sign = sign;
     }
 
-    public String getR() {
-        return r;
+    public String getNonce_str() {
+        return nonce_str;
     }
 
-    public void setR(String r) {
-        this.r = r;
+    public void setNonce_str(String nonce_str) {
+        this.nonce_str = nonce_str;
+    }
+
+    public String getReturn_type() {
+        return return_type;
+    }
+
+    public void setReturn_type(String return_type) {
+        this.return_type = return_type;
     }
 
     /**
      * 对pay对象进行签名
      * @return
      */
-    public String MarkSign(String signKey){
+    public String MarkSign(String sign_key) throws IllegalAccessException {
+        //所有参数加入list
+        List<String> kvlist = new ArrayList<String>();
+        //采用反射获取所有的属性，并计算签名
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            //要设置属性可达，不然会抛出IllegalAccessException异常
+            field.setAccessible(true);
+            String key = field.getName();
+            if(key.equals("sign")){
+                continue;
+            }
+            Object value = field.get(this);
+            if(value==null||value.toString().length()==0){
+                continue;
+            }
+            kvlist.add(key+"="+value);
+        }
+
+        //对所有的参数进行排序
+        kvlist.sort((h1, h2) -> h1.compareTo(h2));
+
+        //组成相关的
+        StringBuffer stringA =new  StringBuffer();
+        for(String kv:kvlist){
+            stringA.append(kv+"&");
+        }
+        stringA.append("sign_key="+sign_key);
+        System.out.println(stringA.toString());
         //签名
-        StringBuffer signstr = new StringBuffer();
-        signstr.append(uid+"");
-        signstr.append(orderid+"");
-        signstr.append(r+"");
-        signstr.append(signKey);
-        String _sign =  SecurityClass.encryptMD5(signstr.toString());
+        String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
         return _sign;
     }
 }

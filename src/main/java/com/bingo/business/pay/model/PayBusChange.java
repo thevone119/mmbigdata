@@ -3,6 +3,7 @@ package com.bingo.business.pay.model;
 import com.bingo.common.model.PageModel;
 
 import javax.persistence.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -43,6 +44,9 @@ public class PayBusChange extends PageModel{
 
 	@Column(name = "demo",updatable = false)
 	protected String  demo;//备注
+
+	@Transient
+	private String createtimeStr = "";//日期的格式化输出
 
 
 
@@ -123,5 +127,25 @@ public class PayBusChange extends PageModel{
 
 	public void setLogId(Long logId) {
 		this.logId = logId;
+	}
+
+	public String getCreatetimeStr() throws ParseException {
+		if(this.createtime==null){
+			return null;
+		}
+		if(this.createtime.indexOf("-")!=-1){
+			return createtime;
+		}
+
+		if(this.createtime.length()==10){
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+			SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			return format2.format(format.parse(createtime));
+		}
+		return createtime;
+	}
+
+	public void setCreatetimeStr(String createtimeStr) {
+		this.createtimeStr = createtimeStr;
 	}
 }

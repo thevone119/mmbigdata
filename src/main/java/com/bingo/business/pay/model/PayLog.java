@@ -4,6 +4,7 @@ import com.bingo.common.model.PageModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -88,14 +89,15 @@ public class PayLog extends PageModel{
 	protected String  createtime;//创建时间
 
 
-	
+	@Column(name = "updatetime")
+	protected String  updatetime;//更新时间，订单支付只有5分钟有效，可以更新，延长支付时间
 	
 	@Column(name = "pay_time",updatable = false)
 	protected String  payTime;//pay_time
 	
 	
 	@Column(name = "pay_state",updatable = false)
-	protected Integer  payState;//支付状态 -1：未知状态，0：等待支付 1：支付成功，2：支付失败，11：账户余额不足，12：账户套餐过期，13：支付超时
+	protected Integer  payState;//支付状态 -1：未知状态，0：等待支付,未支付 1：支付成功，2：支付失败，11：账户余额不足，12：账户套餐过期，13：支付超时
 	
 	
 	@Column(name = "pay_ext2",updatable = false)
@@ -125,6 +127,9 @@ public class PayLog extends PageModel{
 
 	@Transient
 	private String payTypeStr = "";//0：未知， 1：支付宝；2：微信支付
+
+	@Transient
+	private String createtimeStr = "";//日期的格式化输出
 	
 	/**
 	 * 对象构建方法
@@ -134,6 +139,7 @@ public class PayLog extends PageModel{
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		this.rid= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		this.createtime=format.format(new Date());
+		this.updatetime=format.format(new Date());
 	}
 	
 	public void setLogId(Long logId){
@@ -285,6 +291,14 @@ public class PayLog extends PageModel{
 		this.rid = rid;
 	}
 
+	public String getUpdatetime() {
+		return updatetime;
+	}
+
+	public void setUpdatetime(String updatetime) {
+		this.updatetime = updatetime;
+	}
+
 	public Integer getPayType() {
 		return payType;
 	}
@@ -409,9 +423,9 @@ public class PayLog extends PageModel{
 			case -1:
 				return "未知状态";
 			case 0:
-				return "等待支付";
+				return "未支付";
 			case 1:
-				return "支付成功";
+				return "已支付";
 			case 2:
 				return "支付失败";
 			case 11:
@@ -426,5 +440,25 @@ public class PayLog extends PageModel{
 
 	public void setPayStateStr(String payStateStr) {
 		this.payStateStr = payStateStr;
+	}
+
+	public String getCreatetimeStr() throws ParseException {
+		if(this.createtime==null){
+			return null;
+		}
+		if(this.createtime.indexOf("-")!=-1){
+			return createtime;
+		}
+
+		if(this.createtime.length()==10){
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+			SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			return format2.format(format.parse(createtime));
+		}
+		return createtime;
+	}
+
+	public void setCreatetimeStr(String createtimeStr) {
+		this.createtimeStr = createtimeStr;
 	}
 }

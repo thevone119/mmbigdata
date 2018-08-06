@@ -4,6 +4,7 @@ import com.bingo.common.model.PageModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,7 +13,7 @@ import java.util.UUID;
 /**
  * @author huangtw
  * 2018-07-09 09:34:03
- * 对象功能:  支付产品表Model对象
+ * 对象功能:  支付产品表Model对象,作废
  */
 @Entity
 @Table(name="T_PAY_PROD")
@@ -58,6 +59,9 @@ public class PayProd extends PageModel{
 	
 	@Column(name = "createtime",updatable = false)
 	protected String  createtime;//createtime
+
+	@Transient
+	private String createtimeStr = "";//日期的格式化输出
 	
 	
 	
@@ -169,5 +173,24 @@ public class PayProd extends PageModel{
 
 	public void setPayImgPrice(Float payImgPrice) {
 		this.payImgPrice = payImgPrice;
+	}
+
+	public String getCreatetimeStr() throws ParseException {
+		if(this.createtime==null){
+			return null;
+		}
+		if(this.createtime.indexOf("-")!=-1){
+			return createtime;
+		}
+		if(this.createtime.length()==10){
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+			SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			return format2.format(format.parse(createtime));
+		}
+		return createtime;
+	}
+
+	public void setCreatetimeStr(String createtimeStr) {
+		this.createtimeStr = createtimeStr;
 	}
 }

@@ -97,14 +97,14 @@ public class PayLogService{
 	 * 根据商户，价格查询
 	 * @return
 	 */
-	public List<PayLog> queryByUseingLog(String uid,Integer  payType,Float prodPrice){
-		StringBuffer qhtl = new StringBuffer(" from PayLog where uid =? and payType=? and createtime>? and payState!=1 ");
+	public List<PayLog> queryByUseingLog(String uid,Integer  payType,Integer payTimeOut,Float prodPrice){
+		StringBuffer qhtl = new StringBuffer(" from PayLog where uid =? and payType=? and updatetime>? and payState!=1 ");
 		if(prodPrice!=null){
 			qhtl.append(" and prodPrice=? ");
 		}
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE,-5);
+		cal.add(Calendar.MINUTE,-payTimeOut);
 		String validtime = format.format(cal.getTime());
 		if(prodPrice==null){
 			return paylogRepository.query(qhtl.toString(),new Object[]{uid,payType,validtime});
@@ -147,6 +147,11 @@ public class PayLogService{
 		if(vo.getPayType()!=null&&vo.getPayType()>0){
 			hql.append(" and payType = ?");
 			fldValues.add(vo.getPayType());
+		}
+
+		if(vo.getPayState()!=null&&vo.getPayState()>=0){
+			hql.append(" and payState = ?");
+			fldValues.add(vo.getPayState());
 		}
 
 

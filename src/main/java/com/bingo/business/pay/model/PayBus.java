@@ -4,6 +4,7 @@ import com.bingo.common.model.PageModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -66,12 +67,18 @@ public class PayBus extends PageModel{
 	@Column(name = "pay_img_content_wx")
 	protected String  payImgContentWx;//微信的收款二维码
 
+	@Column(name = "pay_time_out")
+	protected Integer  payTimeOut=5;//支付超时时间。分钟，默认5分钟，可选5分钟，10分钟，15分钟
+
 
 	@Transient
 	private String busTypeStr = "";//商户类型,0：默认，无套餐  1：商户基础版套餐，2：商户高级版套餐，3：商户专业版套餐
 
 	@Transient
 	private String autoReFeeStr = "";//到期自动续费0:不自动续费，1：自动续费套餐1，2自动续费套餐2,3：自动续费套餐3
+
+	@Transient
+	private String createtimeStr = "";//日期的格式化输出
 
 	
 	
@@ -164,6 +171,15 @@ public class PayBus extends PageModel{
 		return busType;
 	}
 
+
+	public Integer getPayTimeOut() {
+		return payTimeOut;
+	}
+
+	public void setPayTimeOut(Integer payTimeOut) {
+		this.payTimeOut = payTimeOut;
+	}
+
 	public void setBusType(Integer busType) {
 		this.busType = busType;
 	}
@@ -254,5 +270,25 @@ public class PayBus extends PageModel{
 
 	public void setAutoReFeeStr(String autoReFeeStr) {
 		this.autoReFeeStr = autoReFeeStr;
+	}
+
+	public String getCreatetimeStr() throws ParseException {
+		if(this.createtime==null){
+			return null;
+		}
+		if(this.createtime.indexOf("-")!=-1){
+			return createtime;
+		}
+
+		if(this.createtime.length()==10){
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+			SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			return format2.format(format.parse(createtime));
+		}
+		return createtime;
+	}
+
+	public void setCreatetimeStr(String createtimeStr) {
+		this.createtimeStr = createtimeStr;
 	}
 }
