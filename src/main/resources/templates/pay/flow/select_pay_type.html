@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>请选择支付方式</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+	<meta name="keywords" content="个人网站支付;微信支付;支付宝支付收款;第四方支付平台" />
+	<meta name="description" content="专为个人收款而生的支付工具。为支付宝、微信支付的个人账户，提供即时到账收款API接口。安全可靠，费率低。">
+
+	<link href="/pay/css/bootstrap.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="/pay/layer/mobile/need/layer.css" />
+	<link rel="stylesheet" href="/pay/css/app.css" />
+
+	<script type="text/javascript" src="/pay/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="/pay/layer/mobile/layer.js" ></script>
+
+
+
+	<link rel="icon" type="image/x-icon" href="/pay/images/favicon.ico">
+	<style>
+
+		/*****头部*******/
+		.header{ background: #29e82a; width: 100%; margin: 0 auto;  color:#fff;text-align:center;line-height: 2.0rem;font-size: 0.9rem;vertical-align: middle}
+
+		/*****底部*******/
+		.but{ background: #29e82a; width: 100%;  color:#fff;text-align:center;line-height: 2.5rem;font-size: 0.9rem;position: fixed;
+			left: 0;
+			bottom: 0;
+			z-index: 97;}
+
+		.wxpay{ background: #29e82a; width: 100%; margin: 0 auto;  color:#fff;text-align:center;line-height: 2.0rem;font-size: 0.9rem;vertical-align: middle;margin-top: 0.5rem;cursor:pointer;}
+
+		.zfbpay{ background: #64d9e8; width: 100%; margin: 0 auto;  color:#fff;text-align:center;line-height: 2.0rem;font-size: 0.9rem;vertical-align: middle;margin-top: 0.5rem;cursor:pointer;}
+
+		/*****居中*******/
+		.cen{  width: 100%;margin: 0 auto; text-align: center;display: flex;justify-content:center;vertical-align: middle}
+
+		/****中间内容***/
+		.nav{
+			width:100%;
+			height:auto;
+			margin: 0 auto;
+			text-align: center;
+			margin-top: 0.5rem;
+		}
+
+		/***分割线***/
+
+		.line{
+			width:100%;
+			height: 1px;
+			margin: 0 auto;
+			text-align: center;
+			border:1px solid #9c9c9c;
+		}
+
+
+
+
+	</style>
+</head>
+
+<body>
+
+<div class="header" >
+	<h1>支付订单</h1>
+</div>
+
+
+
+<div class="nav">
+	<span style="font-size: 0.5rem;color: rgba(144,144,144,0.84)">剩余时间</span>
+	<br>
+	<br>
+	<span style="font-size: 1rem;">¥59.94</span>
+	<br>
+	<br>
+	<span style="font-size: 0.5rem;color: rgba(144,144,144,0.84)">订单号：xxdfaf464646</span>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="zfbpay" >
+	<div class="cen">
+	<img src="/pay/images/zfb_logo.png"    height="80" />
+	<h1 style="margin-left: 0.5rem">支付宝支付</h1>
+	</div>
+</div>
+
+<div class="line"></div>
+<div class="wxpay" >
+	<div class="cen">
+		<img src="/pay/images/wx_logo.png" height="80" />
+		<h1 style="margin-left: 0.5rem">&emsp;微信支付</h1>
+	</div>
+</div>
+<div class="line"></div>
+
+</body>
+<script type="text/javascript">
+	//判断是否手机访问
+	function ismobile() {
+        var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+        var browser = navigator.userAgent.toLowerCase();
+        for (var i=0; i<mobileAgent.length; i++) {
+            if (browser.indexOf(mobileAgent[i]) != -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+</script>
+
+	<script>
+
+
+
+	</script>
+</html>

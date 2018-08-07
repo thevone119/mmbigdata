@@ -36,6 +36,9 @@
 								<input id="useracc" name="useracc" type="text" class="form-control" placeholder="请输入您的账号（邮箱/手机号/用户名）" required/>
 							</li>
 							<li>
+								<input id="nikename" name="nikename" type="text" class="form-control" placeholder="请输入姓名/昵称" required/>
+							</li>
+							<li>
 								<input id="pwd" name="pwd" type="password" class="form-control " placeholder="设置您的账号密码"  required/>
 							</li>
 							<li>
@@ -132,6 +135,10 @@
                     required: true,
                     minlength: 6
                 },
+                nikename:{
+                    required: true,
+                    minlength: 1
+                },
                 pwd:{
                     required: true,
                     minlength: 6
@@ -154,6 +161,10 @@
                 useracc: {
                     required: "请输入您的账号",
                     minlength: "账号长度不能小于6个字母"
+                },
+                useracc: {
+                    required: "请输入您的姓名/昵称",
+                    minlength: "姓名/昵称长度不能小于1个字母"
                 },
                 pwd: {
                     required: "请输入密码",
