@@ -93,6 +93,7 @@
             if(!validatestatus){
                 return false;
             }
+            var loading1 = layer.load();
             //判断输入框内容是否完整
             var post={
                 type: 'post', // 提交方式 get/post
@@ -101,6 +102,7 @@
                 cache:false,
                 dataType:'json',
                 success: function(data) {
+                    layer.close(loading1);
                     if(data.success){
                         //alert("注册成功,请登录");
 						//登录成功，放入cookie
@@ -113,6 +115,7 @@
                     }
                 },
                 error:function(){
+                    layer.close(loading1);
                     layer.alert("系统繁忙，请稍候再试");
                 }
             }

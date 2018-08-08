@@ -1,0 +1,2 @@
+我做了一个android的app，现在有微信收款二维码以及解析的二维码网址，怎么样实现点击后跳转到微信的转账界面？
+支付宝的跳转是这样的：Uri uri = Uri.parse("alipayqr://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/aegx……");在qrcode=的后面是解析的二维码，不知道微信的怎么写，请高手指点.分很少，请原谅

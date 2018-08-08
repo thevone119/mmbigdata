@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head.html" />
+</head>
+
+<body>
+<#include "/pay/include/header.html" />
+
+	<!---------------导航------------------>
+	<div class="container serve_box">
+		<div class="row">
+			<div class="col-xs-3">
+				<div class="serve_lf">
+					<ul>
+						<li>
+							<a href="#" tsrc="/pay/help/help_1.html" id="link_1" class="ac_s" onclick="changeac(this);">准备工作</a>
+						</li>
+						<li>
+							<a  href="#" tsrc="/pay/help/help_2.html" id="link_2"  onclick="changeac(this);">发起支付</a>
+						</li>
+						<li>
+							<a href="#" tsrc="/pay/help/help_3.html" id="link_3"  onclick="changeac(this);">查询支付结果</a>
+						</li>
+						<li>
+							<a href="#" tsrc="/pay/help/help_4.html" id="link_4"  onclick="changeac(this);">DEMO下载</a>
+						</li>
+						<li>
+							<a href="#" tsrc="/pay/help/help_5.html" id="link_5"  onclick="changeac(this);">商户平台使用</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-xs-9">
+				<iframe id="mian" name="mian" src="/pay/help/help_1.html" width="100%" height="600" frameborder="0"></iframe>
+			</div>
+			
+		</div>
+	</div>
+										
+
+<!---------footer-------------->
+<#include "/pay/include/footer.html" />
+
+
+<script type="text/javascript">
+	function changeac(obj){
+        $("#link_1").attr({"class" : ""});
+        $("#link_2").attr({"class" : ""});
+        $("#link_3").attr({"class" : ""});
+        $("#link_4").attr({"class" : ""});
+        $("#link_5").attr({"class" : ""});
+        $(obj).attr({"class" : "ac_s"});
+        var link =  $(obj).attr("tsrc");
+        $("#mian").attr({"src" : link});
+	}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

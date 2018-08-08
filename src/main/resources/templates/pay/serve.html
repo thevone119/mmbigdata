@@ -53,7 +53,7 @@
 										￥3000
 									</td>
 									<td>
-										￥19.99元/月<button class="btn btn-xs btn-danger" onClick="location.href='record_check.html'">开 通</button>
+										￥19.99元/月<button class="btn btn-xs btn-danger" onClick="openTaoCan(1);">开 通</button>
 									</td>
 
 								</tr>
@@ -76,7 +76,7 @@
 										￥6000
 									</td>
 									<td>
-										￥39.99元/月<button class="btn btn-xs btn-danger" onClick="location.href='record_check.html'">开 通</button>
+										￥39.99元/月<button class="btn btn-xs btn-danger" onClick="openTaoCan(2);">开 通</button>
 									</td>
 
 								</tr>
@@ -99,13 +99,16 @@
 										￥10000
 									</td>
 									<td>
-										￥59.99元/月<button class="btn btn-xs btn-danger" onClick="location.href='record_check.html'">开 通</button>
+										￥59.99元/月<button class="btn btn-xs btn-danger" onClick="openTaoCan(3);">开 通</button>
 									</td>
 
 								</tr>
 							</tbody>
 						</table>
 						<div class="state">
+							<h4>包月费用： </h4>
+							<p>包月费用是指每月从账户中扣除的费用，如费用不足，请先 <a href="">充值 </a> 。</p>
+							<p>开通套餐有效期只有一个月，如果需要每月自动扣费，则在 <a href="/pay/work/index.html">商户设置</a> 中进行进行自动续费的设置。</p>
 							<h4>手续费： </h4>
 							<p>手续费是收款成功后，直接从账户中扣除的手续费，如果账户中费用不足，则无法发起支付，请保证账户余额充足。</p>
 							<p>支付成功通知才收取手续费。支付金额小于1元的订单免手续费，支付手工确认收款的订单免手续费。</p>
@@ -117,8 +120,50 @@
 				
 		</div>
 
-	
 
+<script>
+
+    /**
+     * 开通套餐
+     */
+    function openTaoCan(busType){
+        //layer.msg('套餐开通成功',{icon: 1});
+        //layer.alert('套餐开通成功',{icon: 1});
+        //return;
+        //判断输入框内容是否完整
+        var loading1 = layer.load();
+        var post={
+            type: 'post', // 提交方式 get/post
+            url: '/api/pay/paybus/openTaoCan?busType='+busType, // 需要提交的 u
+            async:true,
+            cache:false,
+            dataType:'json',
+            success: function(data) {
+                layer.closeAll('loading');
+                if(data.success){
+                    layer.alert('套餐开通成功',{icon: 1});
+                    //layer.msg('套餐开通成功',{icon: 1});
+                }else{
+                    layer.alert(data.msg,{icon: 5});
+                }
+            },
+            error:function(){
+                layer.closeAll('loading');
+                layer.alert("系统繁忙，请稍候再试");
+            }
+        }
+
+        $.ajax(post);
+        //此处演示关闭
+        setTimeout(function(){
+            layer.close(loading1);
+        }, 5000);
+
+    }
+
+
+
+</script>
 	
 	
 <!---------footer-------------->
