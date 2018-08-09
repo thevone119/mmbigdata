@@ -117,7 +117,14 @@
                 layer.closeAll('loading');
                 if(data.success){
                     //创建支付订单成功，则跳转到支付页，扫码支付页面
-
+                    layer.open({
+                        type: 2,
+                        title: '商户充值',
+                        maxmin: false,
+                        shadeClose: true, //点击遮罩关闭层
+                        area : ['600px' , '500px'],
+                        content: data.data
+                    });
 
                 }else{
                     layer.alert(data.msg,{icon: 5});
