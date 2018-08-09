@@ -7,6 +7,7 @@ import com.bingo.business.pay.parameter.PayReturn;
 import com.bingo.business.pay.repository.*;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.http.MyRequests;
 import com.bingo.common.thread.MyThreadPool;
 import com.bingo.common.utility.SecurityClass;
 import com.bingo.common.utility.XJsonInfo;
@@ -234,29 +235,12 @@ public class PayService {
             return ret;
         }
         try{
-            //使用http发起通知
-            Connection conn = Jsoup.connect(bus.getNotifyUrl());
-            //伪装http头
-            Map<String,String> headers = new HashMap<>();
-            headers.put("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-            headers.put("accept-encoding","gzip, deflate, br");
-            headers.put("accept-language","zh-CN,zh;q=0.9");
-            headers.put("cache-control","max-age=0");
-            headers.put("upgrade-insecure-requests","1");
-            headers.put("user-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-            conn.headers(headers);
-            //post data
-            //conn.data(entry.getKey(), entry.getValue());
+            String url = bus.getNotifyUrl();
             PayReturn pret = new PayReturn(paylog);
             pret.setRet_code(1);
             pret.setRet_msg("ok");
-            conn.data(pret.getPostData(bus.getSignKey()));
-
-            conn.timeout(1000*10);
-            conn.followRedirects(true);
-            //post
-            Connection.Response response = conn.method(Connection.Method.POST).execute();
-            String body = response.body();
+            MyRequests req = new MyRequests();
+            String body = req.httpPost(url,pret.getPostData(bus.getSignKey()));
 
             if(body!=null && body.indexOf("SUCCESS")!=-1){
                 //通知成功

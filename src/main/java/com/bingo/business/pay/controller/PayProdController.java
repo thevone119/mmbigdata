@@ -43,8 +43,8 @@ public class PayProdController  {
 	@Resource
 	private PayProdService payprodService;
 
-	@Value("${PAY_QR_IMG_PATH}")
-	private String PAY_QR_IMG_PATH;
+
+
 
 	public PayProdController(){
 		

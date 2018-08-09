@@ -9,13 +9,26 @@ import com.bingo.business.pay.service.PayProdImgService;
 import com.bingo.business.pay.service.PayService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.http.MyRequests;
 import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.QRCodeUtils;
+import com.bingo.common.utility.WebClass;
 import com.bingo.common.utility.XJsonInfo;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -63,6 +77,7 @@ public class PayRechargeController {
     private SessionCacheService sessionCache;
 
 
+
     /**
      * 创建支付订单,进行充值
      * @return
@@ -85,18 +100,8 @@ public class PayRechargeController {
         }
 
         //创建支付订单
-        Connection conn = Jsoup.connect(pay_local_url+"/payapi/create");
-        //伪装http头
-        Map<String,String> headers = new HashMap<>();
-        headers.put("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-        headers.put("accept-encoding","gzip, deflate, br");
-        headers.put("accept-language","zh-CN,zh;q=0.9");
-        headers.put("cache-control","max-age=0");
-        headers.put("upgrade-insecure-requests","1");
-        headers.put("user-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-        conn.headers(headers);
-        //post data
-        //conn.data(entry.getKey(), entry.getValue());
+        String url = pay_local_url+"/payapi/create";
+
         PayInput payi = new PayInput();
         payi.setUid(pay_uid);
         payi.setNonce_str(System.currentTimeMillis()+"");
@@ -106,20 +111,15 @@ public class PayRechargeController {
         payi.setPay_name("支付平台充值(￥"+price+"元)");
         payi.setPay_type(pay_type);
         payi.setPrice(price);
-        //payi.setReturn_url();
-        conn.data(payi.getPostData(pay_sign_key));
-
-        conn.timeout(1000*10);
-        conn.followRedirects(true);
-        //post
-        Connection.Response response = conn.method(Connection.Method.POST).execute();
-        String body = response.body();
+        MyRequests req = new MyRequests();
+        String body = req.httpPost(url,payi.getPostData(pay_sign_key));
+        //String body = response.body();
         //1.查询商户
         JSONObject retj = new JSONObject(body);
         if(retj.getInt("ret_code")==1){
-            //创建支付订单成功
+            //创建支付订单成功,跳转到支付页
             ret.setSuccess(true);
-            ret.setData(retj.getString("pay_id"));
+            ret.setData(pay_url+"/payapi/pay_page?pay_id="+retj.getString("pay_id")+"&nonce_str="+System.currentTimeMillis());
         }else{
             ret.setSuccess(false);
             ret.setMsg(retj.getString("ret_msg"));
@@ -142,11 +142,13 @@ public class PayRechargeController {
             //
             return "ERROR";
         }
+        //logger.info("SUCCESS1");
         //支付成功,进行账户充值
         Long userid = new Long(payret.getPay_ext1());
         Float price = new Float(payret.getPay_ext2());
         //充值
         recharge(payret.getPay_id(),userid,price);
+        //logger.info("SUCCESS2");
         return "SUCCESS";
     }
 
@@ -156,44 +158,42 @@ public class PayRechargeController {
      * @throws Exception
      */
     @RequestMapping("/goback")
-    public ModelAndView goback(String orderid) throws Exception {
+    public ModelAndView goback(HttpServletRequest request,String orderid) throws Exception {
+        request.setAttribute("msg","充值过程中发生错误，请稍候再试");
+        request.setAttribute("pay_type",1);
         //查询订单，查看订单是否成功
         //查询订单接口
-        Connection conn = Jsoup.connect(pay_local_url+"/payapi/query");
-        //伪装http头
-        Map<String,String> headers = new HashMap<>();
-        headers.put("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-        headers.put("accept-encoding","gzip, deflate, br");
-        headers.put("accept-language","zh-CN,zh;q=0.9");
-        headers.put("cache-control","max-age=0");
-        headers.put("upgrade-insecure-requests","1");
-        headers.put("user-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-        conn.headers(headers);
-
+        String url = pay_local_url+"/payapi/query";
         PayInput payi = new PayInput();
         payi.setUid(pay_uid);
         payi.setNonce_str(System.currentTimeMillis()+"");
         payi.setOrderid(orderid);
-        conn.data(payi.getPostData(pay_sign_key));
+        MyRequests req = new MyRequests();
 
-        conn.timeout(1000*10);
-        conn.followRedirects(true);
-        //post
-        Connection.Response response = conn.method(Connection.Method.POST).execute();
-        String body = response.body();
+        String body = req.httpPost(url,payi.getPostData(pay_sign_key));
         //
         JSONObject retj = new JSONObject(body);
+        //查询订单成功
         if(retj.getInt("ret_code")==1){
-            //查询订单成功
             String pay_id = retj.getString("pay_id");
-            Long userid = new Long(retj.getString("pay_ext1"));
+            Long userid = retj.getLong("pay_ext1");
             Float price = new Float(retj.getString("pay_ext2"));
-            recharge(pay_id,userid,price);
+            Integer pay_state = retj.getInt("pay_state");
+            Integer pay_type = retj.getInt("pay_type");
+
+            request.setAttribute("pay_type",pay_type);
+            //支付成功
+            if(pay_state==1){
+                recharge(pay_id,userid,price);
+                request.setAttribute("msg","充值完成，充值金额已到账");
+            }else{
+
+            }
         }else{
 
         }
-
-        return null;
+        //无论是否支付成功，都跳转到充值完成页
+        return new  ModelAndView("/pay/recharge_end");
     }
 
     /**
@@ -208,7 +208,7 @@ public class PayRechargeController {
             emoney  = price+price*0.1f;
         }
         PayBusChange payc = new PayBusChange();
-        payc.setCid(pay_id);
+        payc.setCid("recharge_"+pay_id);
         payc.setBizId(pay_id);
         payc.setBusId(userid);
         payc.setState(1);
@@ -219,6 +219,8 @@ public class PayRechargeController {
         payService.busChange(payc,null,null);
 
     }
+
+
 
 
 
