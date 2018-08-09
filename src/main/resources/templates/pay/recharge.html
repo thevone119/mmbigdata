@@ -44,10 +44,10 @@
 									</td>
 									
 									<td>
-                                        <button class="btn btn-info" onClick="openTaoCan(1);">充值￥10</button>
+                                        <button class="btn btn-info" onClick="recharge(1,10);">充值￥10</button>
 									</td>
 									<td>
-                                        <button class="btn btn-success" onClick="openTaoCan(1);">充值￥10</button>
+                                        <button class="btn btn-success" onClick="recharge(2,10);">充值￥10</button>
 									</td>
 								</tr>
 
@@ -63,10 +63,10 @@
                                     </td>
 
                                     <td>
-                                        <button class="btn btn-info" onClick="openTaoCan(1);">充值￥50</button>
+                                        <button class="btn btn-info" onClick="recharge(1,50);">充值￥50</button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-success" onClick="openTaoCan(1);">充值￥50</button>
+                                        <button class="btn btn-success" onClick="recharge(2,50);">充值￥50</button>
                                     </td>
                                 </tr>
 
@@ -82,10 +82,10 @@
                                     </td>
 
                                     <td>
-                                        <button class="btn btn-info" onClick="openTaoCan(1);">充值￥100</button>
+                                        <button class="btn btn-info" onClick="recharge(1,100);">充值￥100</button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-success" onClick="openTaoCan(1);">充值￥100</button>
+                                        <button class="btn btn-success" onClick="recharge(2,100);">充值￥100</button>
                                     </td>
                                 </tr>
 							</tbody>
@@ -122,7 +122,7 @@
                         title: '商户充值',
                         maxmin: false,
                         shadeClose: true, //点击遮罩关闭层
-                        area : ['600px' , '500px'],
+                        area : ['600px' , '1200px'],
                         content: data.data
                     });
 
