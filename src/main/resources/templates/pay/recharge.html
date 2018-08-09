@@ -101,7 +101,7 @@
     /**
      * 充值
      */
-    function recharge(busType){
+    function recharge(pay_type,price){
         //layer.msg('套餐开通成功',{icon: 1});
         //layer.alert('套餐开通成功',{icon: 1});
         //return;
@@ -109,15 +109,16 @@
         var loading1 = layer.load();
         var post={
             type: 'post', // 提交方式 get/post
-            url: '/api/pay/paybus/openTaoCan?busType='+busType, // 需要提交的 u
+            url: '/api/pay/recharge/createpay?pay_type='+pay_type+"&price="+price+"&d="+new Date().getTime(), // 需要提交的 u
             async:true,
             cache:false,
             dataType:'json',
             success: function(data) {
                 layer.closeAll('loading');
                 if(data.success){
-                    layer.alert('套餐开通成功',{icon: 1});
-                    //layer.msg('套餐开通成功',{icon: 1});
+                    //创建支付订单成功，则跳转到支付页，扫码支付页面
+
+
                 }else{
                     layer.alert(data.msg,{icon: 5});
                 }
@@ -143,6 +144,7 @@
 	
 <!---------footer-------------->
 <#include "/pay/include/footer.html" />
+<#include "/pay/include/hmt.html" />
 </body>
 
 </html>
