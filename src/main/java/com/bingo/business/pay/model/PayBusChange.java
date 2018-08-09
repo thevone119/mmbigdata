@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author huangtw
@@ -17,16 +18,15 @@ import java.util.Date;
 public class PayBusChange extends PageModel{
 
 	@Id
-	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "cid")
-	protected Long  cid;//主键ID
+	protected String  cid;//主键ID
 
 
 	@Column(name = "bus_id",updatable = false)
 	protected Long  busId;//商户ID
 
-	@Column(name = "log_id",updatable = false)
-	protected Long  logId;//对应的订单ID
+	@Column(name = "biz_id",updatable = false)
+	protected String  bizId;//关联的业务单号
 
 	@Column(name = "ctype",updatable = false)
 	protected Integer  ctype;//充值消费类型,1:充值，2：消费
@@ -56,6 +56,7 @@ public class PayBusChange extends PageModel{
 	 */
 	public PayBusChange(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		this.cid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		this.createtime=format.format(new Date());
 	}
 	
@@ -81,11 +82,11 @@ public class PayBusChange extends PageModel{
 		return this.createtime;
 	}
 
-	public Long getCid() {
+	public String getCid() {
 		return cid;
 	}
 
-	public void setCid(Long cid) {
+	public void setCid(String cid) {
 		this.cid = cid;
 	}
 
@@ -121,12 +122,12 @@ public class PayBusChange extends PageModel{
 		this.demo = demo;
 	}
 
-	public Long getLogId() {
-		return logId;
+	public String getBizId() {
+		return bizId;
 	}
 
-	public void setLogId(Long logId) {
-		this.logId = logId;
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
 	}
 
 	public String getCreatetimeStr() throws ParseException {
@@ -137,7 +138,7 @@ public class PayBusChange extends PageModel{
 			return createtime;
 		}
 
-		if(this.createtime.length()==10){
+		if(this.createtime.length()==14){
 			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 			SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			return format2.format(format.parse(createtime));

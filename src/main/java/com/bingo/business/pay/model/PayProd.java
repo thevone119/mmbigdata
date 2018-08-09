@@ -182,7 +182,7 @@ public class PayProd extends PageModel{
 		if(this.createtime.indexOf("-")!=-1){
 			return createtime;
 		}
-		if(this.createtime.length()==10){
+		if(this.createtime.length()==14){
 			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 			SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			return format2.format(format.parse(createtime));

@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.bingo.business.pay.model.*;
 import com.bingo.business.pay.repository.*;
@@ -85,6 +86,18 @@ public class PayBusService{
 	public PayBus queryByUuid(String uuid){
 		StringBuffer qhtl = new StringBuffer(" from PayBus where uuid =? ");
 		return paybusRepository.find(qhtl.toString(),new String[]{uuid});
+	}
+
+	/**
+	 * 重设商户的signkey
+	 * @param
+	 * @return
+	 */
+	public String reSetSignKey(Long busId){
+		StringBuffer qhtl = new StringBuffer(" update PayBus set signKey=? where busId=?");
+		String signKey =  UUID.randomUUID().toString().replace("-", "").toLowerCase();
+		paybusRepository.executeByHql(qhtl.toString(),new Object[]{signKey,busId});
+		return signKey;
 	}
 
 

@@ -4,9 +4,7 @@ import com.bingo.business.pay.model.PayLog;
 import com.bingo.common.utility.SecurityClass;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by Administrator on 2018-08-06.
@@ -14,7 +12,7 @@ import java.util.UUID;
  */
 public class PayReturn {
     private Integer ret_code=-1;//返回码  1:才是成功
-    private String ret_msg="创建订单成功";//消息
+    private String ret_msg="ok";//消息
     private String nonce_str;//随机字符串
 
 
@@ -23,6 +21,7 @@ public class PayReturn {
     private String orderid;//订单ID
     private String qrcode;//支付的二维码 http://mobile.qq.com/qrcode?url=
     private Integer pay_type;//支付渠道 1：支付宝  2：微信
+    private Integer qrcode_type;//支付二维码类型 1：非定额  2：定额
     private Float realprice;//实际支付金额
     private String pay_ext1;//扩展字段1
     private String pay_ext2;//扩展字段2
@@ -59,7 +58,12 @@ public class PayReturn {
         this.pay_demo = log.getPayDemo();
         this.pay_state = log.getPayState();
         this.return_url = log.getReturnUrl();
-
+        if(log.getProdId()!=null&&log.getProdId()>0){
+            qrcode_type = 2;
+        }else{
+            qrcode_type = 1;
+        }
+        reSetReturnUrl();
 
     }
 
@@ -191,6 +195,14 @@ public class PayReturn {
         this.sign = sign;
     }
 
+    public Integer getQrcode_type() {
+        return qrcode_type;
+    }
+
+    public void setQrcode_type(Integer qrcode_type) {
+        this.qrcode_type = qrcode_type;
+    }
+
     /**
      * 对pay对象进行签名
      * @return
@@ -228,12 +240,68 @@ public class PayReturn {
     }
 
     /**
+     * 返回所有的参数map
+     * @param sign_key
+     * @return
+     * @throws IllegalAccessException
+     */
+    public Map<String,String> getPostData(String sign_key) throws IllegalAccessException {
+        Map<String,String> kvmap = new HashMap<String,String>();
+        List<String> kvlist = new ArrayList<String>();
+        //采用反射获取所有的属性，并计算签名
+
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            //要设置属性可达，不然会抛出IllegalAccessException异常
+            field.setAccessible(true);
+            String key = field.getName();
+            if(key.equals("sign")){
+                continue;
+            }
+            Object value = field.get(this);
+            if(value==null||value.toString().length()==0){
+                continue;
+            }
+            kvmap.put(key,value.toString());
+            kvlist.add(key+"="+value);
+        }
+        //对所有的参数进行排序
+        kvlist.sort((h1, h2) -> h1.compareTo(h2));
+        //组成相关的
+        StringBuffer stringA =new  StringBuffer();
+        for(String kv:kvlist){
+            stringA.append(kv+"&");
+        }
+        stringA.append("sign_key="+sign_key);
+        //System.out.println(stringA.toString());
+        //签名
+        String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
+        kvmap.put("sign",_sign);
+        return kvmap;
+    }
+
+
+    /**
      * 重设sign
      * @param sign_key
      * @throws IllegalAccessException
      */
     public void reSetSign(String sign_key) throws IllegalAccessException {
         this.sign = MarkSign(sign_key);
+    }
+
+    /**
+     * 重设returnurl
+     */
+    public void reSetReturnUrl(){
+        if(return_url==null || return_url.indexOf("orderid=")!=-1){
+            return;
+        }
+        if(return_url.indexOf("?")==-1){
+            return_url = return_url+"?orderid="+orderid+"&nonce_str="+nonce_str;
+        }else{
+            return_url = return_url+"&orderid="+orderid+"&nonce_str="+nonce_str;
+        }
     }
 
 }

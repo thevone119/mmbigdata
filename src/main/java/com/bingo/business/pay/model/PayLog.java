@@ -25,7 +25,7 @@ public class PayLog extends PageModel{
 	protected Long  logId;//日志ID
 
 
-	@Column(name = "rid")
+	@Column(name = "rid",updatable = false)
 	protected String  rid;//随机ID
 	
 	
@@ -450,7 +450,7 @@ public class PayLog extends PageModel{
 			return createtime;
 		}
 
-		if(this.createtime.length()==10){
+		if(this.createtime.length()==14){
 			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 			SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			return format2.format(format.parse(createtime));

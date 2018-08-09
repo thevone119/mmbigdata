@@ -26,6 +26,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author huangtw
@@ -43,26 +46,16 @@ public class PayBusController  {
 	@Resource
 	private PayBusService paybusService;
 
+	@Resource
+	private PayService payService;
+
+
+
 	public PayBusController(){
 		
 	}
 	
-	/**
-	 * @description: <修改、保存>
-	 * @param:
-	 * @throws:
-	 */
-	@ResponseBody
-    @RequestMapping("/save")
-    public XJsonInfo save(PayBus vo) throws ServiceException, DaoException {
-		//权限控制，只能保存自己的
-		SessionUser loginuser = sessionCache.getLoginUser();
-		if(loginuser.getUsertype()!=1 && !vo.getBusId().equals(loginuser.getUserid())){
-			return null;
-		}
-        paybusService.saveOrUpdate(vo);
-        return new XJsonInfo();
-    }
+
 
 	/**
 	 * 保存当前的商户设置
@@ -83,6 +76,23 @@ public class PayBusController  {
 		bus.setAutoReFee(vo.getAutoReFee());
 		paybusService.saveOrUpdate(bus);
 		return new XJsonInfo();
+	}
+
+	/**
+	 * 重设商户的signkey
+	 * @param vo
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ControllerFilter(LoginType = 1,UserType = 0)
+	@ResponseBody
+	@RequestMapping("/reSetSignKey")
+	public XJsonInfo reSetSignKey(PayBus vo) throws ServiceException, DaoException {
+		//权限控制，只能保存自己的
+		SessionUser loginuser = sessionCache.getLoginUser();
+		String  signKey = paybusService.reSetSignKey(loginuser.getUserid());
+		return new XJsonInfo(true).setData(signKey);
 	}
 
 
@@ -194,5 +204,61 @@ public class PayBusController  {
 		}
 	}
 
+	/**
+	 * 开通套餐
+	 * @param busType
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@RequestMapping("/openTaoCan")
+	public XJsonInfo openTaoCan(Integer busType) throws Exception {
+		XJsonInfo ret = new XJsonInfo(false);
+		SessionUser loginuser = sessionCache.getLoginUser();
+		if(loginuser==null){
+			ret.setMsg("对不起，您还未登陆，请登录后再进行套餐开通");
+			return ret;
+		}
+		PayBus bus = paybusService.get(loginuser.getUserid());
+		if(bus==null){
+			ret.setMsg("对不起，当前商户账号无效");
+			return ret;
+		}
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		//已存在套餐，不允许重复开通
+		if(bus.getBusValidity()!=null && bus.getBusValidity()>Integer.parseInt(format.format(new Date()))){
+			if(busType==bus.getBusType()){
+				ret.setMsg("您已开通<"+PayTaoCan.getPayTaoCanName(busType)+">套餐,无需重复开通，在<商户设置>中可以设置下月套餐");
+				return ret;
+			}else{
+				ret.setMsg("您当前套餐为<"+PayTaoCan.getPayTaoCanName(bus.getBusType())+">套餐,如需变更套餐，请在<商户设置>中可以设置下月套餐");
+				return ret;
+			}
+		}
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.MONTH,1);
+		float refee=0.0f;//套餐金额
+		Long busValidity = new Long(format.format(calendar.getTime()));//续费期限
+		refee = PayTaoCan.getPayTaoCanFee(busType);
+		if(refee<=0){
+			ret.setMsg("对不起，当前套餐无效");
+			return ret;
+		}
+		//费用不足
+		if(bus.geteMoney()<refee){
+			ret.setMsg("对不起，您的商户余额不足，请先充值后再进行套餐开通");
+			return ret;
+		}
+
+		//充值，消费
+		PayBusChange change = new PayBusChange();
+		change.setBusId(bus.getBusId());
+		change.setCtype(2);
+		change.setEmoney(-refee);
+		change.setState(1);
+		change.setDemo("开通套餐<"+PayTaoCan.getPayTaoCanName(busType)+">");
+		payService.busChange(change,busType,busValidity);
+		return new XJsonInfo();
+	}
 	
 }

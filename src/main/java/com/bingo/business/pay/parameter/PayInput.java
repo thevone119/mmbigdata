@@ -5,7 +5,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2018-08-01.
@@ -160,5 +162,46 @@ public class PayInput {
         //签名
         String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
         return _sign;
+    }
+
+    /**
+     * 返回所有的参数map
+     * @param sign_key
+     * @return
+     * @throws IllegalAccessException
+     */
+    public Map<String,String> getPostData(String sign_key) throws IllegalAccessException {
+        Map<String,String> kvmap = new HashMap<String,String>();
+        List<String> kvlist = new ArrayList<String>();
+        //采用反射获取所有的属性，并计算签名
+
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            //要设置属性可达，不然会抛出IllegalAccessException异常
+            field.setAccessible(true);
+            String key = field.getName();
+            if(key.equals("sign")){
+                continue;
+            }
+            Object value = field.get(this);
+            if(value==null||value.toString().length()==0){
+                continue;
+            }
+            kvmap.put(key,value.toString());
+            kvlist.add(key+"="+value);
+        }
+        //对所有的参数进行排序
+        kvlist.sort((h1, h2) -> h1.compareTo(h2));
+        //组成相关的
+        StringBuffer stringA =new  StringBuffer();
+        for(String kv:kvlist){
+            stringA.append(kv+"&");
+        }
+        stringA.append("sign_key="+sign_key);
+        //System.out.println(stringA.toString());
+        //签名
+        String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
+        kvmap.put("sign",_sign);
+        return kvmap;
     }
 }

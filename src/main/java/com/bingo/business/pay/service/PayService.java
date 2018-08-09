@@ -3,6 +3,7 @@ package com.bingo.business.pay.service;
 import com.bingo.SpringUtil;
 import com.bingo.action.BaseErrorController;
 import com.bingo.business.pay.model.*;
+import com.bingo.business.pay.parameter.PayReturn;
 import com.bingo.business.pay.repository.*;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
@@ -40,8 +41,7 @@ public class PayService {
     private PayBusRepository payBusRepository;
     @Resource
     private PayLogRepository paylogRepository;
-    @Resource
-    private PayProdRepository payProdRepository;
+
 
     @Resource
     private PayLogNotifyRepository payLogNotifyRepository;
@@ -54,6 +54,10 @@ public class PayService {
      * @throws DaoException
      */
     public void busChange(PayBusChange vo,Integer  busType,Long  busValidity) throws Exception {
+        //不重复充值，消费
+        if(payBusChangeRepository.getById(vo.getCid())!=null){
+            return;
+        }
         //1.对商户进行费用加减
         String hql = "update PayBus set eMoney=eMoney+? where busId=?";
         //如果有套餐类型和有效期，则同时更新套餐类型和有效期
@@ -108,18 +112,19 @@ public class PayService {
     /**
      * 确认收款接口
      * @param paylog 支付订单
-     * @param checkType 1:系统确认，2：手工确认
+     * @param checkType 1:系统确认，2：手工确认,3:商户调用接口确认
      */
     public XJsonInfo checkPay(PayLog paylog, int checkType) throws Exception{
         XJsonInfo ret = new XJsonInfo(false);
         ret.setCode(1);
 
         if(paylog==null){
+            ret.setCode(31);
             ret.setMsg("没有找到订单");
             return ret;
         }
         if(paylog.getPayState()==1){
-            ret.setCode(2);
+            ret.setCode(32);
             ret.setMsg("订单状态已是已支付状态");
             return ret;
         }
@@ -127,7 +132,7 @@ public class PayService {
         PayBus bus = payBusRepository.getById(paylog.getBusId());
         //校验套餐
         if(!this.checkBusValidity(bus)){
-            ret.setCode(3);
+            ret.setCode(21);
             ret.setMsg("商户套餐失效，无法完成支付.");
             return ret;
         }
@@ -143,15 +148,22 @@ public class PayService {
                 refee = paylog.getProdPrice()*serviceFeeFee;
             }
         }
+        if(checkType==2){
+            demo = "手工确认收款，不扣费";
+        }
+        if(checkType==3){
+            demo = "商户调用接口确认收款，不收手续费";
+        }
 
         //扣减费用
         PayBusChange change = new PayBusChange();
+        change.setCid(paylog.getRid());
         change.setBusId(bus.getBusId());
         change.setCtype(2);
         change.setEmoney(-refee);
         change.setState(1);
         change.setDemo(demo);
-        change.setLogId(paylog.getLogId());
+        change.setBizId(paylog.getRid());
         this.busChange(change,null,null);
 
         //2.设置为已收款
@@ -235,32 +247,12 @@ public class PayService {
             conn.headers(headers);
             //post data
             //conn.data(entry.getKey(), entry.getValue());
-            conn.data("pay_id", paylog.getLogId()+"");
-            conn.data("uid", paylog.getUid());
-            conn.data("orderid", paylog.getOrderid()+"");
-            conn.data("price", paylog.getProdPrice()+"");
-            conn.data("pay_start", paylog.getCreatetime()+"");
-            conn.data("pay_time", paylog.getPayTime()+"");
-            conn.data("pay_type", paylog.getPayType()+"");
-            conn.data("pay_state", paylog.getPayState()+"");
-            conn.data("pay_ext1", paylog.getPayExt1()+"");
-            conn.data("pay_ext2", paylog.getPayExt2()+"");
-            conn.data("pay_demo", paylog.getPayDemo()+"");
-            conn.data("pay_name", paylog.getPayName()+"");
-            conn.data("r", System.currentTimeMillis()+"");
-            //签名
-            StringBuffer signstr = new StringBuffer();
-            signstr.append(paylog.getLogId()+"");
-            signstr.append(paylog.getUid()+"");
-            signstr.append(paylog.getOrderid()+"");
-            signstr.append(paylog.getProdPrice()+"");
-            signstr.append(paylog.getPayState()+"");
-            signstr.append(paylog.getCreatetime()+"");
-            signstr.append(bus.getSignKey());
-            String sign =  SecurityClass.encryptMD5(signstr.toString());
-            conn.data("sign", sign);
+            PayReturn pret = new PayReturn(paylog);
+            pret.setRet_code(1);
+            pret.setRet_msg("ok");
+            conn.data(pret.getPostData(bus.getSignKey()));
 
-            conn.timeout(1000*20);
+            conn.timeout(1000*10);
             conn.followRedirects(true);
             //post
             Connection.Response response = conn.method(Connection.Method.POST).execute();
