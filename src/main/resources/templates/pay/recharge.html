@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head.html" />
+</head>
+<!------------充值页面---------->
+<body>
+<#include "/pay/include/header.html" />
+	
+
+	<!-------主体------------->
+	<!-- pricing tables start -->
+
+							
+	<div class="container">
+				<div class="col-xs-12">
+					<div class="title_3">
+						<h3>商户充值</h3>
+						<div class="list_line "></div>
+						<p>一次性充50多送5%，充100多送10%，多充多送哦</p>
+					</div>
+				</div>
+					<div class="table_box">
+						<table id="sample-table-1" class="table table-striped table-bordered table-hover">
+							<thead>
+								<tr>
+									<th>充值金额</th>
+									<th>赠送比例</th>
+									<th>实际到账金额</th>
+									<th>支付宝充值</th>
+									<th>微信充值</th>
+								</tr>
+							</thead>
+							<tbody>									
+								<tr>
+									<td>
+                                        ￥10
+									</td>
+									<td>
+										0%
+									</td>
+									<td>
+                                        ￥10.00 元
+									</td>
+									
+									<td>
+                                        <button class="btn btn-info" onClick="openTaoCan(1);">充值￥10</button>
+									</td>
+									<td>
+                                        <button class="btn btn-success" onClick="openTaoCan(1);">充值￥10</button>
+									</td>
+								</tr>
+
+                                <tr>
+                                    <td>
+                                        ￥50
+                                    </td>
+                                    <td>
+                                        5%
+                                    </td>
+                                    <td>
+                                        ￥52.50 元
+                                    </td>
+
+                                    <td>
+                                        <button class="btn btn-info" onClick="openTaoCan(1);">充值￥50</button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-success" onClick="openTaoCan(1);">充值￥50</button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        ￥100
+                                    </td>
+                                    <td>
+                                        10%
+                                    </td>
+                                    <td>
+                                        ￥110.00 元
+                                    </td>
+
+                                    <td>
+                                        <button class="btn btn-info" onClick="openTaoCan(1);">充值￥100</button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-success" onClick="openTaoCan(1);">充值￥100</button>
+                                    </td>
+                                </tr>
+							</tbody>
+						</table>
+
+					</div>
+				
+		</div>
+
+
+<script>
+
+    /**
+     * 充值
+     */
+    function recharge(busType){
+        //layer.msg('套餐开通成功',{icon: 1});
+        //layer.alert('套餐开通成功',{icon: 1});
+        //return;
+        //判断输入框内容是否完整
+        var loading1 = layer.load();
+        var post={
+            type: 'post', // 提交方式 get/post
+            url: '/api/pay/paybus/openTaoCan?busType='+busType, // 需要提交的 u
+            async:true,
+            cache:false,
+            dataType:'json',
+            success: function(data) {
+                layer.closeAll('loading');
+                if(data.success){
+                    layer.alert('套餐开通成功',{icon: 1});
+                    //layer.msg('套餐开通成功',{icon: 1});
+                }else{
+                    layer.alert(data.msg,{icon: 5});
+                }
+            },
+            error:function(){
+                layer.closeAll('loading');
+                layer.alert("系统繁忙，请稍候再试");
+            }
+        }
+
+        $.ajax(post);
+        //此处演示关闭
+        setTimeout(function(){
+            layer.close(loading1);
+        }, 5000);
+
+    }
+
+
+
+</script>
+	
+	
+<!---------footer-------------->
+<#include "/pay/include/footer.html" />
+</body>
+
+</html>
