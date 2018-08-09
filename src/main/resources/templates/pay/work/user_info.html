@@ -33,7 +33,8 @@
 					商户sign_key:
 				</td>
 				<td>
-					{{myform.signKey}}
+					{{bus.signKey}}
+					<i-button type="info" icon="shuffle" @click="reSetSignKey"> 重置 </i-button>
 				</td>
 				<td>
 					商户名称:
@@ -98,6 +99,7 @@
 				</td>
 				<td>
 					<font color="red">{{bus.eMoney}} 元</font>
+					<i-button type="info" icon="shuffle" @click="recharge"> 充值 </i-button>
 				</td>
 				<td>
 					套餐自动续费:
@@ -121,6 +123,7 @@
         var urls = {
             query:'/api/sys/sysuser/queryCurrUser'
             ,querybus:'/api/pay/paybus/queryCurrBus'
+            ,reSetSignKey:'/api/pay/paybus/reSetSignKey'
             ,save:'/api/sys/sysuser/saveCurrUser'
         };
 
@@ -198,12 +201,37 @@
                                     vm.bus.payTimeOut=vm.bus.payTimeOut+'';
                                     vm.myform.notifyUrl=vm.bus.notifyUrl;
                                     vm.myform.gobackUrl=vm.bus.gobackUrl;
+                                    vm.myform.signKey=vm.bus.signKey;
                                 }
                             },
                             error:function(){
                                 layer.alert("系统错误，请稍候再试");
                             }
                         });
+                },
+                reSetSignKey:function(){
+                    layer.confirm('重置将会使得之前的sign_key马上失效，确认需要进行重置么?', function(){
+                        $.ajax(
+                            {
+                                type: 'post', // 提交方式 get/post
+                                url:urls.reSetSignKey, // 需要提交的 u
+                                async:true,
+                                cache:false,
+                                dataType:'json',
+                                success: function(ret){
+                                    if(ret.success){
+                                        vm.bus.signKey = ret.data;
+                                    }
+                                },
+                                error:function(){
+                                    layer.alert("系统错误，请稍候再试");
+                                }
+                            });
+                        layer.closeAll('dialog');
+                    });
+                },
+                recharge:function(){
+                    window.top.location.href="/pay/recharge.html";
                 },
                 save:function(){
                     var valid = this.$refs['myForm'].validate();
