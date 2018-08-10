@@ -109,13 +109,13 @@ public class PayProdImgService {
 	 * @return
 	 */
 	public List<PayProdImg> listFreeByPrice(Long userId,Float imgPrice,Integer payType,Integer payTimeOut){
-		StringBuffer hql = new StringBuffer(" from PayProdImg img where userId=? and  imgPrice <= ? and imgPrice >= ? and payType=? and imgPrice not in(select payImgPrice from  PayLog log where  updatetime>? and payState!=1 ) order by imgPrice desc");
+		StringBuffer hql = new StringBuffer(" from PayProdImg img where userId=? and  imgPrice <= ? and imgPrice >= ? and payType=? and imgPrice not in(select payImgPrice from  PayLog log where busId=? and updatetime>? and payType=? and  payState!=1 ) order by imgPrice desc");
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		Calendar cal = Calendar.getInstance();
 		//锁多一分钟
 		cal.add(Calendar.MINUTE,-payTimeOut-1);
 		String validtime = format.format(cal.getTime());
-		return payProdImgRepository.query(hql.toString(),new Object[]{userId,imgPrice,imgPrice-0.1f,payType,validtime});
+		return payProdImgRepository.query(hql.toString(),new Object[]{userId,imgPrice,imgPrice-0.1f,payType,userId,validtime,payType});
 	}
 
 	/**
