@@ -12,6 +12,7 @@ import com.bingo.common.utility.QRCodeUtils;
 import com.bingo.common.utility.XJsonInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,10 +32,11 @@ import java.util.List;
 /**
  * Created by Administrator on 2018-07-30.
  * 支付平台外部接口提供
- *
+ * 多列模式,共享属性
  */
 @RestController
 @RequestMapping("/payapi")
+@Scope("prototype")
 public class PayController {
     private static final Logger logger = LoggerFactory.getLogger(PayController.class);
 
@@ -49,9 +51,17 @@ public class PayController {
     private PayService payService;
 
 
-
     @Resource
     private SessionCacheService sessionCache;
+
+    //商户对象
+    private PayBus bus=null;
+
+    //支付日志对象
+    private PayLog log=null;
+
+    //格式化，这个也有线程安全问题，多列则没问题
+    private SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 
 
     /**
@@ -69,7 +79,7 @@ public class PayController {
             ret.setRet_msg("参数不完整，请核对相关参数是否正确");
             return ret;
         }
-        PayBus bus = paybusService.queryByUuid(payin.getUid());
+        bus = paybusService.queryByUuid(payin.getUid());
         if(bus==null){
             ret.setRet_code(12);
             ret.setRet_msg("商户无效");
@@ -84,7 +94,7 @@ public class PayController {
             return ret;
         }
 
-        PayLog log = paylogService.queryByUidOrderid(payin.getUid(),payin.getOrderid());
+        log = paylogService.queryByUidOrderid(payin.getUid(),payin.getOrderid());
         if(log==null){
             ret.setRet_code(31);
             ret.setRet_msg("没有此订单，请确认订单ID是否正确");
@@ -112,7 +122,7 @@ public class PayController {
             ret.setRet_msg("参数不完整，请核对相关参数是否正确");
             return ret;
         }
-        PayBus bus = paybusService.queryByUuid(payin.getUid());
+        bus = paybusService.queryByUuid(payin.getUid());
         if(bus==null){
             ret.setRet_code(12);
             ret.setRet_msg("商户无效");
@@ -126,7 +136,7 @@ public class PayController {
             ret.setRet_msg("签名错误");
             return ret;
         }
-        PayLog log = paylogService.queryByUidOrderid(payin.getUid(),payin.getOrderid());
+        log = paylogService.queryByUidOrderid(payin.getUid(),payin.getOrderid());
         XJsonInfo retj = payService.checkPay(log,3);
         if(retj.getSuccess()){
             ret.setRet_code(1);
@@ -147,7 +157,7 @@ public class PayController {
     @RequestMapping("/getresult")
     public PayReturn query(String pay_id) throws Exception {
         PayReturn ret  =new PayReturn();
-        PayLog log = paylogService.queryByRid(pay_id);
+        log = paylogService.queryByRid(pay_id);
         if(log==null){
             ret.setRet_code(31);
             ret.setRet_msg("没有此订单，请确认订单ID是否正确");
@@ -184,29 +194,44 @@ public class PayController {
             return new ModelAndView("/pay/flow/pay_error");
             //return "/pay/flow/pay_error";
         }
-        PayLog log = paylogService.queryByRid(pay_id);
-        PayBus bus = paybusService.queryByUuid(log.getUid());
+        log = paylogService.queryByRid(pay_id);
+        bus = paybusService.queryByUuid(log.getUid());
         ret  = new PayReturn(log);
 
+        if(log.getPayState()==1){
+            ret.setRet_code(32);
+            ret.setRet_msg("当前订单已支付完成");
+            request.setAttribute("ret",ret);
+            return new ModelAndView("/pay/flow/pay_error");
+        }
 
         //判断订单的状态
         //判断订单是否已过期,如果还没过期，则重新锁定原收款码
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        java.util.Date updatetime = format.parse(log.getUpdatetime());
+
+        java.util.Date createtime = format.parse(log.getCreatetime());
+
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE,-bus.getPayTimeOut());
-        if(cal.getTime().after(updatetime)){
+        //创建超过一天的订单，直接作废
+        Calendar cal2 = Calendar.getInstance();
+        cal2.add(Calendar.DAY_OF_MONTH,-1);
+        if(cal2.getTime().after(createtime)){
             //过期
-            ret.setRet_msg("当前支付订单已过期，无法进行支付");
+            ret.setRet_code(33);
+            ret.setRet_msg("对不起，当前订单已过期,请重新创建支付订单后进行支付");
             request.setAttribute("ret",ret);
             return new ModelAndView("/pay/flow/pay_error");
-            //return "/pay/flow/pay_error";
-        }else{
-            //加到5分钟
-            log.setUpdatetime(format.format(new Date()));
-            paylogService.saveOrUpdate(log);
         }
+        //更新订单的收款码
+        boolean updateimg = updateLogPayImg();
+        if(!updateimg){
+            ret.setRet_code(41);
+            ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
+            request.setAttribute("ret",ret);
+            return new ModelAndView("/pay/flow/pay_error");
+        }
+        paylogService.saveOrUpdate(log);
         //超时时间格式化
         Calendar tocal = Calendar.getInstance();
         tocal.add(Calendar.MINUTE,bus.getPayTimeOut());
@@ -230,9 +255,16 @@ public class PayController {
     public ModelAndView createAndPay(HttpServletRequest request, HttpServletResponse response, PayInput payin) throws Exception {
         PayReturn ret = createOrder(payin);
         if(ret.getRet_code()==1){
-            request.setAttribute("ret",ret);
-            return new ModelAndView("/payapi/pay_page?pay_id="+ret.getPay_id()+"&nonce_str="+System.currentTimeMillis());
-            //return "/payapi/pay_page?pay_id="+ret.getPay_id()+"&nonce_str="+System.currentTimeMillis();
+            SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            //超时时间格式化
+            Calendar tocal = Calendar.getInstance();
+            tocal.add(Calendar.MINUTE,bus.getPayTimeOut());
+            String timeoutfm = format2.format(tocal.getTime());
+            request.setAttribute("timeoutfm",timeoutfm);
+            request.setAttribute("bus",bus);
+            request.setAttribute("log",log);
+            request.setAttribute("ret",new PayReturn(log));
+            return new ModelAndView("/pay/flow/order_pay");
         }else{
             request.setAttribute("ret",ret);
             return new ModelAndView("/pay/flow/pay_error");
@@ -262,7 +294,7 @@ public class PayController {
                 return ret;
             }
             //验证签名
-            PayBus bus = paybusService.queryByUuid(payin.getUid());
+            bus = paybusService.queryByUuid(payin.getUid());
             //先注入返回地址，这样出错可以直接返回这个地址
             ret.setReturn_url(bus.getGobackUrl());
             if(payin.getReturn_url()!=null && payin.getReturn_url().length()>5){
@@ -294,159 +326,164 @@ public class PayController {
             }
 
             //查询是否已有订单
-            PayLog log = paylogService.queryByUidOrderid(payin.getUid(),payin.getOrderid());
-            if(log!=null){
+            log = paylogService.queryByUidOrderid(payin.getUid(),payin.getOrderid());
+            //已有订单，判断订单的状态，有效期等
+            if(log!=null) {
                 //判断订单状态，如果已支付的，直接返回
-                if(log.getPayState()==1){
+                if (log.getPayState() == 1) {
                     ret.setRet_code(32);
                     ret.setRet_msg("对不起，当前订单已支付完成，不能再次创建");
                     return ret;
                 }
-
-                //判断订单是否已过期,如果还没过期，则重新锁定原收款码
-                SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-                java.util.Date updatetime = format.parse(log.getUpdatetime());
                 java.util.Date createtime = format.parse(log.getCreatetime());
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.MINUTE,-bus.getPayTimeOut());
                 //创建超过一天的订单，直接作废
                 Calendar cal2 = Calendar.getInstance();
-                cal2.add(Calendar.DAY_OF_MONTH,-1);
-                if(cal2.getTime().after(createtime)){
+                cal2.add(Calendar.DAY_OF_MONTH, -1);
+                if (cal2.getTime().after(createtime)) {
                     ret.setRet_code(33);
                     ret.setRet_msg("对不起，当前订单已过期,请重新创建支付订单后进行支付");
                     return ret;
                 }
-
-
-                if(cal.getTime().after(updatetime)){
-                    //过期
-                    if(log.getProdId()!=null && log.getProdId()>0){
-                        //定额收款码
-                        List<PayLog> useinglog =  paylogService.queryByUseingLog(payin.getUid(),payin.getPay_type(),bus.getPayTimeOut(),payin.getPrice());
-                        if(useinglog==null||useinglog.size()==0){
-                            log.setUpdatetime(format.format(new Date()));
-                            paylogService.saveOrUpdate(log);
-                        }else{
-                            boolean hasuse = false;
-                            for(PayLog l:useinglog){
-                                if(log.getProdId().equals(l.getProdId())){
-                                    hasuse = true;
-                                    break;
-                                }
-                            }
-                            if(hasuse){
-                                List<PayProdImg> listprod = payProdImgService.listByPrice(bus.getBusId(),payin.getPrice(),payin.getPay_type());
-                                PayProdImg sprod = null;
-                                for(PayProdImg p:listprod){
-                                    boolean has= false;
-                                    for(PayLog l:useinglog){
-                                        if(p.getCid().equals(l.getProdId())){
-                                            has =true;
-                                        }
-                                    }
-                                    if(!has){
-                                        sprod = p;
-                                        break;
-                                    }
-                                }
-                                //3.如果取不到有效的收款码。则返回
-                                if(sprod==null){
-                                    ret.setRet_code(41);
-                                    ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
-                                    return ret;
-                                }
-                                //注入订单的收款信息
-                                log.setProdId(sprod.getCid());
-                                //log.setProdName(sprod.getProdName());
-                                log.setProdPrice(payin.getPrice());
-                                log.setPayImgPrice(sprod.getImgPrice());
-                                log.setPayImgContent(sprod.getImgContent());
-                                log.setUpdatetime(format.format(new Date()));
-                                paylogService.saveOrUpdate(log);
-                            }else{
-                                log.setUpdatetime(format.format(new Date()));
-                                paylogService.saveOrUpdate(log);
-                            }
-                        }
-                    }else{
-                        //非定额的收款码
-                        List<PayLog> useinglog =  paylogService.queryByUseingLog(payin.getUid(),payin.getPay_type(),bus.getPayTimeOut(),null);
-                        if(useinglog!=null && useinglog.size()>0){
-                            ret.setRet_code(41);
-                            ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
-                            return ret;
-                        }
-                        String payImgContent = null;
-                        //支付宝
-                        if(payin.getPay_type()==1){
-                            payImgContent = bus.getPayImgContentZfb();
-                        }
-                        //微信
-                        if(payin.getPay_type()==2){
-                            payImgContent = bus.getPayImgContentWx();
-                        }
-                        if(payImgContent==null||payImgContent.length()<5){
-                            ret.setRet_code(41);
-                            ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
-                            return ret;
-                        }
-                        //注入订单的收款信息
-                        log.setProdId(0L);
-                        log.setProdName("非定额收款码收款");
-                        log.setProdPrice(payin.getPrice());
-                        log.setPayImgPrice(payin.getPrice());
-                        log.setPayImgContent(payImgContent);
-                        log.setUpdatetime(format.format(new Date()));
-                        paylogService.saveOrUpdate(log);
-                    }
-                }else{
-                    //未过期
-                    log.setUpdatetime(format.format(new Date()));
-                    paylogService.saveOrUpdate(log);
-                }
             }
 
-
-
-            //如果不存在，则创建订单
+            //新订单,注入订单的相关信息
             if(log==null){
                 log = new PayLog();
-                //1.查询是否有空闲的收款码
-                List<PayProdImg> listprod = payProdImgService.listByPrice(bus.getBusId(),payin.getPrice(),payin.getPay_type());
-                //List<PayProd> listprod = payProdService.queryByPrice(bus.getBusId(),payin.getPrice(),payin.getPay_type());
-                if(listprod==null||listprod.size()==0){
-                    //2.如果没有定额的收款码，则使用非定额的
-                    List<PayLog> useinglog =  paylogService.queryByUseingLog(payin.getUid(),payin.getPay_type(),bus.getPayTimeOut(),null);
-                    if(useinglog!=null && useinglog.size()>0){
-                        ret.setRet_code(41);
-                        ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
-                        return ret;
+                //注入订单的其他信息
+                log.setBusId(bus.getBusId());
+                log.setBusAcc(bus.getBusAcc());
+                log.setBusName(bus.getBusName());
+                log.setBusType(bus.getBusType());
+                log.setNotifyCount(0);
+                log.setNotifyState(0);
+                log.setOrderid(payin.getOrderid());
+                log.setPayDemo(payin.getPay_demo());
+                log.setPayExt1(payin.getPay_ext1());
+                log.setPayExt2(payin.getPay_ext2());
+                log.setPayName(payin.getPay_name());
+                log.setPayType(payin.getPay_type());
+                //返回地址
+                log.setReturnUrl(bus.getGobackUrl());
+                if(payin.getReturn_url()!=null && payin.getReturn_url().length()>5){
+                    log.setReturnUrl(payin.getReturn_url());
+                }
+                log.setProdPrice(payin.getPrice());
+                log.setUid(payin.getUid());
+                log.setPayState(0);
+            }
+
+            //更新订单的收款码
+            boolean updateimg = updateLogPayImg();
+            if(!updateimg){
+                ret.setRet_code(41);
+                ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
+                return ret;
+            }
+            paylogService.saveOrUpdate(log);
+            ret=new PayReturn(log);
+            ret.setRet_code(1);
+            ret.setRet_msg("ok");
+            ret.reSetSign(bus.getSignKey());
+        }catch (Exception e){
+            e.printStackTrace();
+            ret.setRet_code(-1);
+            ret.setRet_msg("系统异常");
+        }
+        return ret;
+    }
+
+
+
+    /**
+     * 更新订单的收款码
+     * @return
+     */
+    private boolean  updateLogPayImg() throws Exception {
+        java.util.Date updatetime = format.parse(log.getUpdatetime());
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE,-bus.getPayTimeOut());
+        //如果已有收款码，并且未过期，则直接更新收款码即可
+        if(log.getProdId()!=null){
+            if(cal.getTime().before(updatetime)){
+                log.setUpdatetime(format.format(new Date()));
+                return true;
+            }
+        }
+
+        //1.新订单
+        if(log.getProdId()==null){
+            //1.查询是否有空闲的收款码
+            List<PayProdImg> listprod = payProdImgService.listByPrice(bus.getBusId(),log.getProdPrice(),log.getPayType());
+            //List<PayProd> listprod = payProdService.queryByPrice(bus.getBusId(),payin.getPrice(),payin.getPay_type());
+            if(listprod==null||listprod.size()==0){
+                //2.如果没有定额的收款码，则使用非定额的
+                List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),null);
+                if(useinglog!=null && useinglog.size()>0){
+                    return false;
+                }
+                String payImgContent = null;
+                //支付宝
+                if(log.getPayType()==1){
+                    payImgContent = bus.getPayImgContentZfb();
+                }
+                //微信
+                if(log.getPayType()==2){
+                    payImgContent = bus.getPayImgContentWx();
+                }
+                if(payImgContent==null||payImgContent.length()<5){
+                    return false;
+                }
+                //注入订单的收款信息
+                log.setProdId(0L);
+                log.setProdName("非定额收款码收款");
+                //log.setProdPrice(payin.getPrice());
+                log.setPayImgPrice(log.getProdPrice());
+                log.setPayImgContent(payImgContent);
+            }else{
+                //2.如果有定额的，随机取一个定额的收款码
+                PayProdImg sprod = null;
+                List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),log.getProdPrice());
+                for(PayProdImg p:listprod){
+                    boolean has= false;
+                    for(PayLog l:useinglog){
+                        if(p.getCid().equals(l.getProdId())){
+                            has =true;
+                        }
                     }
-                    String payImgContent = null;
-                    //支付宝
-                    if(payin.getPay_type()==1){
-                        payImgContent = bus.getPayImgContentZfb();
+                    if(!has){
+                        sprod = p;
+                        break;
                     }
-                    //微信
-                    if(payin.getPay_type()==2){
-                        payImgContent = bus.getPayImgContentWx();
+                }
+                //3.如果取不到有效的收款码。则返回
+                if(sprod==null){
+                    return false;
+                }
+                //注入订单的收款信息
+                log.setProdId(sprod.getCid());
+                //log.setProdName(sprod.getProdName());
+                log.setPayImgPrice(sprod.getImgPrice());
+                log.setPayImgContent(sprod.getImgContent());
+            }
+        }
+        //2.已有，定额的收款码
+        if(log.getProdId()!=null && log.getProdId()>0){
+            //定额收款码
+            List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),log.getProdPrice());
+            if(useinglog==null||useinglog.size()==0){
+                log.setUpdatetime(format.format(new Date()));
+                paylogService.saveOrUpdate(log);
+            }else{
+                boolean hasuse = false;
+                for(PayLog l:useinglog){
+                    if(log.getProdId().equals(l.getProdId())){
+                        hasuse = true;
+                        break;
                     }
-                    if(payImgContent==null||payImgContent.length()<5){
-                        ret.setRet_code(41);
-                        ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
-                        return ret;
-                    }
-                    //注入订单的收款信息
-                    log.setProdId(0L);
-                    log.setProdName("非定额收款码收款");
-                    log.setProdPrice(payin.getPrice());
-                    log.setPayImgPrice(payin.getPrice());
-                    log.setPayImgContent(payImgContent);
-                }else{
-                    //2.如果有定额的，随机取一个定额的收款码
+                }
+                if(hasuse){
+                    List<PayProdImg> listprod = payProdImgService.listByPrice(bus.getBusId(),log.getProdPrice(),log.getPayType());
                     PayProdImg sprod = null;
-                    List<PayLog> useinglog =  paylogService.queryByUseingLog(payin.getUid(),payin.getPay_type(),bus.getPayTimeOut(),payin.getPrice());
                     for(PayProdImg p:listprod){
                         boolean has= false;
                         for(PayLog l:useinglog){
@@ -461,51 +498,53 @@ public class PayController {
                     }
                     //3.如果取不到有效的收款码。则返回
                     if(sprod==null){
-                        ret.setRet_code(41);
-                        ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
-                        return ret;
+                        return false;
                     }
                     //注入订单的收款信息
                     log.setProdId(sprod.getCid());
                     //log.setProdName(sprod.getProdName());
+                    //log.setProdPrice(payin.getPrice());
                     log.setPayImgPrice(sprod.getImgPrice());
                     log.setPayImgContent(sprod.getImgContent());
+                    log.setUpdatetime(format.format(new Date()));
+                    //paylogService.saveOrUpdate(log);
+                }else{
+                    log.setUpdatetime(format.format(new Date()));
+                    //paylogService.saveOrUpdate(log);
                 }
-                //注入订单的其他信息
-                log.setBusId(bus.getBusId());
-                log.setBusAcc(bus.getBusAcc());
-                log.setBusName(bus.getBusName());
-                log.setBusType(bus.getBusType());
-                log.setReturnUrl(bus.getGobackUrl());
-                log.setNotifyCount(0);
-                log.setNotifyState(0);
-                log.setOrderid(payin.getOrderid());
-                log.setPayDemo(payin.getPay_demo());
-                log.setPayExt1(payin.getPay_ext1());
-                log.setPayExt2(payin.getPay_ext2());
-                log.setPayName(payin.getPay_name());
-                log.setPayType(payin.getPay_type());
-
-                if(payin.getReturn_url()!=null && payin.getReturn_url().length()>5){
-                    log.setReturnUrl(payin.getReturn_url());
-                }
-                log.setProdPrice(payin.getPrice());
-                log.setUid(payin.getUid());
-                log.setPayState(0);
-                paylogService.saveOrUpdate(log);
             }
-            ret=new PayReturn(log);
-            ret.setRet_code(1);
-            ret.setRet_msg("ok");
-            ret.reSetSign(bus.getSignKey());
-        }catch (Exception e){
-            e.printStackTrace();
-            ret.setRet_code(-1);
-            ret.setRet_msg("系统异常");
         }
-        return ret;
-    }
 
+        //3.已有非定额的收款码
+        if(log.getProdId()!=null && log.getProdId()==0){
+            //非定额的收款码
+            List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),null);
+            if(useinglog!=null && useinglog.size()>0){
+                return false;
+            }
+            String payImgContent = null;
+            //支付宝
+            if(log.getPayType()==1){
+                payImgContent = bus.getPayImgContentZfb();
+            }
+            //微信
+            if(log.getPayType()==2){
+                payImgContent = bus.getPayImgContentWx();
+            }
+            if(payImgContent==null||payImgContent.length()<5){
+                return false;
+            }
+            //注入订单的收款信息
+            log.setProdId(0L);
+            log.setProdName("非定额收款码收款");
+            //log.setProdPrice(payin.getPrice());
+            log.setPayImgPrice(log.getProdPrice());
+            log.setPayImgContent(payImgContent);
+            log.setUpdatetime(format.format(new Date()));
+            //paylogService.saveOrUpdate(log);
+        }
+        return true;
+    }
 
 
     /**
@@ -528,7 +567,7 @@ public class PayController {
             ret.setMsg("对不起，您还未登陆，请登录后再生成签名");
             return ret;
         }
-        PayBus bus = paybusService.get(loginuser.getUserid());
+        bus = paybusService.get(loginuser.getUserid());
 
         if(bus==null){
             ret.setMsg("对不起，当前商户无效");
@@ -568,7 +607,6 @@ public class PayController {
             }catch(Exception e){}
         }
     }
-
 
 
 }

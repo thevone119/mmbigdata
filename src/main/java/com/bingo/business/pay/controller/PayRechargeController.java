@@ -11,6 +11,7 @@ import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.http.MyRequests;
 import com.bingo.common.model.SessionUser;
+import com.bingo.common.service.RedisCacheService;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.QRCodeUtils;
 import com.bingo.common.utility.WebClass;
@@ -71,15 +72,23 @@ public class PayRechargeController {
     @Resource
     private PayService payService;
 
+    @Resource
+    private PayLogService paylogService;
+
 
 
     @Resource
     private SessionCacheService sessionCache;
 
+    @Resource
+    private RedisCacheService redis;
+
 
 
     /**
      * 创建支付订单,进行充值
+     * 为了避免重复创建支付订单，这里对同一个商户创建的固定金额的订单，做缓存处理
+     *1.注意，这里不能做缓存处理，如果缓存了，那么会影响到前端的多次支付逻辑。
      * @return
      * @throws ServiceException
      * @throws DaoException
@@ -102,10 +111,25 @@ public class PayRechargeController {
         //创建支付订单
         String url = pay_local_url+"/payapi/create";
 
+        String c_key  = "pay:recharge_orderid:"+loginuser.getUserid()+","+pay_type+","+price;
+        //缓存2小时吧
+        String orderid = (String)redis.get(c_key);
+        if(orderid==null){
+            orderid = System.currentTimeMillis()+"";
+            redis.set(c_key,orderid,60*2);
+        }
+        //查询订单是否已支付了，如果已支付了。则使用新的订单号哦
+        PayLog log = paylogService.queryByUidOrderid(pay_uid,orderid);
+        if(log!=null && log.getPayState()==1){
+            orderid = System.currentTimeMillis()+"";
+            redis.set(c_key,orderid,60*2);
+        }
+
+
         PayInput payi = new PayInput();
         payi.setUid(pay_uid);
         payi.setNonce_str(System.currentTimeMillis()+"");
-        payi.setOrderid(System.currentTimeMillis()+"");
+        payi.setOrderid(orderid);
         payi.setPay_ext1(loginuser.getUserid()+"");
         payi.setPay_ext2(price+"");
         payi.setPay_name("支付平台充值(￥"+price+"元)");
