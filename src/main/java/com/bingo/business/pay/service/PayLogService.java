@@ -104,7 +104,8 @@ public class PayLogService{
 		}
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE,-payTimeOut);
+		//锁多一分钟
+		cal.add(Calendar.MINUTE,-payTimeOut-1);
 		String validtime = format.format(cal.getTime());
 		if(prodPrice==null){
 			return paylogRepository.query(qhtl.toString(),new Object[]{uid,payType,validtime});

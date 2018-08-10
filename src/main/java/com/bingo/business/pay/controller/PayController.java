@@ -401,125 +401,55 @@ public class PayController {
     private boolean  updateLogPayImg() throws Exception {
         java.util.Date updatetime = format.parse(log.getUpdatetime());
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MINUTE,-bus.getPayTimeOut());
-        //如果已有收款码，并且未过期，则直接更新收款码即可
+        //锁多一分钟
+        cal.add(Calendar.MINUTE,-bus.getPayTimeOut()-1);
+        //如果已有收款码，并且未过期，则直接更新收款码使用期限即可
         if(log.getProdId()!=null){
             if(cal.getTime().before(updatetime)){
                 log.setUpdatetime(format.format(new Date()));
                 return true;
             }
         }
+        //已使用的收款码
+        List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),null);
 
-        //1.新订单
-        if(log.getProdId()==null){
-            //1.查询是否有空闲的收款码
-            List<PayProdImg> listprod = payProdImgService.listByPrice(bus.getBusId(),log.getProdPrice(),log.getPayType());
-            //List<PayProd> listprod = payProdService.queryByPrice(bus.getBusId(),payin.getPrice(),payin.getPay_type());
-            if(listprod==null||listprod.size()==0){
-                //2.如果没有定额的收款码，则使用非定额的
-                List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),null);
-                if(useinglog!=null && useinglog.size()>0){
-                    return false;
+        //当前收款金额的是否被使用，没有被使用，则直接使用当前的
+        if(log.getPayImgPrice()!=null && log.getPayImgPrice()>0){
+            boolean hasuse = false;
+            for(PayLog l:useinglog){
+                if(l.getPayImgPrice().equals(log.getPayImgPrice())){
+                    hasuse = true;
+                    break;
                 }
-                String payImgContent = null;
-                //支付宝
-                if(log.getPayType()==1){
-                    payImgContent = bus.getPayImgContentZfb();
-                }
-                //微信
-                if(log.getPayType()==2){
-                    payImgContent = bus.getPayImgContentWx();
-                }
-                if(payImgContent==null||payImgContent.length()<5){
-                    return false;
-                }
-                //注入订单的收款信息
-                log.setProdId(0L);
-                log.setProdName("非定额收款码收款");
-                //log.setProdPrice(payin.getPrice());
-                log.setPayImgPrice(log.getProdPrice());
-                log.setPayImgContent(payImgContent);
-            }else{
-                //2.如果有定额的，随机取一个定额的收款码
-                PayProdImg sprod = null;
-                List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),log.getProdPrice());
-                for(PayProdImg p:listprod){
-                    boolean has= false;
-                    for(PayLog l:useinglog){
-                        if(p.getCid().equals(l.getProdId())){
-                            has =true;
-                        }
-                    }
-                    if(!has){
-                        sprod = p;
-                        break;
-                    }
-                }
-                //3.如果取不到有效的收款码。则返回
-                if(sprod==null){
-                    return false;
-                }
-                //注入订单的收款信息
-                log.setProdId(sprod.getCid());
-                //log.setProdName(sprod.getProdName());
-                log.setPayImgPrice(sprod.getImgPrice());
-                log.setPayImgContent(sprod.getImgContent());
             }
-        }
-        //2.已有，定额的收款码
-        if(log.getProdId()!=null && log.getProdId()>0){
-            //定额收款码
-            List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),log.getProdPrice());
-            if(useinglog==null||useinglog.size()==0){
+            if(!hasuse){
                 log.setUpdatetime(format.format(new Date()));
-                paylogService.saveOrUpdate(log);
-            }else{
-                boolean hasuse = false;
-                for(PayLog l:useinglog){
-                    if(log.getProdId().equals(l.getProdId())){
-                        hasuse = true;
-                        break;
-                    }
-                }
-                if(hasuse){
-                    List<PayProdImg> listprod = payProdImgService.listByPrice(bus.getBusId(),log.getProdPrice(),log.getPayType());
-                    PayProdImg sprod = null;
-                    for(PayProdImg p:listprod){
-                        boolean has= false;
-                        for(PayLog l:useinglog){
-                            if(p.getCid().equals(l.getProdId())){
-                                has =true;
-                            }
-                        }
-                        if(!has){
-                            sprod = p;
-                            break;
-                        }
-                    }
-                    //3.如果取不到有效的收款码。则返回
-                    if(sprod==null){
-                        return false;
-                    }
-                    //注入订单的收款信息
-                    log.setProdId(sprod.getCid());
-                    //log.setProdName(sprod.getProdName());
-                    //log.setProdPrice(payin.getPrice());
-                    log.setPayImgPrice(sprod.getImgPrice());
-                    log.setPayImgContent(sprod.getImgContent());
-                    log.setUpdatetime(format.format(new Date()));
-                    //paylogService.saveOrUpdate(log);
-                }else{
-                    log.setUpdatetime(format.format(new Date()));
-                    //paylogService.saveOrUpdate(log);
-                }
+                return true;
             }
         }
 
-        //3.已有非定额的收款码
-        if(log.getProdId()!=null && log.getProdId()==0){
-            //非定额的收款码
-            List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),null);
-            if(useinglog!=null && useinglog.size()>0){
+        //可用的定额
+        List<PayProdImg> listprod = payProdImgService.listFreeByPrice(bus.getBusId(),log.getProdPrice(),log.getPayType(),bus.getPayTimeOut());
+
+        //非定额
+        if(listprod==null||listprod.size()==0){
+            //没空闲的，则使用非定额的,最多使用10个哦。
+            Float imgPrice = log.getProdPrice();
+            for(int i=0;i<30;i++){
+                imgPrice = imgPrice-i*0.01f;
+                boolean has  = false;
+                for(PayLog ulog:useinglog){
+                    if(ulog.getPayImgPrice().equals(imgPrice)){
+                        has = true;
+                        break;
+                    }
+                }
+                if(!has){
+                    break;
+                }
+            }
+            //没有合适的非定额的
+            if(imgPrice<log.getProdPrice()-0.1){
                 return false;
             }
             String payImgContent = null;
@@ -534,15 +464,25 @@ public class PayController {
             if(payImgContent==null||payImgContent.length()<5){
                 return false;
             }
+            //注入非定额的
             //注入订单的收款信息
             log.setProdId(0L);
             log.setProdName("非定额收款码收款");
-            //log.setProdPrice(payin.getPrice());
-            log.setPayImgPrice(log.getProdPrice());
+            log.setPayImgPrice(imgPrice);
             log.setPayImgContent(payImgContent);
             log.setUpdatetime(format.format(new Date()));
-            //paylogService.saveOrUpdate(log);
+        }else{
+            //定额
+            //注入订单的收款信息
+            log.setProdId(listprod.get(0).getCid());
+            log.setProdName("定额收款码");
+            //log.setProdPrice(payin.getPrice());
+            log.setPayImgPrice(listprod.get(0).getImgPrice());
+            log.setPayImgContent(listprod.get(0).getImgContent());
+            log.setUpdatetime(format.format(new Date()));
         }
+        //最后都要更新时间
+        log.setUpdatetime(format.format(new Date()));
         return true;
     }
 

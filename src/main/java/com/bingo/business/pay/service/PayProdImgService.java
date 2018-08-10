@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -97,6 +99,23 @@ public class PayProdImgService {
 	public List<PayProdImg> listByPrice(Long userId,Float imgPrice,Integer payType){
 		StringBuffer hql = new StringBuffer(" from PayProdImg where userId=? and  imgPrice <= ? and imgPrice >= ? and payType=? order by imgPrice desc");
 		return payProdImgRepository.query(hql.toString(),new Object[]{userId,imgPrice,imgPrice-0.1f,payType});
+	}
+
+	/**
+	 * 查询空闲，可用的定额收款码
+	 * @param userId
+	 * @param imgPrice
+	 * @param payType
+	 * @return
+	 */
+	public List<PayProdImg> listFreeByPrice(Long userId,Float imgPrice,Integer payType,Integer payTimeOut){
+		StringBuffer hql = new StringBuffer(" from PayProdImg img where userId=? and  imgPrice <= ? and imgPrice >= ? and payType=? and imgPrice not in(select payImgPrice from  PayLog log where  updatetime>? and payState!=1 ) order by imgPrice desc");
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		Calendar cal = Calendar.getInstance();
+		//锁多一分钟
+		cal.add(Calendar.MINUTE,-payTimeOut-1);
+		String validtime = format.format(cal.getTime());
+		return payProdImgRepository.query(hql.toString(),new Object[]{userId,imgPrice,imgPrice-0.1f,payType,validtime});
 	}
 
 	/**
