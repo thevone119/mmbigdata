@@ -50,7 +50,7 @@ public class PayBus extends PageModel{
 	protected Integer  busType;//商户类型,0：默认，无套餐  1：商户基础版套餐，2：商户高级版套餐，3：商户专业版套餐
 
 	@Column(name = "bus_validity",updatable = false)
-	protected Long  busValidity;//套餐有效期
+	protected Long  busValidity;//套餐有效期YYYYMMDD,年月日
 
 	@Column(name = "emoney",updatable = false)
 	protected float  eMoney=0.0f;//商户金额，余额

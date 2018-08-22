@@ -67,9 +67,18 @@ public class PayBusChangeController {
     @RequestMapping("/findPage")
     public XJsonInfo findPage(PayBusChange vo) throws ServiceException, DaoException {
 		SessionUser loginuser = sessionCache.getLoginUser();
-		if(vo.getBusId()==null||loginuser.getUsertype()!=1){
-			vo.setBusId(loginuser.getUserid());
+		if(loginuser==null){
+			if(vo.getBusId()==null){
+				return null;
+			}
 		}
+		if(vo.getBusId()==null){
+			if(loginuser.getUsertype()!=1){
+				vo.setBusId(loginuser.getUserid());
+			}
+		}
+
+
         return  new XJsonInfo().setPageData(payBusChangeService.findPage(vo));
     }
 

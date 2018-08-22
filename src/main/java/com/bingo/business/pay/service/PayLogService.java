@@ -93,6 +93,19 @@ public class PayLogService{
 	}
 
 	/**
+	 * 根据3个不同的单号查询订单
+	 * @param logId
+	 * @param orderid
+	 * @param rid
+	 * @return
+	 * @throws DaoException
+	 */
+	public PayLog queryByAllid(Long logId,String orderid,String rid) throws DaoException{
+		StringBuffer qhtl = new StringBuffer(" from PayLog where logId =? and orderid=? and rid=?");
+		return paylogRepository.find(qhtl.toString(),new Object[]{logId,orderid,rid});
+	}
+
+	/**
 	 * 查询正在使用的订单
 	 * 根据商户，价格查询
 	 * @return
@@ -135,14 +148,19 @@ public class PayLogService{
 			fldValues.add(vo.getBusId());
 		}
 
+		if(StringUtils.isNotEmpty(vo.getUid())){
+			hql.append(" and uid = ?");
+			fldValues.add(vo.getUid());
+		}
+
 		if(vo.getProdPrice()!=null&&vo.getProdPrice()>0){
 			hql.append(" and prodPrice = ?");
 			fldValues.add(vo.getProdPrice());
 		}
 
-		if(vo.getCreatetime()!=null&&vo.getCreatetime().length()==6){
+		if(vo.getCreatetime()!=null&&vo.getCreatetime().length()>=4&&vo.getCreatetime().length()<=8){
 			hql.append(" and createtime like ?");
-			fldValues.add("%"+vo.getCreatetime()+"%");
+			fldValues.add(""+vo.getCreatetime()+"%");
 		}
 
 		if(vo.getPayType()!=null&&vo.getPayType()>0){

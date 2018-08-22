@@ -1,5 +1,7 @@
 package com.bingo.business.pay.controller;
 
+import com.bingo.business.pay.parameter.PayInput;
+import com.bingo.business.pay.parameter.PayReturn;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.filter.ControllerFilter;
@@ -7,6 +9,7 @@ import com.bingo.common.model.Page;
 import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
+import com.bingo.common.utility.SecurityClass;
 import com.bingo.common.utility.XJsonInfo;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -103,19 +106,74 @@ public class PayLogController  {
 		return new XJsonInfo().setData(vo);
 	}
 
+	/**
+	 * 收款确认接口，提供给收款APP使用
+	 * @return
+	 * @throws Exception
+	 */
+	@ResponseBody
+	@RequestMapping("/app_pay_check")
+	public XJsonInfo app_pay_check(Long logId,String orderid,String rid,String nonce_str,String uid,String sign) throws Exception {
+		//1.查询商户
+		XJsonInfo ret = new XJsonInfo(false);
+		PayBus paybus = paybusService.queryByUuid(uid);
+		if(paybus==null){
+			ret.setCode(-2);
+			ret.setMsg("商户无效");
+			return ret;
+		}
+		StringBuffer stringA =new  StringBuffer();
+		stringA.append("logId="+logId+"&orderid="+orderid+"&rid="+rid+"&uid="+paybus.getUuid()+"&busId="+paybus.getBusId()+"&nonce_str="+nonce_str);
+		String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
+		if(!_sign.equals(sign)){
+			ret.setCode(13);
+			ret.setMsg("签名错误");
+			return ret;
+		}
+		PayLog log = paylogService.queryByAllid(logId,orderid,rid);
+		XJsonInfo retj = payService.checkPay(log,2);
+		return retj;
+	}
 
 	/**
+	 * 提供外部系统接口查询，不用登陆
+	 * @param rid
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ResponseBody
+	@RequestMapping("/queryByRid")
+	public XJsonInfo queryByRid(String rid) throws ServiceException, DaoException {
+		PayLog vo = paylogService.queryByRid(rid);
+		if(vo==null){
+			return new XJsonInfo(false,"订单查询失败，请稍候再试");
+		}
+		return new XJsonInfo().setData(vo);
+	}
+
+
+	/**
+	 * 前后台通用，后台查询必须要登录
+	 * 前台查询，需要传uuid进行查询,
 	 * @description: <分页查询>
 	 * @param:
 	 * @throws:
 	 */
-	@ControllerFilter(LoginType = 1,UserType = 0)
     @ResponseBody
     @RequestMapping("/findPage")
     public XJsonInfo findPage(PayLog vo) throws ServiceException, DaoException {
 		SessionUser loginuser = sessionCache.getLoginUser();
-		if(vo.getBusId()==null||loginuser.getUsertype()!=1){
-			vo.setBusId(loginuser.getUserid());
+		if(loginuser==null){
+			if(vo.getBusId()==null || vo.getUid()==null){
+				return null;
+			}
+		}
+
+		if(vo.getBusId()==null){
+			if(loginuser.getUsertype()!=1){
+				vo.setBusId(loginuser.getUserid());
+			}
 		}
         return  new XJsonInfo().setPageData(paylogService.findPage(vo));
     }
@@ -223,11 +281,12 @@ public class PayLogController  {
 				buff.close();
 			}
 		}
-
 	}
 
+
+
 	/**
-	 * 我已收款,后台，手机APP通用
+	 * 我已收款,后台使用，需要登录
 	 * @param rid
 	 * @param uid
 	 * @param checkType
@@ -235,6 +294,7 @@ public class PayLogController  {
 	 * @throws ServiceException
 	 * @throws DaoException
 	 */
+	@ControllerFilter(LoginType = 1,UserType = 0)
 	@ResponseBody
 	@RequestMapping("/checkPay")
 	public XJsonInfo checkPay(String rid,String uid,int checkType) throws Exception {

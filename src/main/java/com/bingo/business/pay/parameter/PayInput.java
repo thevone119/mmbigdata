@@ -158,7 +158,7 @@ public class PayInput {
             stringA.append(kv+"&");
         }
         stringA.append("sign_key="+sign_key);
-        System.out.println(stringA.toString());
+
         //签名
         String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
         return _sign;

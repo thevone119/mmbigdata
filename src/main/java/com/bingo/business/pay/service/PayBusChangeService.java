@@ -86,9 +86,9 @@ public class PayBusChangeService {
 			fldValues.add(vo.getCtype());
 		}
 
-		if(vo.getCreatetime()!=null&&vo.getCreatetime().length()==6){
+		if(vo.getCreatetime()!=null&&vo.getCreatetime().length()>=4&&vo.getCreatetime().length()<=8){
 			hql.append(" and createtime like ?");
-			fldValues.add("%"+vo.getCreatetime()+"%");
+			fldValues.add(""+vo.getCreatetime()+"%");
 		}
 		return payBusChangeRepository.findPage(hql.toString(), vo, fldValues);
 	}

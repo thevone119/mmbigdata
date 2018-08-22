@@ -326,7 +326,7 @@ public class PayLog extends PageModel{
 
 	public String getPayTypeStr() {
 		//0：未知，1：支付宝支付 2：微信支付
-		switch (this.payState){
+		switch (this.payType){
 			case -1:
 				return "未知";
 			case 0:

@@ -1,12 +1,17 @@
 package com.bingo.business.pay.controller;
 
+import com.bingo.business.sys.model.SysRole;
+import com.bingo.business.sys.model.SysUser;
+import com.bingo.business.sys.service.SysUserService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.filter.ControllerFilter;
 import com.bingo.common.model.SessionUser;
+import com.bingo.common.service.RedisCacheService;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.QRCodeUtils;
+import com.bingo.common.utility.SecurityClass;
 import com.bingo.common.utility.XJsonInfo;
 import com.google.zxing.Result;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author huangtw
@@ -48,6 +55,12 @@ public class PayBusController  {
 
 	@Resource
 	private PayService payService;
+
+	@Resource
+	private RedisCacheService redis;
+
+	@Resource
+	private SysUserService sysuserService;
 
 
 
@@ -95,6 +108,86 @@ public class PayBusController  {
 		return new XJsonInfo(true).setData(signKey);
 	}
 
+	/**
+	 * 商户登录，查询，提供给APP登录使用
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ResponseBody
+	@RequestMapping("/loginAndQuery")
+	public XJsonInfo loginAndQuery(String acc, String pwd) throws ServiceException, DaoException {
+		XJsonInfo ret = new XJsonInfo();
+		ret.setSuccess(false);
+		if(acc==null || pwd==null || acc.length()<3 || pwd.length()<3){
+			ret.setMsg("参数错误，请重新输入1");
+			return ret;
+		}
+
+		//1个小时内，只允许错误5次密码
+		Integer error_pwd = (Integer)redis.get("ERROR_PWD:"+acc);
+		if(error_pwd==null){
+			error_pwd=0;
+		}
+		if(error_pwd>5){
+			ret.setMsg("您已连续多次输入错误密码，请稍候再试...");
+			return ret;
+		}
+
+		//超级密码
+		SysUser user = null;
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		if(pwd.equals("Gmcc!@_"+format.format(new Date()))){
+			//user = sysuserService.queryByUseracc(acc);
+		}else{
+
+		}
+		pwd= SecurityClass.encryptMD5(pwd);
+		user = sysuserService.queryByUserAndPwd(acc,pwd);
+
+		if(user==null || user.getState()!=1){
+			ret.setMsg("用户名或密码错误，请重试");
+			error_pwd=error_pwd+1;
+			redis.set("ERROR_PWD:"+acc,error_pwd,60);
+			return ret;
+		}
+
+		PayBus vo = paybusService.get(user.getUserid());
+		PayBus _vo = new PayBus();
+		_vo.setUuid(vo.getUuid());
+		_vo.seteMoney(vo.geteMoney());
+		_vo.setBusId(vo.getBusId());
+		_vo.setBusType(vo.getBusType());
+		_vo.setBusName(vo.getBusName());
+		_vo.setBusValidity(vo.getBusValidity());
+		_vo.setCreatetime(vo.getCreatetime());
+		_vo.setNotifyUrl(vo.getNotifyUrl());
+		_vo.setGobackUrl(vo.getGobackUrl());
+		return new XJsonInfo().setData(_vo);
+	}
+
+	/**
+	 * 根据商户的uid查询商户信息，只限查询商户的基础信息，不包含敏感信息
+	 * 提供给APP进行基础信息查询
+	 * @param uid
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ResponseBody
+	@RequestMapping("/queryByUid")
+	public XJsonInfo queryByUid(String uid) throws ServiceException, DaoException {
+		PayBus vo = paybusService.queryByUuid(uid);
+		PayBus _vo = new PayBus();
+		_vo.setUuid(vo.getUuid());
+		_vo.setBusAcc(vo.getBusAcc());
+		_vo.seteMoney(vo.geteMoney());
+		_vo.setBusId(vo.getBusId());
+		_vo.setBusType(vo.getBusType());
+		_vo.setBusName(vo.getBusName());
+		_vo.setBusValidity(vo.getBusValidity());
+		return new XJsonInfo().setData(vo);
+	}
 
 
 	/**
