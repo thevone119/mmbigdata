@@ -2,6 +2,7 @@ package com.bingo.common.utility;
 
 
 import com.bingo.common.model.Page;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +11,9 @@ import java.util.Map;
 
 /**
  * Created by xxx on 2017-7-26.
+ * 空值不返回
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class XJsonInfo {
     private Long total;
     private Integer totalPages;
