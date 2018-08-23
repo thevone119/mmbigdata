@@ -21,8 +21,7 @@ public class index {
     @Autowired
     HttpServletRequest request;
 
-    @Resource
-    private PubClass pubClass;
+
 
     @RequestMapping(method = {RequestMethod.GET})
     public ModelAndView index() {
