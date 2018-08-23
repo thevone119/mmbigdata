@@ -158,6 +158,7 @@ public class PayBusController  {
 		_vo.seteMoney(vo.geteMoney());
 		_vo.setBusId(vo.getBusId());
 		_vo.setBusType(vo.getBusType());
+		_vo.setBusAcc(vo.getBusAcc());
 		_vo.setBusName(vo.getBusName());
 		_vo.setBusValidity(vo.getBusValidity());
 		_vo.setCreatetime(vo.getCreatetime());
@@ -180,12 +181,15 @@ public class PayBusController  {
 		PayBus vo = paybusService.queryByUuid(uid);
 		PayBus _vo = new PayBus();
 		_vo.setUuid(vo.getUuid());
-		_vo.setBusAcc(vo.getBusAcc());
 		_vo.seteMoney(vo.geteMoney());
 		_vo.setBusId(vo.getBusId());
 		_vo.setBusType(vo.getBusType());
+		_vo.setBusAcc(vo.getBusAcc());
 		_vo.setBusName(vo.getBusName());
 		_vo.setBusValidity(vo.getBusValidity());
+		_vo.setCreatetime(vo.getCreatetime());
+		_vo.setNotifyUrl(vo.getNotifyUrl());
+		_vo.setGobackUrl(vo.getGobackUrl());
 		return new XJsonInfo().setData(vo);
 	}
 
