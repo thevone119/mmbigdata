@@ -6,6 +6,7 @@ import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.XJsonInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +25,7 @@ import com.bingo.business.pay.service.*;
 @RestController
 @RequestMapping("/api/pay/payappnotification")
 public class PayAppNotificationController  {
-
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PayAppNotificationController.class);
 	@Resource
 	private PayAppNotificationService payappnotificationService;
 
@@ -45,20 +46,53 @@ public class PayAppNotificationController  {
 		XJsonInfo ret = new XJsonInfo(false);
 		//先验证签名
 		if(!vo.getSign().equals(vo.MarkSign())){
+			ret.setSuccess(false);
 			ret.setCode(-1);
 			ret.setMsg("签名无效");
+			logger.info("签名无效:"+vo.toString());
+			return ret;
 		}
+
+		//判断通知内容是否是需要的内容，如果不是，也直接返回成功
+		if(vo.getPackageName()==null){
+			ret.setSuccess(false);
+			ret.setCode(-1);
+			ret.setMsg("数据无效");
+			logger.info("数据无效:"+vo.toString());
+			return ret;
+		}
+		//判断是否微信，支付宝的通知
+		boolean ispay = false;
+		if(vo.getPackageName().indexOf("weixin")!=-1){
+			ispay=true;
+		}
+		if(vo.getPackageName().indexOf("zfb")!=-1){
+			ispay=true;
+		}
+		//这种数据直接返回true
+		if(!ispay){
+			ret.setSuccess(true);
+			ret.setCode(1);
+			ret.setMsg("数据无效");
+			logger.info("数据无效:"+vo.toString());
+			return ret;
+		}
+
 		//判断是否已存在，已存在的直接返回已存在
 		PayAppNotification _vo = payappnotificationService.get(vo.getNkey());
 		if(_vo!=null){
+			ret.setSuccess(true);
 			ret.setCode(1);
 			ret.setMsg("对象已存在");
+			logger.info("对象已存在:"+vo.toString());
+			return ret;
 		}
+
 		//没有存在的先保存对象
         payappnotificationService.saveOrUpdate(vo);
 		ret.setSuccess(true);
 		ret.setCode(0);
-		ret.setMsg("对象已存在");
+		ret.setMsg("ok");
 		doNotification(vo);
 		//保存成功即代表成功，后续处理失败也不用管
         return ret;
