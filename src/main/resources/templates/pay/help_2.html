@@ -35,8 +35,8 @@
 			<div class="col-xs-9">
 				<div class="record_ron">
 					<div class="state">
-							<h4>发起支付接口（必须接口） </h4>
-							<h4>发起支付接口地址：http://www.heimipay.com/scan_pay</h4>
+							<h4>发起支付接口 </h4>
+							<h4>发起支付接口地址：http://www.heimipay.com/payapi/create</h4>
 							<h4>传参方式:POST</h4>
 							<h4>请求参数：</h4>
 					</div>
@@ -79,6 +79,22 @@
 										必填。我们会据此判别是同一笔订单还是新订单。我们回调时，会带上这个参数。请保障每笔订单的订单ID不同，可以使用32位的uuid生成算法生成随机的ID.
 									</td>
 								</tr>
+
+								<tr>
+									<td>
+										nonce_str
+									</td>
+									<td>
+										随机字符串
+									</td>
+									<td>
+										string
+									</td>
+									<td>
+										必填。随机字符串，可用随机函数或日期函数生成
+									</td>
+								</tr>
+
 								<tr>
 									<td>
 										price
