@@ -2,6 +2,7 @@ package com.bingo.business.pay.parameter;
 
 import com.bingo.business.pay.model.PayLog;
 import com.bingo.common.utility.SecurityClass;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -10,6 +11,7 @@ import java.util.*;
  * Created by Administrator on 2018-08-06.
  * 创建订单的返回参数定义
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PayReturn {
     private Integer ret_code=-1;//返回码  1:才是成功
     private String ret_msg="ok";//消息

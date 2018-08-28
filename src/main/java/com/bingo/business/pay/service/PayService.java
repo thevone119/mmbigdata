@@ -141,12 +141,16 @@ public class PayService {
         float refee=0.0f;//扣减的费用
         String demo = "手工确认收款，不扣费";
         if(checkType==1){
-            if(paylog.getProdPrice()<1){
+            if(paylog.getProdPrice()<=1){
                 demo = "低于1元的订单，不收手续费";
             }else{
                 demo = "支付订单手续费";
                 float serviceFeeFee = PayTaoCan.getPayTaoCanServiceFeeFee(bus.getBusType());
                 refee = paylog.getProdPrice()*serviceFeeFee;
+                //手续费最低是0.01,小于0.01按照0.01计算
+                if(refee<0.01){
+                    refee=0.01f;
+                }
             }
         }
         if(checkType==2){

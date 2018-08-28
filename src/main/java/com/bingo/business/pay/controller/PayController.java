@@ -318,6 +318,10 @@ public class PayController {
                 }
 
                 sprice = payin.getPrice() * PayTaoCan.getPayTaoCanServiceFeeFee(bus.getBusType());
+                //手续费最低是0.01,小于0.01按照0.01计算
+                if(sprice<0.01){
+                    sprice=0.01f;
+                }
                 if(bus.geteMoney()<sprice){
                     ret.setRet_code(22);
                     ret.setRet_msg("对不起，当前商户余额不足，不能进行支付");
