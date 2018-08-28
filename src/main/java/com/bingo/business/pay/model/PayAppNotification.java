@@ -25,10 +25,13 @@ public class PayAppNotification  extends PageModel {
     @Column(name = "id")
     private Integer id;//app通知的ID,
 
-    @Column(name = "postTime")
+    @Column(name = "posttime")
     private Long postTime;//app通知的时间
 
-    @Column(name = "packageName")
+    @Column(name = "posttimeservice")
+    private Long postTimeService;//app通知的时间，计算得到的服务器时间
+
+    @Column(name = "packagename")
     private String packageName;//app通知的包名
 
     @Column(name = "title")
@@ -37,13 +40,13 @@ public class PayAppNotification  extends PageModel {
     @Column(name = "text")
     private String text;//app通知的内容
 
-    @Column(name = "subText")
+    @Column(name = "subtext")
     private String subText;//app通知小行内容
 
     @Column(name = "uid")
     private String uid;//商户ID
 
-    @Column(name = "createTime")
+    @Column(name = "createtime")
     private Long createTime;//服务器的创建时间，接收到的时间,getTime();
 
     @Column(name = "state")
@@ -158,6 +161,14 @@ public class PayAppNotification  extends PageModel {
         this.sign = sign;
     }
 
+    public Long getPostTimeService() {
+        return postTimeService;
+    }
+
+    public void setPostTimeService(Long postTimeService) {
+        this.postTimeService = postTimeService;
+    }
+
     /**
      * 对对象进行签名,随便签一下就行了,自己用的
      * @return
@@ -178,5 +189,24 @@ public class PayAppNotification  extends PageModel {
         //签名
         String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
         return _sign;
+    }
+
+    @Override
+    public String toString() {
+        return "PayAppNotification{" +
+                "nkey='" + nkey + '\'' +
+                ", id=" + id +
+                ", postTime=" + postTime +
+                ", postTimeService=" + postTimeService +
+                ", packageName='" + packageName + '\'' +
+                ", title='" + title + '\'' +
+                ", text='" + text + '\'' +
+                ", subText='" + subText + '\'' +
+                ", uid='" + uid + '\'' +
+                ", createTime=" + createTime +
+                ", state=" + state +
+                ", logid='" + logid + '\'' +
+                ", sign='" + sign + '\'' +
+                '}';
     }
 }

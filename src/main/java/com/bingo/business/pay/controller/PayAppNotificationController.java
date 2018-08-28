@@ -2,7 +2,6 @@ package com.bingo.business.pay.controller;
 
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
-import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.XJsonInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import com.bingo.business.pay.model.*;
 import com.bingo.business.pay.service.*;
 
@@ -29,9 +31,23 @@ public class PayAppNotificationController  {
 	@Resource
 	private PayAppNotificationService payappnotificationService;
 
+	//客户端监听通知的包名
+	private static List<String> listPackageName =new ArrayList<>();
+
 	public PayAppNotificationController(){
-		
+		if(listPackageName.size()==0){
+			listPackageName.add("weixin");
+			listPackageName.add("zfb");
+		}
 	}
+
+
+	@ResponseBody
+	@RequestMapping("/queryPackageName")
+	public XJsonInfo queryPackageName() throws ServiceException, DaoException {
+		return new XJsonInfo().setData(listPackageName);
+	}
+
 	
 	/**
 	 * 保存APP的通知，同时，进行相关适配订单等逻辑处理
