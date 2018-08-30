@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import com.bingo.business.pay.model.*;
@@ -105,26 +106,37 @@ public class PayLogService{
 		return paylogRepository.find(qhtl.toString(),new Object[]{logId,orderid,rid});
 	}
 
+
 	/**
 	 * 查询正在使用的订单
 	 * 根据商户，价格查询
 	 * @return
 	 */
 	public List<PayLog> queryByUseingLog(String uid,Integer  payType,Integer payTimeOut,Float prodPrice){
+		return queryByUseingLog(uid,payType,payTimeOut,prodPrice,null,null);
+	}
+
+	public List<PayLog> queryByUseingLog(String uid,Integer  payType,Integer payTimeOut,Float prodPrice,Float payImgPrice,Long currTime){
 		StringBuffer qhtl = new StringBuffer(" from PayLog where uid =? and payType=? and updatetime>? and payState!=1 ");
 		if(prodPrice!=null){
-			qhtl.append(" and prodPrice=? ");
+			qhtl.append(" and prodPrice="+prodPrice );
+		}
+		if(payImgPrice!=null){
+			qhtl.append(" and payImgPrice="+payImgPrice );
 		}
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		Calendar cal = Calendar.getInstance();
-		//锁多一分钟
-		cal.add(Calendar.MINUTE,-payTimeOut-1);
-		String validtime = format.format(cal.getTime());
-		if(prodPrice==null){
-			return paylogRepository.query(qhtl.toString(),new Object[]{uid,payType,validtime});
+		if(currTime!=null){
+			cal.setTime(new Date(currTime));
+			//APP确认收款时，锁多30秒
+			cal.add(Calendar.SECOND,-(payTimeOut*60)-30);
 		}else{
-			return paylogRepository.query(qhtl.toString(),new Object[]{uid,payType,validtime,prodPrice});
+			//释放出来给别人使用时，锁多一分钟
+			cal.add(Calendar.MINUTE,-payTimeOut-1);
 		}
+
+		String validtime = format.format(cal.getTime());
+		return paylogRepository.query(qhtl.toString(),new Object[]{uid,payType,validtime});
 	}
 
 

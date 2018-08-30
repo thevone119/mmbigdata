@@ -31,6 +31,12 @@ public class PayAppNotificationController  {
 	@Resource
 	private PayAppNotificationService payappnotificationService;
 
+
+	@Resource
+	private PayService payService;
+
+
+
 	//客户端监听通知的包名
 	private static List<String> listPackageName =new ArrayList<>();
 
@@ -79,12 +85,13 @@ public class PayAppNotificationController  {
 		}
 		//判断是否微信，支付宝的通知
 		boolean ispay = false;
-		if(vo.getPackageName().indexOf("weixin")!=-1){
-			ispay=true;
+		for(String pn:listPackageName){
+			if(vo.getPackageName().indexOf(pn)!=-1){
+				ispay = true;
+				break;
+			}
 		}
-		if(vo.getPackageName().indexOf("zfb")!=-1){
-			ispay=true;
-		}
+
 		//这种数据直接返回true
 		if(!ispay){
 			ret.setSuccess(true);
@@ -109,24 +116,13 @@ public class PayAppNotificationController  {
 		ret.setSuccess(true);
 		ret.setCode(0);
 		ret.setMsg("ok");
-		doNotification(vo);
+		payService.doNotification(vo);
 		//保存成功即代表成功，后续处理失败也不用管
         return ret;
     }
 
 
-	/**
-	 * 对通知进行后续的匹配处理
-	 * @param vo
-	 * @return
-	 */
-	public XJsonInfo doNotification(PayAppNotification vo){
-		XJsonInfo ret = new XJsonInfo(false);
-		//这里处理相关的匹配逻辑
 
-
-		return ret;
-	}
 
 
 

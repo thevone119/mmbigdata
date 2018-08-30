@@ -37,12 +37,20 @@ public class PayService {
     private static final Logger logger = LoggerFactory.getLogger(PayService.class);
 
     @Resource
+    private PayAppNotificationService payappnotificationService;
+
+    @Resource
     private PayBusChangeRepository payBusChangeRepository;
     @Resource
     private PayBusRepository payBusRepository;
     @Resource
     private PayLogRepository paylogRepository;
 
+    @Resource
+    private PayBusService paybusService;
+
+    @Resource
+    private PayLogService paylogService;
 
     @Resource
     private PayLogNotifyRepository payLogNotifyRepository;
@@ -111,11 +119,83 @@ public class PayService {
     }
 
     /**
+     * 收到APP的通知，进行相关的处理
+     * 对通知进行后续的匹配处理
+     * @param vo
+     * @return
+     */
+    public XJsonInfo doNotification(PayAppNotification vo){
+        XJsonInfo ret = new XJsonInfo(false);
+        //这里处理相关的匹配逻辑
+        try{
+            //查询商户信息
+            PayBus bus = paybusService.queryByUuid(vo.getUid());
+            if(bus==null){
+                ret.setSuccess(false);
+                ret.setCode(1);
+                ret.setMsg("商户不存在");
+                logger.info("商户不存在，商户UID:"+vo.getUid());
+                return ret;
+            }
+            //解析通知内容--待编程
+            float payImgPrice = 0;//支付金额
+            int payType= 1;//支付渠道
+
+
+            if(payImgPrice==0){
+                ret.setSuccess(false);
+                ret.setCode(1);
+                ret.setMsg("解析APP通知错误");
+                logger.info("解析APP通知错误:"+vo.toString());
+                return ret;
+            }
+
+            //查询所有匹配的订单
+            List<PayLog> listlog = paylogService.queryByUseingLog(bus.getUuid(),payType,bus.getPayTimeOut(),null,payImgPrice,vo.getPostTimeService());
+            if(listlog==null||listlog.size()==0){
+                ret.setSuccess(false);
+                ret.setCode(1);
+                ret.setMsg("没有找到匹配的订单");
+                logger.info("没有找到匹配的订单:"+vo.toString());
+                return ret;
+            }
+            //如果只有一笔，那么就是这笔成功支付了。
+            if(listlog.size()==1){
+                PayLog paylog = listlog.get(0);
+                checkPay(bus,paylog,1);
+                vo.setLogid(paylog.getLogId()+"");
+                payappnotificationService.saveOrUpdate(vo);
+                ret.setSuccess(true);
+            }else if(listlog.size()>1){
+                //如果存在多笔，则记录异常吧。先不处理
+                ret.setSuccess(false);
+                ret.setCode(1);
+                ret.setMsg("ERROR-----错误。。。存在多笔相同金额的订单，系统出错啦");
+                logger.info("ERROR-----错误。。。存在多笔相同金额的订单，系统出错啦:"+vo.toString());
+                return ret;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+
+    /**
      * 确认收款接口
      * @param paylog 支付订单
      * @param checkType 1:系统确认，2：手工确认,3:商户调用接口确认
      */
     public XJsonInfo checkPay(PayLog paylog, int checkType) throws Exception{
+        return checkPay(null,paylog,checkType);
+    }
+
+    /**
+     * 确认收款接口
+     * @param paylog 支付订单
+     * @param checkType 1:系统确认，2：手工确认,3:商户调用接口确认
+     */
+    public XJsonInfo checkPay(PayBus bus,PayLog paylog, int checkType) throws Exception{
         XJsonInfo ret = new XJsonInfo(false);
         ret.setCode(1);
 
@@ -130,7 +210,9 @@ public class PayService {
             return ret;
         }
         //计算扣减的费用
-        PayBus bus = payBusRepository.getById(paylog.getBusId());
+        if(bus==null){
+            bus = payBusRepository.getById(paylog.getBusId());
+        }
         //校验套餐
         if(!this.checkBusValidity(bus)){
             ret.setCode(21);
