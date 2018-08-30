@@ -252,9 +252,9 @@ public class PayService {
         change.setDemo(demo);
         change.setBizId(paylog.getRid());
         this.busChange(change,null,null);
-
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         //2.设置为已收款
-        paylogRepository.executeByHql("update PayLog set payState=1 where logId=?",new Long[]{paylog.getLogId()});
+        paylogRepository.executeByHql("update PayLog set payState=1,payTime=? where logId=?",new Object[]{format.format(new Date()),paylog.getLogId()});
 
         //5.触发通知回调
         this.payNotifyThread(paylog,bus);
@@ -371,7 +371,11 @@ public class PayService {
     public void payNotifyTask(){
         //1.查询所有待通知的记录
         logger.info("payNotifyTask start");
-        String hql = "from PayLog where payState=1 and notifyState!=1 and notifyCount<5";
+        //超过30秒的才进行推送
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.SECOND,-30);
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        String hql = "from PayLog where payState=1 and notifyState!=1 and notifyCount<5 and payTime<'"+format.format(cal.getTime())+"'";
         List<PayLog> list = paylogRepository.query(hql);
         //采用多线程执行,5个线程进行通知调用
         MyThreadPool pool = new MyThreadPool(5,20);
