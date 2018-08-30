@@ -297,6 +297,7 @@ public class PayController {
             bus = paybusService.queryByUuid(payin.getUid());
             //先注入返回地址，这样出错可以直接返回这个地址
             ret.setReturn_url(bus.getGobackUrl());
+            ret.setPay_type(payin.getPay_type());
             if(payin.getReturn_url()!=null && payin.getReturn_url().length()>5){
                 ret.setReturn_url(payin.getReturn_url());
             }

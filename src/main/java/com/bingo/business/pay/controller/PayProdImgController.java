@@ -15,6 +15,8 @@ import com.bingo.common.utility.XJsonInfo;
 import com.google.zxing.Result;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +40,7 @@ import java.io.OutputStream;
 @RequestMapping("/api/pay/payprodimg")
 @ControllerFilter(LoginType = 1,UserType = 0)
 public class PayProdImgController {
+	private static final Logger logger = LoggerFactory.getLogger(PayProdImgController.class);
 
 	@Resource
 	private SessionCacheService sessionCache;
@@ -143,6 +146,13 @@ public class PayProdImgController {
 		vo.setUserId(loginuser.getUserid());
 		//二维码内容解码
 		Result reqr = QRCodeUtils.getQRresult(file.getInputStream());
+		if(reqr==null){
+			reqr = QRCodeUtils.getQRresultByWeb(file.getBytes());
+		}
+		if(reqr==null){
+			ret.setMsg("当前图片无法识别，请重新生成二维码图片");
+			return ret;
+		}
 		PayProdImg _vo = payProdImgService.findByImgContent(reqr.getText());
 		if(_vo!=null){
 			ret.setMsg("当前金额的二维码已存在，无需重新上传");

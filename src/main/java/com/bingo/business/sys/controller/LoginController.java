@@ -43,8 +43,7 @@ import java.util.UUID;
 @RequestMapping("/api/sys/login")
 @ControllerFilter(LoginType = 0,UserType = 0)
 public class LoginController {
-    @Resource
-    private PubClass pubClass;
+
 
     @Resource
     private SysUserService sysuserService;
@@ -255,7 +254,7 @@ public class LoginController {
         //注册用户
         user = new SysUser();
         user.setUseracc(vo.getUseracc());
-        user.setNikename(vo.getUseracc());
+        user.setNikename(vo.getNikename());
         user.setUsertype(2);
         user.setState(1);
         user.setPwd(SecurityClass.encryptMD5(vo.getPwd()));

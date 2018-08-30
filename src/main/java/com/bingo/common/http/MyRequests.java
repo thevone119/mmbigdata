@@ -4,13 +4,16 @@ import com.bingo.common.thread.MyThreadPool;
 import com.bingo.common.utility.XJsonInfo;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -18,6 +21,7 @@ import org.jsoup.Jsoup;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,6 +152,51 @@ public class MyRequests {
     }
 
     /**
+     * 发送httppost请求
+     * @param url
+     * @param postData
+     * @return
+     * @throws IOException
+     */
+    public String httpPost(String url,Map<String,String> postData) throws IOException {
+        String retstr = null;
+        HttpPost httpPost = new HttpPost(url);
+
+        if(postData!=null){
+            ArrayList<NameValuePair> pairs = new ArrayList<NameValuePair>();
+            for (Map.Entry<String, String> param : postData.entrySet()) {
+                pairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+            }
+            httpPost.setEntity(new UrlEncodedFormEntity(pairs, defaultCharset));
+        }
+
+        CloseableHttpResponse resp=null;
+        try{
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setConnectionManager(cm) // 目前暂时不使用连接池技术
+                    //.setConnectionManagerShared(true) // 如果启用连接池技术，请开启这个
+                    //.setRetryHandler(retryHandler)
+                    .build();
+            resp = httpClient.execute(httpPost);
+            HttpEntity entity = resp.getEntity();
+            if (resp.getStatusLine().getStatusCode() == 200) {
+                if (entity != null) {
+                    retstr = EntityUtils.toString(entity, defaultCharset);
+                }
+            }
+            resp.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if(resp!=null){
+                resp.close();
+            }
+        }
+
+        return retstr;
+    }
+
+    /**
      * 通过telnet测试代理IP和端口
      * @return
      */
@@ -170,28 +219,13 @@ public class MyRequests {
         return false;
     }
 
-    public static void main(String args[]){
+    public static void main(String args[]) throws IOException {
         MyRequests req = new MyRequests();
-        req.proxyIp = "107.183.211.173";
-        req.proxyPort = 1080;
-        req.proxyType = "HTTP";
-        //System.out.print(req.testProxy());
-        MyThreadPool pool = new MyThreadPool(1,20);
-        for(int i=0;i<10000;i++){
-            pool.execute(() -> {
-                try{
-                    XJsonInfo ret = req.get("http://47.106.70.111:9080/api/map/mapcfgarea/getHeadersInfo");
-                    System.out.println(ret.getCode());
-                    if(ret.getData().toString().indexOf("百度")==-1){
-                        System.out.println(ret.getData());
-                    }
-                    //testHttpPool();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            });
-        }
-        pool.shutdown();
+        //req.proxyIp = "107.183.211.173";
+        //req.proxyPort = 1080;
+        //req.proxyType = "HTTP";
+        System.out.println(req.httpPost("http://localhost:8090/payapi/create2",null));
+
 
     }
 

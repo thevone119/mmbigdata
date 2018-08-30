@@ -179,6 +179,52 @@ public class MyOkHttp {
         return null;
     }
 
+
+    /**
+     * 上传图片
+     * @param url
+     * @param postData
+     * @return
+     */
+    public String PostImage(String url,Map<String,String> postData,Map<String,byte[]> files){
+        //1.创建OkHttpClient对象
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .build();
+        //2.通过new FormBody()调用build方法,创建一个RequestBody,可以用add添加键值对
+        MultipartBody.Builder formb =new MultipartBody.Builder().setType(MultipartBody.FORM);
+
+        if(postData!=null && postData.size()>0){
+            for (Map.Entry<String, String> param : postData.entrySet()) {
+                formb.addFormDataPart(param.getKey(),param.getValue());
+            }
+        }
+        //通用的文件格式
+        //final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/x-markdown; charset=utf-8");
+        MediaType Image = MediaType.parse("image/jpeg; charset=utf-8");
+        if(files!=null && files.size()>0){
+            for (Map.Entry<String, byte[]> param : files.entrySet()) {
+                formb.addFormDataPart(param.getKey(),param.getValue().toString(),RequestBody.create(Image,param.getValue()));
+            }
+        }
+        //3.创建Request对象，设置URL地址，将RequestBody作为post方法的参数传入
+        Request request = new Request.Builder().url(url).post(formb.build()).build();
+        //4.创建一个call对象,参数就是Request请求对象
+        Call call = okHttpClient.newCall(request);
+        try {
+            //同步调用,返回Response,会抛出IO异常
+            Response response = call.execute();
+            if(response.code()==200){
+                return response.body().string();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * 下载文件
      * @param url
