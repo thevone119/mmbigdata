@@ -107,7 +107,8 @@ public class PayProdImg extends PageModel{
 
 
 	public String getFitPrice() {
-		return String.format("%.2f", this.imgPrice-0.1f) +" - " + String.format("%.2f", this.imgPrice);
+
+		return String.format("%.2f", this.imgPrice) +" - " + String.format("%.2f", this.imgPrice+0.1f);
 		//return fitPrice;
 	}
 
