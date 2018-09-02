@@ -13,45 +13,35 @@ import java.util.UUID;
 /**
  * @author huangtw
  * 2018-07-09 09:34:03
- * 对象功能:  支付产品表Model对象,作废
+ * 对象功能:  快速支付商品表Model对象,作废
  */
 @Entity
 @Table(name="T_PAY_PROD")
 public class PayProd extends PageModel{
 
-	@Column(name = "user_id",updatable = false)
-	protected Long  userId;//用户ID
+	@Column(name = "bus_id",updatable = false)
+	private Long  busId;//商户ID
 	
 	
 	@Id
 	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "prod_id")
-	protected Long  prodId;//产品ID
+	private Long  prodId;//产品ID
 	
 	
 	@Column(name = "prod_name")
-	protected String  prodName;//产品名称
+	private String  prodName;//产品名称
 	
 	
 	@Column(name = "prod_price")
-	protected Float  prodPrice;//产品价格
+	private Float  prodPrice;//产品价格
 
-	@Column(name = "pay_img_price")
-	protected Float  payImgPrice;//二维码支付价格
-	
-	
-	@Column(name = "pay_img_path")
-	protected String  payImgPath;//图片路径,uuid作为图片路径
+	@Column(name = "address_type")
+	private Integer addressType;
 
-	@Column(name = "pay_img_type")
-	protected String  payImgType;//图片类型，png,jpg等
+	@Column(name = "max_count")
+	private Integer maxCount;
 
-	@Column(name = "pay_img_content")
-	protected String  payImgContent;//图片二维码内容
-	
-	
-	@Column(name = "pay_type")
-	protected Integer  payType;//pay_type 1：支付宝；2：微信支付
 
 	@Column(name = "state")
 	private int state=1;//状态 0无效，1有效
@@ -72,16 +62,9 @@ public class PayProd extends PageModel{
 	public PayProd(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		this.createtime=format.format(new Date());
-		this.payImgPath= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 	}
 
-	public Long getUserId() {
-		return userId;
-	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
 
 	public void setProdId(Long prodId){
 		this.prodId = prodId;
@@ -113,24 +96,7 @@ public class PayProd extends PageModel{
 		this.prodPrice = prodPrice;
 	}
 
-	public void setPayImgPath(String payImgPath){
-		this.payImgPath = payImgPath;
-	}
-	/**
-	 * 返回 pay_img_path
-	 * @return
-	 */
-	public String getPayImgPath(){
-		return this.payImgPath;
-	}
 
-	public Integer getPayType() {
-		return payType;
-	}
-
-	public void setPayType(Integer payType) {
-		this.payType = payType;
-	}
 
 	public void setCreatetime(String createtime){
 		this.createtime = createtime;
@@ -143,13 +109,6 @@ public class PayProd extends PageModel{
 		return this.createtime;
 	}
 
-	public String getPayImgContent() {
-		return payImgContent;
-	}
-
-	public void setPayImgContent(String payImgContent) {
-		this.payImgContent = payImgContent;
-	}
 
 	public int getState() {
 		return state;
@@ -159,20 +118,28 @@ public class PayProd extends PageModel{
 		this.state = state;
 	}
 
-	public String getPayImgType() {
-		return payImgType;
+	public Long getBusId() {
+		return busId;
 	}
 
-	public void setPayImgType(String payImgType) {
-		this.payImgType = payImgType;
+	public void setBusId(Long busId) {
+		this.busId = busId;
 	}
 
-	public Float getPayImgPrice() {
-		return payImgPrice;
+	public Integer getAddressType() {
+		return addressType;
 	}
 
-	public void setPayImgPrice(Float payImgPrice) {
-		this.payImgPrice = payImgPrice;
+	public void setAddressType(Integer addressType) {
+		this.addressType = addressType;
+	}
+
+	public Integer getMaxCount() {
+		return maxCount;
+	}
+
+	public void setMaxCount(Integer maxCount) {
+		this.maxCount = maxCount;
 	}
 
 	public String getCreatetimeStr() throws ParseException {

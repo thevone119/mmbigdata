@@ -40,10 +40,19 @@ public class PayAppNotificationController  {
 	//客户端监听通知的包名
 	private static List<String> listPackageName =new ArrayList<>();
 
+	//app通知的text监听过滤
+	private static List<String> listTextFilter =new ArrayList<>();
+
 	public PayAppNotificationController(){
+		//APP通知包名监听过滤
 		if(listPackageName.size()==0){
-			listPackageName.add("weixin");
-			listPackageName.add("zfb");
+			listPackageName.add("com.tencent.mm");
+			listPackageName.add("com.eg.android.AlipayGphone");
+		}
+		//app通知的text监听过滤
+		if(listTextFilter.size()==0){
+			listTextFilter.add("收款");
+			listTextFilter.add("元");
 		}
 	}
 
@@ -52,6 +61,12 @@ public class PayAppNotificationController  {
 	@RequestMapping("/queryPackageName")
 	public XJsonInfo queryPackageName() throws ServiceException, DaoException {
 		return new XJsonInfo().setData(listPackageName);
+	}
+
+	@ResponseBody
+	@RequestMapping("/queryTextFilter")
+	public XJsonInfo queryTextFilter() throws ServiceException, DaoException {
+		return new XJsonInfo().setData(listTextFilter);
 	}
 
 	
@@ -66,14 +81,6 @@ public class PayAppNotificationController  {
     @RequestMapping("/saveAppNotification")
     public XJsonInfo saveAppNotification(PayAppNotification vo) throws ServiceException, DaoException, IllegalAccessException {
 		XJsonInfo ret = new XJsonInfo(false);
-		//先验证签名
-		if(!vo.getSign().equals(vo.MarkSign())){
-			ret.setSuccess(false);
-			ret.setCode(-1);
-			ret.setMsg("签名无效");
-			logger.info("签名无效:"+vo.toString());
-			return ret;
-		}
 
 		//判断通知内容是否是需要的内容，如果不是，也直接返回成功
 		if(vo.getPackageName()==null){
@@ -92,6 +99,7 @@ public class PayAppNotificationController  {
 			}
 		}
 
+		logger.info("提交数据为:"+vo.toString());
 		//这种数据直接返回true
 		if(!ispay){
 			ret.setSuccess(true);
@@ -100,6 +108,29 @@ public class PayAppNotificationController  {
 			logger.info("数据无效:"+vo.toString());
 			return ret;
 		}
+		//判断text是否有效,必须多个都匹配，有一个不匹配，则不匹配
+		for(String pn:listTextFilter){
+			if(vo.getText()==null || vo.getText().indexOf(pn)==-1){
+				ispay=false;
+				break;
+			}
+		}
+		if(!ispay){
+			ret.setSuccess(true);
+			ret.setCode(1);
+			ret.setMsg("数据无效");
+			logger.info("数据无效:"+vo.toString());
+			return ret;
+		}
+		//先验证签名
+		if(!vo.getSign().equals(vo.MarkSign())){
+			ret.setSuccess(false);
+			ret.setCode(-1);
+			ret.setMsg("签名无效");
+			logger.info("签名无效:"+vo.toString());
+			return ret;
+		}
+
 
 		//判断是否已存在，已存在的直接返回已存在
 		PayAppNotification _vo = payappnotificationService.get(vo.getNkey());

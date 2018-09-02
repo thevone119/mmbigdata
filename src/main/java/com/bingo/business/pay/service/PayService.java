@@ -128,6 +128,36 @@ public class PayService {
         XJsonInfo ret = new XJsonInfo(false);
         //这里处理相关的匹配逻辑
         try{
+            //解析通知内容--待编程
+            float payImgPrice = 0;//支付金额
+            int payType= 0;//支付渠道
+
+            //1.支付宝
+            if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("成功收款")!=-1 && vo.getText().indexOf("元")!=-1){
+                payType=1;
+                int start = vo.getText().indexOf("成功收款")+"成功收款".length();
+                int end = vo.getText().indexOf("元",start);
+                String emoney =  vo.getText().substring(start,end);
+                payImgPrice = new Float(emoney);
+            }
+
+            //2.微信
+            if(vo.getTitle().indexOf("微信支付")!=-1&&vo.getText().indexOf("微信支付收款")!=-1 && vo.getText().indexOf("元")!=-1){
+                payType=2;
+                int start = vo.getText().indexOf("微信支付收款")+"微信支付收款".length();
+                int end = vo.getText().indexOf("元",start);
+                String emoney =  vo.getText().substring(start,end);
+                payImgPrice = new Float(emoney);
+            }
+
+            if(payImgPrice==0||payType==0){
+                ret.setSuccess(false);
+                ret.setCode(1);
+                ret.setMsg("解析APP通知错误");
+                logger.info("解析APP通知错误:"+vo.toString());
+                return ret;
+            }
+
             //查询商户信息
             PayBus bus = paybusService.queryByUuid(vo.getUid());
             if(bus==null){
@@ -135,18 +165,6 @@ public class PayService {
                 ret.setCode(1);
                 ret.setMsg("商户不存在");
                 logger.info("商户不存在，商户UID:"+vo.getUid());
-                return ret;
-            }
-            //解析通知内容--待编程
-            float payImgPrice = 0;//支付金额
-            int payType= 1;//支付渠道
-
-
-            if(payImgPrice==0){
-                ret.setSuccess(false);
-                ret.setCode(1);
-                ret.setMsg("解析APP通知错误");
-                logger.info("解析APP通知错误:"+vo.toString());
                 return ret;
             }
 
