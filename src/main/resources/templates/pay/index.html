@@ -15,52 +15,122 @@
 	<!-------主体------------->
 	
 	<div class="container">
-		<div class="row">
-			<div class="col-xs-12">
-				<div class="title">
-					
-					<h1>为什么无需签约支付宝、微信支付？</h1>
-					
-						支付宝和微信早已不再支持个人接入即时到账收款接口。但是，使用我们的接口，您只需拥有支付宝、微信个人账户，就可以完成即时到账收款接口，并能实时通知到您的自定义网址<br/>
+		<div class="title">
+			<h1>无需签约支付宝、微信</h1>
+			<p>只需个人账户即可开通收款，无需成为支付宝、微信商家。</p>
+			<br>
+			<p>
+				<button class="btn btn-success" onClick="help_info();"> &nbsp;     &nbsp;     &nbsp;     &nbsp;     &nbsp;详 细 说 明&nbsp;     &nbsp;     &nbsp;  &nbsp;     &nbsp;         </button>
+				<button class="btn btn-danger" onClick="window.location.href='/pay/enroll.html'"> &nbsp;     &nbsp;     &nbsp; &nbsp;     &nbsp;免 费 注 册 &nbsp;     &nbsp;     &nbsp;  &nbsp;     &nbsp;        </button>
+			</p>
+		</div>
 
- 收款人需要1台安卓手机，无需Root，安装我们的APP。付款人不需要装App<br/>
- 确保您资金账户安全。无需在我们APP中登录支付宝、微信，只要您手机里安装了支付宝、微信APP即可<br/>
- 支付流程顺畅。网速正常情况，从用户付款到您后台收到收款通知，过程不到2秒<br/>
-						
-					
-				</div>
-			</div>
-			<div class="col-xs-12">
-				<div class="who">
-					<div class="ig">
-						<img src="/pay/images/a1.png" />
-					</div>
-					<div class="ron">
-						<ul>
-							<li>
-								<img src="/pay/images/a2.png" />
-								<p>注册商户，配置微信，支付宝支付信息，配置回调地址等</p>
-								<div class="clear"></div>
-							</li>
-							<li>
-								<img src="/pay/images/a3.png" />
-								<p>安卓手机下载安卓APP，用于接收微信、支付宝收款结果</p>
-								<div class="clear"></div>
-							</li>
-							<li>
-								<img src="/pay/images/a4.png" />
-								<p>系统对支付接口，完成支付对接</p>
-								<div class="clear"></div>
-							</li>
-				
-				
 
-						</ul>
-					</div>
-					<div class="clear"></div>
-				</div>
+		<div class="col-xs-12">
+			<div class="title_3">
+				<h3>支付对接流程说明</h3>
+				<div class="list_line "></div>
+				<p>1.注册商户，配置微信，支付宝收款码，回调等信息 <a href="/pay/work/index.html">进入商户配置</a></p>
+				<p>2.根据接入文档，对接各种支付接口，完成支付对接  <a href="/pay/work/index.html">进入接入文档</a></p>
+				<p>3.安装黑米收款通知APP，并完成APP相关权限设置 <a href="/pay/appset.html">进入APP设置</a></p>
 			</div>
 		</div>
+
+		<div class="col-xs-12">
+			<div class="title_3">
+				<h3>小额支付流程体验</h3>
+				<div class="list_line "></div>
+				<p>我们平台本身采用的也是个人支付接口，通过小额支付，可以快速测试我们接口的支付流程及支付界面</p>
+				<p>接入成功后，收款码会变成您个人的收款码，款项直入您支付宝微信账户，并即时回调</p>
+				<p>
+					<button class="btn btn-info" onClick="test(1);">支 付 宝 小 额 支 付 测 试</button>
+					<button class="btn btn-success" onClick="test(2);">微 信 小 额 支 付 测 试</button>
+				</p>
+
+			</div>
+		</div>
+
+		<div class="col-xs-12">
+			<div class="title_3">
+				<h3>商户充值</h3>
+				<div class="list_line "></div>
+				<p>商户充值也是采用的我们的个人支付接口，充值一笔试试吧？</p>
+
+			</div>
+		</div>
+		<div class="table_box">
+			<table id="sample-table-1" class="table table-striped table-bordered table-hover">
+				<thead>
+				<tr>
+					<th>充值金额</th>
+					<th>赠送比例</th>
+					<th>实际到账金额</th>
+					<th>支付宝充值</th>
+					<th>微信充值</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td>
+						￥10
+					</td>
+					<td>
+						0%
+					</td>
+					<td>
+						￥10.00 元
+					</td>
+
+					<td>
+						<button class="btn btn-info" onClick="recharge(1,10);">充值￥10</button>
+					</td>
+					<td>
+						<button class="btn btn-success" onClick="recharge(2,10);">充值￥10</button>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						￥50
+					</td>
+					<td>
+						5%
+					</td>
+					<td>
+						￥52.50 元
+					</td>
+
+					<td>
+						<button class="btn btn-info" onClick="recharge(1,50);">充值￥50</button>
+					</td>
+					<td>
+						<button class="btn btn-success" onClick="recharge(2,50);">充值￥50</button>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						￥100
+					</td>
+					<td>
+						10%
+					</td>
+					<td>
+						￥110.00 元
+					</td>
+
+					<td>
+						<button class="btn btn-info" onClick="recharge(1,100);">充值￥100</button>
+					</td>
+					<td>
+						<button class="btn btn-success" onClick="recharge(2,100);">充值￥100</button>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+
+		</div>
+
 	</div>
 	
 	
@@ -70,6 +140,100 @@
 	<#include "/pay/include/hmt.html" />
 
 
+	<script>
+        /**
+         * 充值
+         */
+        function recharge(pay_type,price){
+            var loading1 = layer.load();
+            var post={
+                type: 'post',
+                url: '/api/pay/recharge/createpay?pay_type='+pay_type+"&price="+price+"&d="+new Date().getTime(),
+                async:true,
+                cache:false,
+                dataType:'json',
+                success: function(data) {
+                    layer.closeAll('loading');
+                    if(data.success){
+                        layer.open({
+                            type: 2,
+                            title: '商户充值',
+                            maxmin: false,
+                            shadeClose: true,
+                            area : ['600px' , '750px'],
+                            content: data.data
+                        });
+
+                    }else{
+                        layer.alert(data.msg,{icon: 5});
+                    }
+                },
+                error:function(){
+                    layer.closeAll('loading');
+                    layer.alert("系统繁忙，请稍候再试");
+                }
+            }
+
+            $.ajax(post);
+            setTimeout(function(){
+                layer.close(loading1);
+            }, 5000);
+        }
+
+        /**
+         * 小额支付测试
+         */
+        function test(pay_type){
+            var loading1 = layer.load();
+            var post={
+                type: 'post',
+                url: '/api/pay/recharge/createtest?pay_type='+pay_type+"&d="+new Date().getTime(),
+                async:true,
+                cache:false,
+                dataType:'json',
+                success: function(data) {
+                    layer.closeAll('loading');
+                    if(data.success){
+                        layer.open({
+                            type: 2,
+                            title: '小额支付测试',
+                            maxmin: false,
+                            shadeClose: true,
+                            area : ['600px' , '750px'],
+                            content: data.data
+                        });
+                    }else{
+                        layer.alert(data.msg,{icon: 5});
+                    }
+                },
+                error:function(){
+                    layer.closeAll('loading');
+                    layer.alert("系统繁忙，请稍候再试");
+                }
+            }
+            $.ajax(post);
+            setTimeout(function(){
+                layer.close(loading1);
+            }, 5000);
+        }
+
+        /**
+		 * 详细说明
+         */
+        function help_info(){
+            layer.open({
+                type: 2,
+                title: '详细说明',
+                maxmin: false,
+                shadeClose: true,
+                area : ['600px' , '600px'],
+                content: '/pay/index_help.html'
+            });
+        }
+
+
+
+	</script>
 
 </body>
 </html>

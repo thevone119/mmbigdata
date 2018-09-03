@@ -33,7 +33,7 @@
                     :format="['jpg','jpeg','png']"
                     :max-size="2048"
             >
-                <i-Button type="primary" icon="ios-cloud-upload-outline">批量上传收款码</i-Button>
+                <i-Button type="primary" icon="ios-cloud-upload-outline">批量上传收款码(一次最好不超过10张)</i-Button>
             </Upload>
         </template>
 
@@ -175,7 +175,7 @@
             },
             edit:function(){//编辑
                 if(this.myform.currentRow){
-                    this.Imgview(this.myform.currentRow.cid);
+                    this.Imgview(this.myform.currentRow.imgContent);
                 }
             },
             Imgview:function(cid){//查看支付二维码
@@ -185,7 +185,7 @@
                     maxmin: true,
                     shadeClose: true, //点击遮罩关闭层
                     area : ['400px' , '400px'],
-                    content: '/api/pay/payprodimg/qr_img_view?cid='+cid
+                    content: 'http://mobile.qq.com/qrcode?url='+cid
                 });
             },
 
