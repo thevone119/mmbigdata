@@ -88,7 +88,7 @@ public class PayRechargeController {
     /**
      * 创建支付订单,进行充值
      * 为了避免重复创建支付订单，这里对同一个商户创建的固定金额的订单，做缓存处理
-     *1.注意，这里不能做缓存处理，如果缓存了，那么会影响到前端的多次支付逻辑。
+     * 1.注意，这里不能做缓存处理，如果缓存了，那么会影响到前端的多次支付逻辑。
      * @return
      * @throws ServiceException
      * @throws DaoException
@@ -152,6 +152,63 @@ public class PayRechargeController {
     }
 
     /**
+     * 创建小额测试订单，不用登录，不用充值
+     * @param pay_type
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/createtest")
+    public XJsonInfo createtest(Integer pay_type) throws Exception {
+        XJsonInfo ret = new XJsonInfo(false);
+        String sessid = sessionCache.getCurrSessionId();
+
+        //小额测试,5分钱
+        Float price = 0.05f;
+
+        //创建支付订单
+        String url = pay_local_url+"/payapi/create";
+
+        String c_key  = "pay:test:"+sessid+","+pay_type+","+price;
+        //缓存2小时吧
+        String orderid = (String)redis.get(c_key);
+        if(orderid==null){
+            orderid = System.currentTimeMillis()+"";
+            redis.set(c_key,orderid,60*2);
+        }
+        //查询订单是否已支付了，如果已支付了。则使用新的订单号哦
+        PayLog log = paylogService.queryByUidOrderid(pay_uid,orderid);
+        if(log!=null && log.getPayState()==1){
+            orderid = System.currentTimeMillis()+"";
+            redis.set(c_key,orderid,60*2);
+        }
+
+
+        PayInput payi = new PayInput();
+        payi.setUid(pay_uid);
+        payi.setNonce_str(System.currentTimeMillis()+"");
+        payi.setOrderid(orderid);
+        payi.setPay_ext1("0");//测试时，用户ID为0
+        payi.setPay_ext2(price+"");
+        payi.setPay_name("测试支付(￥"+price+"元)");
+        payi.setPay_type(pay_type);
+        payi.setPrice(price);
+        MyRequests req = new MyRequests();
+        String body = req.httpPost(url,payi.getPostData(pay_sign_key));
+        //String body = response.body();
+        //1.查询商户
+        JSONObject retj = new JSONObject(body);
+        if(retj.getInt("ret_code")==1){
+            //创建支付订单成功,跳转到支付页
+            ret.setSuccess(true);
+            ret.setData(pay_url+"/payapi/pay_page?pay_id="+retj.getString("pay_id")+"&nonce_str="+System.currentTimeMillis());
+        }else{
+            ret.setSuccess(false);
+            ret.setMsg(retj.getString("ret_msg"));
+        }
+        return ret;
+    }
+
+    /**
      * 回调通知
      * @return
      * @throws Exception
@@ -170,8 +227,10 @@ public class PayRechargeController {
         //支付成功,进行账户充值
         Long userid = new Long(payret.getPay_ext1());
         Float price = new Float(payret.getPay_ext2());
-        //充值
-        recharge(payret.getPay_id(),userid,price);
+        if(userid>0){
+            //充值
+            recharge(payret.getPay_id(),userid,price);
+        }
         //logger.info("SUCCESS2");
         return "SUCCESS";
     }
@@ -208,8 +267,13 @@ public class PayRechargeController {
             request.setAttribute("pay_type",pay_type);
             //支付成功
             if(pay_state==1){
-                recharge(pay_id,userid,price);
-                request.setAttribute("msg","充值完成，充值金额已到账");
+                if(userid>0){
+                    recharge(pay_id,userid,price);
+                    request.setAttribute("msg","充值完成，充值金额已到账");
+                }else{
+                    request.setAttribute("msg","测试成功，已完成支付");
+                    return new  ModelAndView("/pay/recharge_test_end");
+                }
             }else{
 
             }

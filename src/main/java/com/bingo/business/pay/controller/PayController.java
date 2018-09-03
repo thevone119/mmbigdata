@@ -323,6 +323,14 @@ public class PayController {
                 if(sprice<0.01){
                     sprice=0.01f;
                 }
+
+                //试用期,3个月内免手续费
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.MONTH,-3);
+                if(format.parse(bus.getCreatetime()).getTime()>cal.getTime().getTime()){
+                    sprice=0.0f;
+                }
+
                 if(bus.geteMoney()<sprice){
                     ret.setRet_code(22);
                     ret.setRet_msg("对不起，当前商户余额不足，不能进行支付");
