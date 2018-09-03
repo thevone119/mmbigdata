@@ -17,8 +17,6 @@ import java.util.Date;
 public class PayProdLog extends PageModel{
 
 	@Id
-	@TableGenerator(name="GENERATOR_ID",table="T_SYS_DB_GENERATOR",allocationSize=10) 
-    @GeneratedValue(strategy=GenerationType.TABLE, generator="GENERATOR_ID")
 	@Column(name = "orderid")
 	protected String  orderid;//orderid
 	

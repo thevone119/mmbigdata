@@ -132,7 +132,7 @@ public class PayService {
             float payImgPrice = 0;//支付金额
             int payType= 0;//支付渠道
 
-            //1.支付宝
+            //1.支付宝1
             if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("成功收款")!=-1 && vo.getText().indexOf("元")!=-1){
                 payType=1;
                 int start = vo.getText().indexOf("成功收款")+"成功收款".length();
@@ -140,6 +140,15 @@ public class PayService {
                 String emoney =  vo.getText().substring(start,end);
                 payImgPrice = new Float(emoney);
             }
+            //支付宝收款2
+            if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("通过扫码向你付款")!=-1 && vo.getText().indexOf("元")!=-1){
+                payType=1;
+                int start = vo.getText().indexOf("通过扫码向你付款")+"通过扫码向你付款".length();
+                int end = vo.getText().indexOf("元",start);
+                String emoney =  vo.getText().substring(start,end);
+                payImgPrice = new Float(emoney);
+            }
+
 
             //2.微信
             if(vo.getTitle().indexOf("微信支付")!=-1&&vo.getText().indexOf("微信支付收款")!=-1 && vo.getText().indexOf("元")!=-1){
@@ -149,6 +158,7 @@ public class PayService {
                 String emoney =  vo.getText().substring(start,end);
                 payImgPrice = new Float(emoney);
             }
+            logger.info("payImgPrice："+payImgPrice);
 
             if(payImgPrice==0||payType==0){
                 ret.setSuccess(false);

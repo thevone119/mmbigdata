@@ -185,7 +185,7 @@ public class PayLogService{
 			fldValues.add(vo.getPayState());
 		}
 
-
+		hql.append(" order by logId desc");
 
 
 		return paylogRepository.findPage(hql.toString(), vo, fldValues);

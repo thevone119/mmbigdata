@@ -90,6 +90,9 @@ public class PayBusChangeService {
 			hql.append(" and createtime like ?");
 			fldValues.add(""+vo.getCreatetime()+"%");
 		}
+
+		hql.append(" order by createtime desc");
+
 		return payBusChangeRepository.findPage(hql.toString(), vo, fldValues);
 	}
 	

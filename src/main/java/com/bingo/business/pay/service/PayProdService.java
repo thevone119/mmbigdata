@@ -73,15 +73,12 @@ public class PayProdService{
 			fldValues.add("%"+vo.getProdName()+"%");
 		}
 
-		if(vo.getUserId()!=null){
-			hql.append(" and userId = ?");
-			fldValues.add(vo.getUserId());
+		if(vo.getBusId()!=null){
+			hql.append(" and busId = ?");
+			fldValues.add(vo.getBusId());
 		}
 
-		if(vo.getPayType()!=null&& vo.getPayType()>0){
-			hql.append(" and payType = ?");
-			fldValues.add(vo.getPayType());
-		}
+
 		if(vo.getState()>=0){
 			hql.append(" and state = ?");
 			fldValues.add(vo.getState());

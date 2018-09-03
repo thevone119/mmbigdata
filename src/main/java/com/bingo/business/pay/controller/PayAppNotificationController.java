@@ -51,7 +51,7 @@ public class PayAppNotificationController  {
 		}
 		//app通知的text监听过滤
 		if(listTextFilter.size()==0){
-			listTextFilter.add("收款");
+			listTextFilter.add("款");
 			listTextFilter.add("元");
 		}
 	}
