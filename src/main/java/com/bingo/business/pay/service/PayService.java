@@ -263,11 +263,13 @@ public class PayService {
                 }
             }
             //试用期,3个月内免手续费
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.MONTH,-3);
-            if(format.parse(bus.getCreatetime()).getTime()>cal.getTime().getTime()){
-                refee=0.0f;
-                demo = "试用期内，支付手续费全免";
+            if(bus.getCreatetime()!=null){
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.MONTH,-3);
+                if(format.parse(bus.getCreatetime()).getTime()>cal.getTime().getTime()){
+                    refee=0.0f;
+                    demo = "试用期内，支付手续费全免";
+                }
             }
         }
         if(checkType==2){
