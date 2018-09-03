@@ -247,9 +247,9 @@ public class PayService {
             ret.setMsg("商户套餐失效，无法完成支付.");
             return ret;
         }
-
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         float refee=0.0f;//扣减的费用
-        String demo = "手工确认收款，不扣费";
+        String demo = "手工确认收款，不扣手续费";
         if(checkType==1){
             if(paylog.getProdPrice()<=1){
                 demo = "低于1元的订单，不收手续费";
@@ -261,6 +261,13 @@ public class PayService {
                 if(refee<0.01){
                     refee=0.01f;
                 }
+            }
+            //试用期,3个月内免手续费
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH,-3);
+            if(format.parse(bus.getCreatetime()).getTime()>cal.getTime().getTime()){
+                refee=0.0f;
+                demo = "试用期内，支付手续费全免";
             }
         }
         if(checkType==2){
@@ -280,7 +287,7 @@ public class PayService {
         change.setDemo(demo);
         change.setBizId(paylog.getRid());
         this.busChange(change,null,null);
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+
         //2.设置为已收款
         paylogRepository.executeByHql("update PayLog set payState=1,payTime=? where logId=?",new Object[]{format.format(new Date()),paylog.getLogId()});
 
