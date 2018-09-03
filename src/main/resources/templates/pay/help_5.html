@@ -2,197 +2,218 @@
 <html>
 <head>
 	<#include "/pay/include/head.html" />
+	<script src="/pay/js/jquery.form.js"></script>
 </head>
 
 <body>
 <#include "/pay/include/header.html" />
 
-	<!---------------用户信息------------------>
-	<div class="container serve_box">
-		<div class="row">
-			<div class="col-xs-3">
-				<div class="serve_lf">
-					<ul>
-						<li>
-							<a href="help.html" >准备工作</a>
-						</li>
-						<li>
-							<a href="help_2.html">发起支付</a>
-						</li>
-						<li>
-							<a href="help_3.html">查询支付结果</a>
-						</li>
-						<li>
-							<a href="help_4.html">DEMO下载</a>
-						</li>
-						<li>
-							<a href="help_5.html" class="ac_s">商户平台使用</a>
-						</li>
-					</ul>
-				</div>
+<!---------------用户信息------------------>
+<div class="container serve_box">
+	<div class="row">
+		<div class="col-xs-3">
+			<div class="serve_lf">
+				<ul>
+					<li>
+						<a href="help.html" >准备工作</a>
+					</li>
+					<li>
+						<a href="help_2.html">发起支付</a>
+					</li>
+					<li>
+						<a href="help_3.html" >查询支付结果</a>
+					</li>
+					<li>
+						<a href="help_4.html">相关文档下载</a>
+					</li>
+					<li>
+						<a href="help_5.html" class="ac_s">签名算法</a>
+					</li>
+				</ul>
 			</div>
-			<div class="col-xs-9">
-				<div class="record_ron">
-					<h3>车辆信息</h3>
-					<div class="table_box">
-						<table id="sample-table-1" class="table table-striped table-bordered table-hover">
-							<thead>
-								<tr>
-									<th>用户名称</th>
-									<th>鲁通卡号码</th>
-									<th>车牌号码</th>
-									<th>近3天</th>
-									<th>近7天</th>
-									<th>近30天</th>
-									<th>上月</th>
-									<th>当月</th>
-									<th>日通行额度</th>
-									<th>通行记录</th>
-								</tr>
-							</thead>
-							<tbody>									
-								<tr>
-									<td>
-										烟台市平顺物流有限公司
-									</td>
-									<td>
-										00126988
-									</td>
-									<td>
-										鲁F216T7
-									</td>
-									<td>
-										<a href="record_check_2.html">9.5</a>
-									</td>
-									<td>
-										<a href="record_check_2.html">33.25</a>
-									</td>
-									<td>
-										<a href="record_check_2.html">109.25</a>
-									</td>
-									<td>
-										<a href="record_check_2.html">90.25</a>
-									</td>
-									<td>
-										<a href="record_check_2.html">33.25</a>
-									</td>
-									<td>
-										<button class="btn btn-xs btn btn-primary" id="set">设定</button>
-									</td>
-									<td>
-										<button class="btn btn-xs btn-danger" onClick="location.href='record_check.html'">查看</button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="state">
-							<h4>详细查询： </h4>
-							<p>1、现全国高速路联网收费，数据上传周期较长，结算账单非以消费日期进行月结算。 </p>
-							<p>2、结算账单明细中有可能包含上月消费数据或本月消费数据，属于正常现象。 </p>
-							<p>3、已结算的通行明细，不会出现在下个结算账单中，若上月未结算的通行明细，将记入下个结算账单中。 </p>
-							<p>4、每月账单出具以交通厅系统出具的上传数据为准，其他查询仅供参考。 </p>
-							<p>如有疑问，请致电全国客服专线：4000-798-369 </p>
-							<p>消费时间：用于查询通行费用产生的详情 </p>
-							<p>结算时间：用于查询结算账单明细对账使用</p>
-						</div>
-					</div>
+		</div>
+		<div class="col-xs-9">
+			<div class="record_ron">
+				<div class="state">
+					<h4>关于MD5签名算法</h4>
+					<p>可以参考微信的签名算法，和微信支付平台的签名算法一致，都是采用MD5进行数字签名。<p/>
+					<p>参考微信支付签名说明网址：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=4_3</p>
+					<p>签名生成的通用步骤如下： </p>
+					<h4>第一步： </h4>
+
+					<p>设所有发送或者接收到的数据为集合M，将集合M内非空参数值的参数按照参数名ASCII码从小到大排序（字典序），使用URL键值对的格式（即key1=value1&key2=value2…）拼接成字符串stringA。 </p>
+					<p>特别注意以下重要规则： </p>
+					<p>◆ 参数名ASCII码从小到大排序（字典序）； </p>
+					<p>◆ 如果参数的值为空不参与签名； </p>
+					<p>◆ 参数名区分大小写； </p>
+					<p>◆ 验证调用返回或时，传送的sign参数不参与签名，将生成的签名与该sign值作校验。 </p>
+					<p>◆接口可能增加字段，验证签名时必须支持增加的扩展字段 </p>
+
+					<h4>第二步： </h4>
+					<p>在stringA最后拼接上sign_key得到stringSignTemp字符串，并对stringSignTemp进行MD5运算，再将得到的字符串所有字符转换为大写，得到sign值signValue。 </p>
+
+					<h4>举例： </h4>
+					<p>假设传送的参数如下：</p>
+					<p>appid： wxd930ea5d5a258f4f</p>
+					<p>mch_id： 10000100</p>
+					<p>device_info： 1000</p>
+					<p>body： test</p>
+					<p>nonce_str： ibuaiVcKdpRxkhJA</p>
+
+					<p>第一步：对参数按照key=value的格式，并按照参数名ASCII字典序排序如下：</p>
+					<p>stringA="appid=wxd930ea5d5a258f4f&body=test&device_info=1000&mch_id=10000100&nonce_str=ibuaiVcKdpRxkhJA";</p>
+
+					<p>第二步：拼接API密钥：</p>
+					<p>stringSignTemp=stringA+"&sign_key=192006250b4c09247ec02edce69f6a2d" //注：sign_key为商户平台设置的密钥key</p>
+					<p>sign=MD5(stringSignTemp).toUpperCase()="9A0A8659F005D6984697E2CA0A9CF3B7" //注：MD5签名方式</p>
+
+					<p>最后传输的参数为：</p>
+					<p>appid： wxd930ea5d5a258f4f</p>
+					<p>mch_id： 10000100</p>
+					<p>device_info： 1000</p>
+					<p>body： test</p>
+					<p>nonce_str： ibuaiVcKdpRxkhJA</p>
+					<p>sign： 9A0A8659F005D6984697E2CA0A9CF3B7</p>
+
+					<h4>签名测试： </h4>
+
 				</div>
-                <div class="soso">
-						<h3>查询</h3>
+				<form class="cmxform" id="myform" id="myform" method="post" action="#" onsubmit="return false">
+					<div class="col-xs-12">
 						<ul>
 							<li>
-								<h3>按月份查询：</h3>
-								<select class="form-control">
-									<option>请选择查询方式</option>
-									<option>消费时间</option>
-									<option>结算时间</option>
-								</select>
-								<select class="form-control">
-									<option>请选择查询车辆</option>
-									<option>全部</option>
-									<option>鲁FX7960</option>
-								</select>
-								<button class="btn btn-danger" onClick="location.href='record_check.html'">查询本月</button>
-							    <button class="btn btn-danger" onClick="location.href='record_check.html'">查询上月</button>
+								<div class="input-group">
+									<span class="input-group-addon">uid:</span>
+									<input type="text" name="uid" id="uid" class="form-control" placeholder="请输入uid" VALUE="">
+								</div>
 							</li>
 							<li>
-								<h3>按时间查询：</h3>
-								<select class="form-control">
-									<option>请选择查询方式</option>
-									<option>消费时间</option>
-									<option>结算时间</option>
-								</select>
-								<select class="form-control">
-									<option>请选择查询车辆</option>
-									<option>全部</option>
-									<option>鲁FX7960</option>
-								</select>
-								<input type="date" class="form-control">
-								<label>至</label>
-								<input type="date" class="form-control">
-								<button class="btn btn-danger" onClick="location.href='record_check.html'">开始查询</button>
+								<div class="input-group">
+									<span class="input-group-addon">orderid:</span>
+									<input type="text" name="orderid" id="orderid" class="form-control" placeholder="请输入orderid" VALUE="20181010214521">
+								</div>
 							</li>
-							
+							<li>
+								<div class="input-group">
+									<span class="input-group-addon">nonce_str:</span>
+									<input type="text" name="nonce_str" id="nonce_str" class="form-control" placeholder="请输入nonce_str" VALUE="20181010214521">
+								</div>
+							</li>
+
+							<li>
+								<div class="input-group">
+									<span class="input-group-addon">price:</span>
+									<input type="text" name="price" id="price" class="form-control" placeholder="请输入price"  VALUE="0.05">
+								</div>
+							</li>
+							<li>
+								<div class="input-group">
+									<span class="input-group-addon">pay_type:</span>
+									<input type="text" name="pay_type" id="pay_type" class="form-control" placeholder="请输入pay_type" VALUE="1">
+								</div>
+							</li>
+							<li>
+								<div class="input-group">
+									<span class="input-group-addon">pay_name:</span>
+									<input type="text" name="pay_name" id="pay_name" class="form-control" placeholder="请输入pay_name" VALUE="测试商品支付">
+								</div>
+							</li>
+							<li>
+								<div class="input-group">
+									<span class="input-group-addon">pay_demo:</span>
+									<input type="text" name="pay_demo" id="pay_demo" class="form-control" placeholder="请输入pay_demo"  VALUE="支付备注">
+								</div>
+							</li>
+
+							<li>
+								<div class="input-group">
+									<span class="input-group-addon">return_url:</span>
+									<input type="text" name="return_url" id="return_url"  class="form-control" placeholder="请输入return_url" VALUE="http://www.xxxxx.com/xxx/return">
+								</div>
+							</li>
+							<li>
+								<div class="input-group">
+									<span class="input-group-addon">pay_ext1:</span>
+									<input type="text" name="pay_ext1" id="pay_ext1" class="form-control" placeholder="请输入pay_ext1" VALUE="可以传用户等任意信息">
+								</div>
+							</li>
+							<li>
+								<div class="input-group">
+									<span class="input-group-addon">pay_ext2:</span>
+									<input type="text" name="pay_ext2" id="pay_ext2" class="form-control" placeholder="请输入pay_ext2" VALUE="可以传用户等任意信息">
+								</div>
+							</li>
+
+
+							<li>
+								<button class="btn btn-danger btn-block" onclick="markSign()">使用我的秘钥测试生成签名数据</button>
+							</li>
 						</ul>
-						<div class="state">
-							<h4>其他查询方式： </h4>
-							<p>1、关注“金盾网联”微信公众号，输入鲁通卡号查询通行明细（适用于1-3辆车的车主查询）微信号：jdwlkf  </p>
-							<p>2、关注“金盾网联”微信公众号，下载最新版本“金盾网联”手机App客户端，绑定鲁通卡号查询通行明细（适用于10辆车以内的车主查询）</p>
-						</div>
-					</div>				
+
+					</div>
+				</form>
+
 			</div>
-			
+
 		</div>
 	</div>
-										
+</div>
 
 <!---------footer-------------->
 <#include "/pay/include/footer.html" />
 <#include "/pay/include/hmt.html" />
+
+<script type="text/javascript">
+    function markSign() {
+        //判断输入框内容是否完整
+        var post={
+            type: 'post', // 提交方式 get/post
+            url: '/payapi/markSign', // 需要提交的 u
+            async:true,
+            cache:false,
+            dataType:'json',
+            success: function(data) {
+                if(data.success){
+                    layer.alert("当前数据的签名数据为："+data.msg);
+                }else{
+                    layer.alert(data.msg);
+                }
+            },
+            error:function(){
+                layer.alert("系统繁忙，请稍候再试");
+            }
+        }
+        $('#myform').ajaxSubmit(post);
+    }
+
+    /**
+     * 如果登录了，则加载最新的商户ID
+     */
+    function loaduser() {
+        //判断输入框内容是否完整
+        var post={
+            type: 'post', // 提交方式 get/post
+            url: '/api/pay/paybus/queryCurrBus', // 需要提交的 u
+            async:true,
+            cache:false,
+            dataType:'json',
+            success: function(data) {
+                if(data.success){
+                    $('#uid').val(data.data.uuid);
+                    $('#orderid').val(new Date().getTime()+"");
+                    $('#nonce_str').val(new Date().getTime()+"");
+                }else{
+                    //layer.alert(data.msg);
+                }
+            },
+            error:function(){
+                //layer.alert("系统繁忙，请稍候再试");
+            }
+        }
+        $.ajax(post);
+    }
+
+    loaduser();
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
