@@ -2,6 +2,10 @@
 <html>
 <head>
 	<#include "/pay/include/head.html" />
+	<script type="text/javascript" src="/js/vue.js"></script>
+	<script type="text/javascript" src="/js/zepto.min.js"></script>
+	<script type="text/javascript" src="/lib/iview/iview.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="/lib/iview/iview.css">
 </head>
 
 <body>
@@ -23,47 +27,95 @@
 						<a href="appset_3.html" >手机权限设置</a>
 					</li>
 					<li>
-						<a href="appset_4.html" class="ac_s">注意事项</a>
+						<a href="appset_4.html" class="ac_s">使用问题与处理</a>
 					</li>
 				</ul>
 			</div>
 		</div>
 		<div class="col-xs-9">
-			<div class="record_ron">
+			<div class="record_ron" id="app">
 				<div class="state">
-					<h4>通过APP设置各种权限 </h4>
-					<p> 安装黑米支付APP后，登录APP，在【我的】菜单下，进行通知使用权，通知和状态栏，开机启动等权限设置</p>
-					<p> <a href="/heimipay.apk">APP下载</a></p>
-					<br>
-					<p><img src="/pay/images/app_set01.jpg"></p>
+					<h4>1.常见接入问题解答</h4>
 				</div>
 
-
 				<div class="state">
-					<h4>1.设置通知使用权 </h4>
-					<p>只要开启黑米支付APP的通知使用权即可。</p>
-					<br>
-					<p><img src="/pay/images/app_set02.jpg"></p>
+
+						<Collapse active-key="1">
+							<Panel key="1">
+								接入黑米支付后，我的支付宝微信账号是否安全？
+								<p slot="content">非常安全。懂一点安卓技术的同学都知道，我们应用没有要求Root权限，也不需要在App中输入支付宝、微信的账号密码。所以我们从物理上就不存在获取您支付宝、微信账号密码、盗取秘钥的可能。</p>
+								<p slot="content">同时，我们强烈建议：不要在非官方App、官网以外的任何网站、APP中输入账号密码，否则极可能账号被盗、资金丢失。</p>
+								<p slot="content">我们强烈建议您不要Root手机，有Root权限的App，可以拿到您支付宝微信支付的秘钥，随意生成二维码，非常危险。</p>
+							</Panel>
+							<Panel key="2">
+								使用黑米支付会不会导致我支付宝、微信账号被封号？
+								<p slot="content">不会。因为用黑米支付的商户的支付宝微信账户和普通个人账号没有任何区别。</p>
+								<p slot="content">我们既不会不断刷新您的支付宝后台，也不存在任何可能拿到您账号密码，异地登录等异常行为，更做不到模拟支付宝微信App和支付宝微信服务端交互。</p>
+								<p slot="content">我们把可能会给您账号带来风险的因素都考虑到了，所以使用黑米支付是安全的。</p>
+
+							</Panel>
+							<Panel key="3">
+								用户付款是经过网站账号中转，还是直接付款到我自己的支付宝微信账号？
+								<p slot="content">是直接付款到您支付宝微信账号的。您在网站首页体验的流程就是未来您用户付费的流程，在您接入后，您的用户是直接扫描您的二维码付款的。</p>
+							</Panel>
+							<Panel key="4">
+								用户直接付款到我账户，你们平台怎么扣手续费？
+								<p slot="content">您需要在后台充值一些余额。不用多，够支付手续费的就可以。</p>
+							</Panel>
+							<Panel key="5">
+								为什么一定要安装App？如果我没运行App，会有什么后果？
+								<p slot="content">如果您手机App未运行，用户依然会付款给您，钱依然会直接到您支付宝微信余额中，但是就不会有回调了。用户会来找您并提供付款截图，您确认后，可以在我们网站或者APP，找到相关的订单，并点击“我已收款”，系统会立即通知到您的回调接口。好消息是：手动处理的收款是免手续费的。</p>
+							</Panel>
+							<Panel key="6">
+								我不懂技术，也找不到人帮我接入，怎么办？
+								<p slot="content">1.您可以自行在猪八戒等威客网站找团队接入。</p>
+								<p slot="content">2.您可以反馈，留言给我们，我们根据您的需求，后续会推出便捷接入代码（配置好商品，自动生成接入代码）。</p>
+							</Panel>
+							<Panel key="7">
+								支付页是否可以自定义界面？
+								<p slot="content">可以。使用create接口创建订单，然后根据返回的JSON内容自行开发支付页面即可</p>
+							</Panel>
+						</Collapse>
+
+
 				</div>
 
-
 				<div class="state">
-					<h4>2.设置允许通知和状态栏 </h4>
-					<p>黑米支付APP，微信APP,支付宝APP，这3个APP均需要允许通知和状态栏。</p>
-					<p>这个权限，一般的手机都是默认开启的，如没开启，请开启。其中黑米支付允许通知即可，悬浮通知可以不开启</p>
-
-					<br>
-					<p><img src="/pay/images/app_set03.jpg"></p>
-					<br>
-					<p><img src="/pay/images/app_set05.jpg"></p>
+					<h4>2.使用过程中遇到的问题与处理</h4>
 				</div>
 
+				<div class="state" >
 
-				<div class="state">
-					<h4>3.设置开机启动权限 </h4>
-					<p>黑米支付APP，微信APP,支付宝APP，这3个APP最好都开启开机启动，避免手机重启后无效。</p>
-					<br>
-					<p><img src="/pay/images/app_set04.jpg"></p>
+					<Collapse active-key="1">
+						<Panel key="1">
+							账号套餐到期没续费，会怎么样？
+							<p slot="content">会导致发起支付。请保证账户中的余额够套餐费，同时在商户设置中选择自动续费即可每月自动续费。</p>
+						</Panel>
+						<Panel key="2">
+							用户付款成功后，我服务器网络不好，没收到你们的通知，怎么办？
+							<p slot="content">我们有自动重试通知机制。每隔一分钟，重新通知一次。如果5次后依然没收到通知，请登录我们网站后台或者黑米支付APP，在对应的订单界面，点击“重发通知”按钮即可。</p>
+
+						</Panel>
+						<Panel key="3">
+							系统代收款订单用户没付款，后来用户主动联系我，自己付款了，怎么办？
+							<p slot="content">在我们网站后台或者黑米支付APP的订单界面，点“我已收款”即可。这笔订单也不会计手续费的。</p>
+						</Panel>
+						<Panel key="4">
+							黑米支付APP是否可以允许多个手机登录同一个商户账号
+							<p slot="content">允许的，一般我们都是用一台手机专门做支付通知的，另外自己常用的手机也安装黑米支付APP，这样可以非常方便监控订单状态，并对订单进行快速处理的。</p>
+							<p slot="content">多个手机登录，请保证只有一台手机开启收款监控，其他的手机均关闭收款监控，以便避免收款冲突。</p>
+						</Panel>
+						<Panel key="5">
+							手机锁屏，或时间长了，无法收到微信、支付宝的通知怎么办？
+							<p slot="content">1.请参考<a href="/pay/appset.html">微信设置</a>，<a href="/pay/appset2.html">支付宝设置</a>，<a href="/pay/appset3.html">手机权限设置</a>等对手机进行完整的设置，手机设置完后，最好重启一次手机</p>
+							<p slot="content">2.请确认微信，支付宝都有通知栏的收款通知，如果没有在通知栏收到收款通知，那么就是微信，支付宝的设置没设置好</p>
+							<p slot="content">3.如果当时有收款通知，隔一段时间后，没有通知了，那就是被微信或者支付宝被系统回收了，这时最好把微信，支付宝的权限全部打开，同时锁住微信，支付宝避免被系统回收</p>
+							<p slot="content">4.黑米支付APP开启定时激活通知</p>
+						</Panel>
+
+					</Collapse>
+
+
 				</div>
 
 			</div>
@@ -77,6 +129,25 @@
 <!---------footer-------------->
 <#include "/pay/include/footer.html" />
 <#include "/pay/include/hmt.html" />
+
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data:{
+
+        },
+        created:function(){
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        }
+    })
+
+</script>
 
 </body>
 </html>
