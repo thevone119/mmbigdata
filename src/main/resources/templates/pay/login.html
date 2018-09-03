@@ -107,8 +107,8 @@
                     if(data.success){
                         //alert("注册成功,请登录");
 						//登录成功，放入cookie
-						USER.setLoginUser(data.data);
-
+                        $.cookie("user_is_login","true",{path:"/"});
+						//USER.setLoginUser(data.data);
                         window.location.href="/pay/work/index.html";
                     }else{
                         layer.alert(data.msg);

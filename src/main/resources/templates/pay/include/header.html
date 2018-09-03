@@ -98,11 +98,11 @@
     }
 
     //注册与登录
-    if(url.indexOf("login")>0){
-        $('#a_login').attr({"class" : "ac"});
-    }
     if(url.indexOf("enroll")>0){
         $('#a_enroll').attr({"class" : "ac"});
+        $('#a_login').attr({"class" : ""});
+    }else{
+        $('#a_login').attr({"class" : "ac"});
     }
 
     //登录判断
