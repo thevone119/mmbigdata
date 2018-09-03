@@ -437,9 +437,9 @@ public class PayService {
 
     /**
      * 定时续费
-     * 每小时执行
+     * 每天4点执行
      */
-    @Scheduled(cron = "0 3 * * * ?")
+    @Scheduled(cron = "0 3 4 * * ?")
     public void reChangeTask(){
         logger.info("reChangeTask start");
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
