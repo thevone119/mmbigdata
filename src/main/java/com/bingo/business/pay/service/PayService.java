@@ -241,11 +241,11 @@ public class PayService {
         if(bus==null){
             bus = payBusRepository.getById(paylog.getBusId());
         }
-        //校验套餐
+        //校验套餐,目前套餐失效了，不影响收款，只是不能发起支付而已
         if(!this.checkBusValidity(bus)){
-            ret.setCode(21);
-            ret.setMsg("商户套餐失效，无法完成支付.");
-            return ret;
+            //ret.setCode(21);
+            //ret.setMsg("商户套餐失效，无法完成支付.");
+            //return ret;
         }
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         float refee=0.0f;//扣减的费用
