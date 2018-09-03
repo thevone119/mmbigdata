@@ -62,11 +62,11 @@
                 <div class="clear"></div>
             </ul>
             <div class="logoin pull-right" id="div_nouser" style="display:none;">
-                <a href="/pay/login.html" class="ac">
+                <a href="/pay/login.html"  id="a_login">
                     <i class="icon iconfont">&#xe60c;</i>
                     登录
                 </a>
-                <a href="/pay/enroll.html" >
+                <a href="/pay/enroll.html" id="a_enroll">
                     <i class="icon iconfont" >&#xe697;</i>
                     注册
                 </a>
@@ -97,32 +97,57 @@
         $('#li_index').attr({"class" : "ac"});
     }
 
-    //判断是否登录，登录则显示工作台菜单
+    //注册与登录
+    if(url.indexOf("login")>0){
+        $('#a_login').attr({"class" : "ac"});
+    }
+    if(url.indexOf("enroll")>0){
+        $('#a_enroll').attr({"class" : "ac"});
+    }
 
-    $.ajax(
-        {
-            type: 'post', // 提交方式 get/post
-            url: '/api/sys/login/getLoginUser', // 需要提交的 u
-            async:true,
-            cache:false,
-            dataType:'json',
-            success: function(ret){
-                if(ret.success){
-                    //已登录
-                    $('#div_user').show();
-                    $('#div_nouser').hide();
-                }else{
-                    $('#div_user').hide();
-                    $('#div_nouser').show();
+    //登录判断
+    var is_login = false;
+    function getUser_islogin(){
+        var cookie_login = $.cookie("user_is_login");
+        if(cookie_login=="true"){
+            is_login = true;
+            return;
+        }else if(cookie_login=="false"){
+            is_login = false;
+            return;
+        }else{
+            get_service_login();
+        }
+    }
+
+    function get_service_login(){
+        $.ajax(
+            {
+                type: 'post', // 提交方式 get/post
+                url: '/api/sys/login/getLoginUser', // 需要提交的 u
+                async:true,
+                cache:false,
+                dataType:'json',
+                success: function(ret){
+                    if(ret.success){
+                        $.cookie("user_is_login","true",{path:"/"});
+                    }else{
+                        $.cookie("user_is_login","false",{path:"/"});
+                    }
+                },
+                error:function(){
+
                 }
-            },
-            error:function(){
-                $('#div_user').hide();
-                $('#div_nouser').show();
-            }
-        });
+            });
+    }
 
 
-
-
+    getUser_islogin();
+    if(is_login){
+        $('#div_user').show();
+        $('#div_nouser').hide();
+    }else{
+        $('#div_user').hide();
+        $('#div_nouser').show();
+    }
 </script>
