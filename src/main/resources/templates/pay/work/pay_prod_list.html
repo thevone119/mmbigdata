@@ -13,19 +13,13 @@
             <Form-item label="商品价格">
                 <i-input v-model="myform.prodPrice" placeholder="请输入"></i-input>
             </Form-item>
-            <Form-item label="商品分类">
-                <i-select v-model="myform.payType" :value="myform.payType" style="width:150px">
-                    <i-option value="-1">所有</i-option>
-                    <i-option value="1">支付宝支付</i-option>
-                    <i-option value="2">微信支付</i-option>
-                </i-select>
-            </Form-item>
         </i-form>
     </div>
     <div class="g-dg-toolbar">
         <i-button type="info" icon="search" @click="reload">查询</i-button>
         <i-button type="primary" icon="android-add-circle" @click="add()">新增</i-button>
         <i-button type="error" icon="android-remove-circle" @click="remove">删除</i-button>
+        <i-button type="success" icon="help" @click="help_view">帮助</i-button>
     </div>
     <i-table :data="dtData" :columns="dtCols" :height="getTableHeight" size="small" :highlight-row="true"
              @on-current-change="onCurrentChange" stripe  @on-selection-change="onSelRows" @on-row-dblclick="edit"></i-table>
@@ -44,14 +38,14 @@
     var vm = new Vue({
         el: '#app',
         data:{
-                title: '支付商品管理',
+                title: '快速商品管理',
                 myform: {
                     plevel : 0
                     ,selRows: null//选中的行 字符串，用,号隔开
                     ,currentRow:null//选中的行
                     ,pageNo: 1
-                    ,pageSize: 10
-                    ,payType:"-1"
+                    ,pageSize: 10,
+                    state:-1
                 },
                 total: 0,
                 dtData: [],
@@ -70,29 +64,22 @@
                         key: 'prodPrice'
                     },
                     {
-                        title: '收款码价格',
-                        key: 'payImgPrice'
-                    },
-
-                    {
-                        title: '支付类型',
-                        key: 'payType',
+                        title: '是否需要配送',
+                        key: 'addressType',
                         render: function(h, params) {
-                            if(params.row.payType==1){
-                                return "支付宝支付";
+                            if(params.row.addressType==0){
+                                return "无需配送";
                             }
-                            if(params.row.payType==2){
-                                return "微信支付";
+                            if(params.row.addressType==1){
+                                return "需要配送";
                             }
                         }
                     },
+
                     {
                         title: '状态',
                         key: 'state',
                         render: function(h, params) {
-                            if(params.row.payImgContent==null||params.row.payImgContent.length<5){
-                                return "缺收款码";
-                            }
                             if(params.row.state==0){
                                 return "无效";
                             }
@@ -106,7 +93,7 @@
                         key: 'createtimeStr'
                     },
                     {
-                        title: '查看收款码',
+                        title: '操作',
                         render: function(h, params) {
                             return h('div', [
                                  h('Button', {
@@ -119,43 +106,18 @@
                                              vm.Imgview(params.row.prodId);
                                          }
                                      }
-                                }, '查看')
-                            ]);
-                        }
-                    },
-                    {
-                        title: '上传二维码',
-                        key: 'prodId',
-                        render: function(h, params) {
-                            return h('div', [
-                                h('Upload', {
+                                }, '二维码'),
+                                h('Button', {
                                     props: {
-                                        action: '/api/pay/payprod/upload_qr_img',
-                                        data:{"prodId":params.row.prodId},
-                                        name:"uploadfile",
-                                        accept:"image/*",
-                                        showUploadList:false,
-                                        'on-success':function(res, file){
-                                            if(res.success){
-                                                layer.msg('上传成功');
-                                            }else{
-                                                layer.msg('上传失败,请稍候再试...');
-                                            }
-                                        }
-                                    },
-                                    style:{
-                                        marginRight:'5px'
-                                    }
-                                }, [ h('Button', {
-                                    props: {
-                                        type: 'primary',
+                                        type: 'success',
                                         size: 'small'
                                     },
-                                    style:{
-                                        marginRight:'5px'
+                                    on: {
+                                        click:function(){
+                                            vm.Imgview(params.row.prodId);
+                                        }
                                     }
-                                }, '上传收款码')])
-
+                                }, '获取代码')
                             ]);
                         }
                     }
@@ -230,11 +192,21 @@
                 }
                 layer.open({
                     type: 2,
-                    title: '支付商品管理',
+                    title: '快捷商品管理',
                     maxmin: true,
                     shadeClose: true, //点击遮罩关闭层
                     area : ['650px' , '500px'],
                     content: '/pay/work/pay_prod_detail.html?id='+id
+                });
+            },
+            help_view:function(){//帮助
+                layer.open({
+                    type: 2,
+                    title: '帮助',
+                    maxmin: true,
+                    shadeClose: true, //点击遮罩关闭层
+                    area : ['650px' , '500px'],
+                    content: '/pay/work/pay_prod_help.html?'
                 });
             },
             edit:function(){//编辑
