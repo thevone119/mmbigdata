@@ -24,8 +24,7 @@
 
 	<link rel="icon" type="image/x-icon" href="/pay/images/favicon.ico">
 	<style>
-		.mod-title {
-			height: 70px;
+		.mod-title2 {
 			line-height: 30px;
 			text-align: center;
 			border-bottom: 1px solid #ddd;
@@ -49,11 +48,11 @@
 
 <body>
 <div class="body">
-	<h1 class="mod-title">
-		商品名称：${prod.prodName}
+	<div class="mod-title2">
+		订购商品：${prod.prodName}
 		<br>
 		应付款：<font color="red" style="font-weight:bold">￥${prod.prodPriceStr}元</font>
-	</h1>
+	</div>
 
 	<div class="mod-ct">
 		<form class="cmxform" id="myForm" name="myForm"  method="post" action="/payapi/submit_quick" >
@@ -79,9 +78,10 @@
 
 			</div>
 			</#if>
+			<div class="tip-text" style = "padding-top: 15px"></div>
 
-			<div style = "padding-top: 35px"><a href="#" id="paybut1" class="btn btn-primary" onclick="crearepay(1)">使用支付宝付款</a></div>
-			<div style = "padding-top: 20px"><a href="#" id="paybut2" class="btn btn-success" onclick="crearepay(2)">使用微信付款</a></div>
+			<div style = "padding-top: 20px;" id="paybut1" ><a href="#" class="btn btn-primary" onclick="crearepay(1)">使用支付宝付款</a></div>
+			<div style = "padding-top: 20px;" id="paybut2"><a href="#"  class="btn btn-success" onclick="crearepay(2)">使用微信付款</a></div>
 			<div class="tip-text" style = "padding-top: 20px">
 			</div>
 		</form>
