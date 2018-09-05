@@ -160,13 +160,11 @@
                     if (isMobile() == 1){
                         $(".paybtn").html('<a href="' + backurl + '" class="btn btn-primary">返回商家页</a>');
                         setTimeout(function(){
-                            // window.location = data.url;
                             location.replace(backurl)
                         }, 3000);
                     }else{
                         $("#msg").html("<h1>即将<a href='"+backurl+"'>跳转</a>回商家页</h1>");
                         setTimeout(function(){
-                            // window.location = data.url;
                             location.replace(backurl)
                         }, 3000);
                     }
@@ -250,52 +248,48 @@
     }
 
     $().ready(function(){
-        //默认6分钟过期
-        timer(${bus.payTimeOut}*60);
+        timer();
         var istype = "${ret.pay_type}";
         var uaa = navigator.userAgent;
         var isiOS = !!uaa.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+		//手机浏览器做适配处理
         if (isMobile() == 1){
+            //1.微信支付+微信浏览器
             if (isWeixin() == 1 && istype == 2){
-                //微信内置浏览器+微信支付
-                $("#showtext").text("长按二维码识别");
-            } else{
-                //其他手机浏览器+支付宝支付
-                if (isWeixin() == 0 && istype == 1){
+                $("#showtext").text("长按二维码识别完成支付");
+            }
+            //2.微信支付+其他浏览器
+            if (isWeixin() == 0 && istype == 2){
+                //其他手机浏览器+微信支付
+                //IOS的排除掉
+                if (isiOS){
+                    // showCodeImage();
+                    $('.iospayweixinbtn').attr('style','padding-top: 15px;');
+                }else{
+                    $(".payweixinbtn").attr('style','padding-top: 15px;');
+                }
+                $("#showtext").html("请保存二维码到手机<br>微信扫一扫点右上角-从相册选取");
+            }
 
 
-                    $(".paybtn").attr('style','');
+            //3.支付宝支付+非微信浏览器
+            if (isWeixin() == 0 && istype == 1){
+                $(".paybtn").attr('style','');
+                if(true){
                     var goPay = '<span id="goPay"> <span>';
                     //给A标签中的文字添加一个能被jQuery捕获的元素
                     $('#alipaybtn').append(goPay);
                     //模拟点击A标签中的文字
                     $('#goPay').click();
-
                     $('#msg').html("<h1>支付完成后，请返回此页</h1>");
-                    // $(".qrcode-img-wrapper").remove();
                     $(".tip").remove();
                     $(".foot").remove();
-
-
-                    //$(location).attr('href', 'HTTPS://QR.ALIPAY.COM/FKX025030LZJ5TWNK1N135');
-                } else {
-                    if (isWeixin() == 0 && istype == 2){
-                        //其他手机浏览器+微信支付
-                        //IOS的排除掉
-                        if (isiOS){
-                            // showCodeImage();
-
-                            $('.iospayweixinbtn').attr('style','padding-top: 15px;');
-                        }else{
-                            $(".payweixinbtn").attr('style','padding-top: 15px;');
-                        }
-                        $("#showtext").html("请保存二维码到手机<br>微信扫一扫点右上角-从相册选取");
-                    }
-                }
+				}
             }
+
         }
 
-
+		//如果是IOS，只本地不生成图片了
         if (isiOS){
             $('#show_qrcode').css({width: 310,height:310});
         }else{
@@ -309,11 +303,9 @@
                     }
                 }else{
                     $('#show_qrcode').attr('src', codeurl);
-                    // $('#downloadbtn').attr('href', "https://pay.srbapi.com/get_code_image/showImage?url=HTTPS://QR.ALIPAY.COM/FKX025030LZJ5TWNK1N135");
                 }
             }else{
                 $('#show_qrcode').attr('src', codeurl);
-                // $('#downloadbtn').attr('href', "https://pay.srbapi.com/get_code_image/showImage?url=HTTPS://QR.ALIPAY.COM/FKX025030LZJ5TWNK1N135");
             }
         }
 
