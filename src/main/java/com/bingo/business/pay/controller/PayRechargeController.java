@@ -230,6 +230,10 @@ public class PayRechargeController {
             return "ERROR";
         }
         //logger.info("SUCCESS1");
+        //部分非充值业务，直接返回
+        if(payret.getPay_ext1()==null){
+            return "SUCCESS";
+        }
         //支付成功,进行账户充值
         Long userid = new Long(payret.getPay_ext1());
         Float price = new Float(payret.getPay_ext2());
@@ -264,15 +268,19 @@ public class PayRechargeController {
         JSONObject retj = new JSONObject(body);
         //查询订单成功
         if(retj.getInt("ret_code")==1){
-            String pay_id = retj.getString("pay_id");
-            Long userid = retj.getLong("pay_ext1");
-            Float price = new Float(retj.getString("pay_ext2"));
-            Integer pay_state = retj.getInt("pay_state");
             Integer pay_type = retj.getInt("pay_type");
-
             request.setAttribute("pay_type",pay_type);
+            Integer pay_state = retj.getInt("pay_state");
             //支付成功
             if(pay_state==1){
+                //快捷支付测试，没有扩展字段
+                if(!retj.has("pay_ext1")){
+                    request.setAttribute("msg","测试成功，已完成支付");
+                    return new  ModelAndView("/pay/recharge_test_end");
+                }
+                String pay_id = retj.getString("pay_id");
+                Long userid = retj.getLong("pay_ext1");
+                Float price = new Float(retj.getString("pay_ext2"));
                 if(userid>0){
                     recharge(pay_id,userid,price);
                     request.setAttribute("msg","充值完成，充值金额已到账");
