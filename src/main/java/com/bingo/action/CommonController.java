@@ -4,6 +4,7 @@ import com.bingo.business.pay.parameter.PayInput;
 import com.bingo.business.pay.parameter.PayReturn;
 import com.bingo.common.model.ReturnObject;
 import com.bingo.common.utility.PubClass;
+import com.bingo.common.utility.QRCodeUtils;
 import com.bingo.common.utility.XJsonInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,6 +71,30 @@ public class CommonController {
         }
         return map;
     }
+
+    /**
+     * 下载二维码
+     * @param url
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/down_qr_img")
+    public void down_qr_img(HttpServletResponse response, String url) throws Exception {
+        if(url==null||url.length()>255){
+            return ;
+        }
+        //设置MIME类型
+        response.setContentType("application/octet-stream");
+        //或者为response.setContentType("application/x-msdownload");
+        //设置头信息,设置文件下载时的默认文件名，同时解决中文名乱码问题
+        response.addHeader("Content-disposition", "attachment;filename="+new String("二维码下载.png".getBytes(), "ISO-8859-1"));
+        OutputStream out = response.getOutputStream();
+        QRCodeUtils.createQRcode(url,out);
+        out.flush();
+        out.close();
+    }
+
+
 
 
 
