@@ -40,7 +40,7 @@
         </div>
 
 
-        <div class ="payweixinbtn" style = "padding-top: 35px"><a href="#" onclick="parent.layer.closeAll();" class="btn btn-primary" >点击返回</a></div>
+        <div class ="payweixinbtn" style = "padding-top: 35px"><a href="#" onclick="custom_close();" class="btn btn-primary" >点击返回</a></div>
 
         <div class="tip-text">
         </div>
@@ -51,6 +51,24 @@
 </div>
 
 <script type="text/javascript">
+    //关闭当前窗口
+    function custom_close(){
+        try{
+            parent.layer.closeAll();
+        }catch(e){}
+
+        try{
+            window.opener=null;
+            window.open("", "_self", "");
+            window.close();
+        }catch(e){}
+
+        if(isWeixin()){
+            try{
+                WeixinJSBridge.call('closeWindow');
+            }catch(e){}
+        }
+    }
 
     function isWeixin() {
         var ua = window.navigator.userAgent.toLowerCase();
