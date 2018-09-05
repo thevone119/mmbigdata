@@ -63,7 +63,7 @@
 
 
 		<div class="time-item" style = "padding-top: 10px">
-			<div class="time-item"><h1>商品名称:${ret.pay_name}</h1> </div>
+			<div class="time-item" id="msg"><h1>商品名称:${ret.pay_name}</h1> </div>
 			<div class="time-item"><h1>订单号:${ret.orderid}</h1> </div>
 			<strong id="hour_show">0时</strong>
 			<strong id="minute_show">0分</strong>
@@ -107,35 +107,40 @@
 	var backurl = '${ret.return_url}';
 	//支付二维码类型 1：非定额  2：定额
 	var qrcode_type = '${ret.qrcode_type}';
+	//当前时间
+	var currTime = new Date().getTime();
+	var timeOut=${bus.payTimeOut};
+	var count_time=0;
 
-
-    function timer(intDiff) {
+    function timer() {
         myTimer = window.setInterval(function () {
             var day = 0,
                 hour = 0,
                 minute = 0,
                 second = 0;//时间默认值
-            if (intDiff > 0) {
-                day = Math.floor(intDiff / (60 * 60 * 24));
-                hour = Math.floor(intDiff / (60 * 60)) - (day * 24);
-                minute = Math.floor(intDiff / 60) - (day * 24 * 60) - (hour * 60);
-                second = Math.floor(intDiff) - (day * 24 * 60 * 60) - (hour * 60 * 60) - (minute * 60);
+			//剩余的秒数
+            var lastsecond = (timeOut*60)-((new Date().getTime()-currTime)/1000);
+
+            if (lastsecond > 0) {
+                day = Math.floor(lastsecond / (60 * 60 * 24));
+                hour = Math.floor(lastsecond / (60 * 60)) - (day * 24);
+                minute = Math.floor(lastsecond / 60) - (day * 24 * 60) - (hour * 60);
+                second = Math.floor(lastsecond) - (day * 24 * 60 * 60) - (hour * 60 * 60) - (minute * 60);
             }
             if (minute <= 9) minute = '0' + minute;
             if (second <= 9) second = '0' + second;
             $('#hour_show').html('<s id="h"></s>' + hour + '时');
             $('#minute_show').html('<s></s>' + minute + '分');
             $('#second_show').html('<s></s>' + second + '秒');
-            if (hour <= 0 && minute <= 0 && second <= 0) {
+            if (lastsecond <= 0) {
                 qrcode_timeout();
                 clearInterval(myTimer);
             }
-            intDiff--;
 
-            if (strcode != "" && intDiff%2==0){
+            count_time++;
+            if (strcode != "" && count_time%2==0){
                 checkdata();
             }
-
         }, 1000);
     }
 
@@ -147,7 +152,7 @@
             },
             function(data){
                 if (data.pay_state == 1){
-                    window.clearInterval(timer);
+                    window.clearInterval(myTimer);
                     $("#show_qrcode").attr("src","/pay/images/pay_ok.png");
                     $("#use").remove();
                     $("#money").text("支付成功");
@@ -174,7 +179,6 @@
         $('#show_qrcode').attr("src","/pay/images/qrcode_timeout.png");
         $("#use").hide();
         $('#msg').html("<h1>请刷新本页</h1>");
-
     }
 
     function isWeixin() {
