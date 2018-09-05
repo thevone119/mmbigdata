@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Language" content="zh-cn">
+	<meta name="apple-mobile-web-app-capable" content="no"/>
+	<meta name="apple-touch-fullscreen" content="yes"/>
+	<meta name="format-detection" content="telephone=no,email=no"/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="white">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+	<meta http-equiv="Expires" content="0">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-control" content="no-cache">
+	<meta http-equiv="Cache" content="no-cache">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>商品订单</title>
+	<link href="/pay/css/bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href="/pay/css/pay1.css" rel="stylesheet" media="screen">
+	<script type="text/javascript" src="https://cdn.staticfile.org/jquery/1.11.1/jquery.min.js"></script>
+	<script src="/pay/js/jquery.validate.min.js"></script>
+	<script src="/pay/js/messages_zh.min.js"></script>
+	<script src="/pay/js/jquery.form.js"></script>
+
+	<link rel="icon" type="image/x-icon" href="/pay/images/favicon.ico">
+	<style>
+		.mod-title {
+			height: 70px;
+			line-height: 30px;
+			text-align: center;
+			border-bottom: 1px solid #ddd;
+			background: #fff;
+			font-size: 14px;
+		}
+
+		.my-text {
+			vertical-align: middle;
+			font-size: 14px;width:80%;display: inline-block;text-align: left;
+		}
+
+		input.error { border: 1px solid red; }
+		label.error {
+			padding-left: 14px;
+			color: red;
+		}
+
+	</style>
+</head>
+
+<body>
+<div class="body">
+	<h1 class="mod-title">
+		商品名称：测试商品
+		<br>
+		应付款：<font color="red" style="font-weight:bold">￥0.01元</font>
+	</h1>
+
+	<div class="mod-ct">
+
+		<div class="my-text"  >
+			<form class="cmxform" id="regeditForm" method="post" action="#" onsubmit="return false">
+				<div   style = "padding-top: 20px;">
+					<h4 style = "line-height: 25px;">收货人姓名：</h4>
+					<input type="text" name="userName" id="userName" class="form-control"  placeholder="请输入收货人姓名" VALUE="">
+				</div>
+
+				<div   style = "padding-top: 20px;">
+					<h4 style = "line-height: 25px;">联系手机号：</h4>
+					<input type="text" name="userPhone" id="userPhone" class="form-control" placeholder="请输入联系手机号" VALUE="">
+				</div>
+				<div   style = "padding-top: 20px;">
+					<h4 style = "line-height: 25px;">收货地址：</h4>
+					<input type="text" name="userAddress" id="userAddress" class="form-control" placeholder="请输入收货地址" VALUE="">
+				</div>
+			</form>
+		</div>
+
+
+		<div style = "padding-top: 35px"><a href="#" id="paybut1" class="btn btn-primary" onclick="crearepay(1)">使用支付宝付款</a></div>
+		<div style = "padding-top: 20px"><a href="#" id="paybut2" class="btn btn-success" onclick="crearepay(2)">使用微信付款</a></div>
+		<div class="tip-text" style = "padding-top: 20px">
+		</div>
+
+
+	</div>
+
+
+
+
+</div>
+<script>
+
+    /**
+     * 支付
+     */
+    function crearepay(pay_type){
+        //判断输入框内容是否完整
+        var validatestatus = $('#regeditForm').valid();//与validate配合使用,必须先验证
+        if(!validatestatus){
+            return false;
+        }
+        var loading1 = layer.load();
+        var post={
+            type: 'post', // 提交方式 get/post
+            url: '/api/sys/login/regeditbus', // 需要提交的 u
+            async:true,
+            cache:false,
+            dataType:'json',
+            success: function(data) {
+                layer.close(loading1);
+                if(data.success){
+                    layer.alert("注册成功,请登录");
+                    window.location.href="/pay/login.html";
+                }else{
+                    layer.alert(data.msg);
+                }
+            },
+            error:function(){
+                layer.close(loading1);
+                layer.alert("系统繁忙，请稍候再试");
+            }
+        }
+
+        $('#regeditForm').ajaxSubmit(post);
+        return false;
+    }
+
+    // 手机号码验证
+    jQuery.validator.addMethod("isMobile", function(value, element) {
+        var length = value.length;
+        var mobile = /^(13[0-9]{9})|(18[0-9]{9})|(14[0-9]{9})|(17[0-9]{9})|(15[0-9]{9})$/;
+        return this.optional(element) || (length == 11 && mobile.test(value));
+    }, "请正确填写您的手机号码");
+
+    // 在键盘按下并释放及提交后验证提交表单
+    $("#regeditForm").validate({
+        rules: {
+            userName:{
+                required: true,
+                minlength: 2
+            },
+            userPhone:{
+                required : true,
+                minlength : 11,
+                isMobile : true
+            },
+            userAddress:{
+                required: true,
+                minlength: 6
+            }
+        },
+        messages: {
+            userName: {
+                required: "请输入收货人姓名",
+                minlength: "收货人姓名长度不能小于2"
+            },
+            userPhone:{
+                required : "请输入联系手机号",
+                minlength : "确认手机号不能小于11个字符",
+                isMobile : "请正确填写联系人手机号码"
+            },
+            userAddress: {
+                required: "请收货地址",
+                minlength: "请输入如下格式地址：xx省xx市xx区xxxx"
+            }
+        }
+    })
+</script>
+
+<#include "/pay/include/hmt.html" />
+</body>
+</html>
