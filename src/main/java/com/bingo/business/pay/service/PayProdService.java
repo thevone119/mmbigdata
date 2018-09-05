@@ -47,6 +47,16 @@ public class PayProdService{
 	public PayProd get(Serializable id) throws DaoException{
 		return payprodRepository.getById(id);
 	}
+
+	/**
+	 * 根据rid查询快捷支付商品
+	 * @param rid
+	 * @return
+	 * @throws DaoException
+	 */
+	public PayProd getByRid(String rid) throws DaoException{
+		return  payprodRepository.find(" from PayProd where rid =? ",new String[]{rid});
+	}
 	
 	/**
 	 * @description: <删除对象>
@@ -94,16 +104,7 @@ public class PayProdService{
 		return payprodRepository.findPage(hql.toString(), vo, fldValues);
 	}
 
-	/**
-	 * 根据用户，价格,支付类型查询可用支付商品
-	 * @param userId
-	 * @param prodPrice
-	 * @return
-	 */
-	public List<PayProd> queryByPrice(Long userId,Float prodPrice,Integer payType){
-		StringBuffer hql = new StringBuffer(" from PayProd where userId=? and  prodPrice=? and payType=? and state=1 and payImgContent is not null");
-		return payprodRepository.query(hql.toString(),new Object[]{userId,prodPrice,payType});
-	}
+
 
 	
 }

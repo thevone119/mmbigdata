@@ -48,6 +48,10 @@ public class PayController {
     private PayProdImgService payProdImgService;
 
     @Resource
+    private PayProdService payProdService;
+
+
+    @Resource
     private PayService payService;
 
 
@@ -370,11 +374,7 @@ public class PayController {
                 log.setNotifyCount(0);
                 log.setNotifyState(0);
                 log.setOrderid(payin.getOrderid());
-                log.setPayDemo(payin.getPay_demo());
-                log.setPayExt1(payin.getPay_ext1());
-                log.setPayExt2(payin.getPay_ext2());
-                log.setPayName(payin.getPay_name());
-                log.setPayType(payin.getPay_type());
+
                 //返回地址
                 log.setReturnUrl(bus.getGobackUrl());
                 if(payin.getReturn_url()!=null && payin.getReturn_url().length()>5){
@@ -384,6 +384,16 @@ public class PayController {
                 log.setUid(payin.getUid());
                 log.setPayState(0);
             }
+
+            //不管新旧订单，这些内容都可以更改
+            log.setPayDemo(payin.getPay_demo());
+            log.setPayExt1(payin.getPay_ext1());
+            log.setPayExt2(payin.getPay_ext2());
+            log.setPayName(payin.getPay_name());
+            log.setPayType(payin.getPay_type());
+            log.setUserAddress(payin.getUserAddress());
+            log.setUserName(payin.getUserName());
+            log.setUserPhone(payin.getUserPhone());
 
             //更新订单的收款码
             boolean updateimg = updateLogPayImg();
@@ -417,7 +427,7 @@ public class PayController {
         //锁多一分钟
         cal.add(Calendar.MINUTE,-bus.getPayTimeOut()-1);
         //如果已有收款码，并且未过期，则直接更新收款码使用期限即可
-        if(log.getProdId()!=null){
+        if(log.getProdImgId()!=null){
             if(cal.getTime().before(updatetime)){
                 log.setUpdatetime(format.format(new Date()));
                 return true;
@@ -479,16 +489,16 @@ public class PayController {
             }
             //注入非定额的
             //注入订单的收款信息
-            log.setProdId(0L);
-            log.setProdName("非定额收款码收款");
+            log.setProdImgId(0L);
+            log.setProdImgName("非定额收款码收款");
             log.setPayImgPrice(imgPrice);
             log.setPayImgContent(payImgContent);
             log.setUpdatetime(format.format(new Date()));
         }else{
             //定额
             //注入订单的收款信息
-            log.setProdId(listprod.get(0).getCid());
-            log.setProdName("定额收款码");
+            log.setProdImgId(listprod.get(0).getCid());
+            log.setProdImgName("定额收款码");
             //log.setProdPrice(payin.getPrice());
             log.setPayImgPrice(listprod.get(0).getImgPrice());
             log.setPayImgContent(listprod.get(0).getImgContent());
@@ -559,6 +569,83 @@ public class PayController {
                 if(out!=null) out.close();
             }catch(Exception e){}
         }
+    }
+
+    /**
+     * 创建快捷商品支付订单
+     * @param prodid,快捷支付商品ID
+     * @param orderid,订单号
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/create_quick")
+    public ModelAndView create_quick(HttpServletRequest request, HttpServletResponse response, String prodid,String orderid) throws Exception {
+        PayReturn ret = new PayReturn();
+        if(orderid==null||orderid.length()==0){
+            orderid=System.currentTimeMillis()+"";
+        }
+        //查询快捷支付商品
+        PayProd prod = payProdService.getByRid(prodid);
+        if(prod==null||prod.getState()==0){
+            ret.setRet_msg("快捷支付商品不存在，无法创建订单");
+            request.setAttribute("ret",ret);
+            return new ModelAndView("/pay/flow/pay_error");
+        }
+        request.setAttribute("prod",prod);
+        request.setAttribute("orderid",orderid);
+        //直接去到收货地址，支付方式选择的页面
+        return new ModelAndView("/pay/flow/order_address");
+    }
+
+    /**
+     * 快捷支付提交,提交后，去到支付页面
+     * @param prodid,快捷支付商品ID
+     * @param orderid,订单号
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/submit_quick")
+    public ModelAndView submit_quick(HttpServletRequest request, HttpServletResponse response, String prodid,String orderid,String userName,String userPhone,String userAddress,Integer pay_type) throws Exception {
+        PayReturn ret = new PayReturn();
+        if(orderid==null||orderid.length()==0){
+            orderid=System.currentTimeMillis()+"";
+        }
+        if(pay_type<1||pay_type>2){
+            ret.setRet_msg("参数错误");
+            request.setAttribute("ret",ret);
+            return new ModelAndView("/pay/flow/pay_error");
+        }
+        //查询快捷支付商品
+        PayProd prod = payProdService.getByRid(prodid);
+        if(prod==null||prod.getState()==0){
+            ret.setRet_msg("快捷支付商品不存在，无法创建订单");
+            request.setAttribute("ret",ret);
+            return new ModelAndView("/pay/flow/pay_error");
+        }
+        //查询商户
+        bus = paybusService.get(prod.getBusId());
+        if(bus==null){
+            ret.setRet_msg("商户过期，或已失效");
+            request.setAttribute("ret",ret);
+            return new ModelAndView("/pay/flow/pay_error");
+        }
+        //创建支付订单
+        PayInput input = new PayInput();
+        input.setPrice(prod.getProdPrice());
+        input.setPay_type(pay_type);
+        input.setPay_name(prod.getProdName());
+        input.setOrderid(orderid);
+        input.setUid(bus.getUuid());
+        input.setPay_demo("快捷商品支付");
+        input.setUserAddress(userAddress);
+        input.setUserName(userName);
+        input.setUserPhone(userPhone);
+        input.setNonce_str(System.currentTimeMillis()+"");
+        //签名
+        input.setSign(input.MarkSign(bus.getSignKey()));
+
+        //直接去到支付页面
+        return createAndPay(request,response,input);
     }
 
 

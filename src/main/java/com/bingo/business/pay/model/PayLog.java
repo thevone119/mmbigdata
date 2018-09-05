@@ -48,20 +48,23 @@ public class PayLog extends PageModel{
 
 	@Column(name = "orderid",updatable = false)
 	protected String  orderid;//订单ID，外部传过来的订单ID
-	
+
 	@Column(name = "prod_id",updatable = false)
-	protected Long  prodId;//支付商品ID
+	protected Long  prodId;//快捷支付商品ID
+
+	@Column(name = "prod_img_id",updatable = false)
+	protected Long  prodImgId;//支付二维码ID
 	
 	
-	@Column(name = "prod_name",updatable = false)
-	protected String  prodName;//支付商品名称
+	@Column(name = "prod_img_name",updatable = false)
+	protected String  prodImgName;//支付二维码名称
 
 	@Column(name = "prod_price",updatable = false)
-	protected Float  prodPrice;//支付商品价格
+	protected Float  prodPrice;//支付商品价格(订单价格)
 
 
 	@Column(name = "pay_img_price",updatable = false)
-	protected Float  payImgPrice;//二维码支付价格
+	protected Float  payImgPrice;//二维码支付价格（实际支付价格）
 
 	@Column(name = "pay_service_change",updatable = false)
 	protected Float  payServiceChange;//支付平台服务费，手续费,无效
@@ -119,6 +122,16 @@ public class PayLog extends PageModel{
 	@Column(name = "notify_count",updatable = false)
 	protected Integer  notifyCount=0;//notify_count 支付通知次数
 
+
+	@Column(name = "user_phone")
+	protected String  userPhone;//用户手机号码
+
+	@Column(name = "user_address")
+	protected String  userAddress;//用户配送地址
+
+	@Column(name = "user_name")
+	protected String  userName;//用户姓名
+
 	@Transient
 	private String payStateStr = "";//支付状态 -1：未知状态，0：等待支付 1：支付成功，2：支付失败，11：账户余额不足，12：账户套餐过期，13：支付超时
 
@@ -130,6 +143,12 @@ public class PayLog extends PageModel{
 
 	@Transient
 	private String createtimeStr = "";//日期的格式化输出
+
+
+	@Transient
+	private String payImgPriceStr = "";//价格格式化输出
+
+
 	
 	/**
 	 * 对象构建方法
@@ -185,27 +204,30 @@ public class PayLog extends PageModel{
 	public String getBusName(){
 		return this.busName;
 	}
-	
-	public void setProdId(Long prodId){
+
+
+	public Long getProdImgId() {
+		return prodImgId;
+	}
+
+	public void setProdImgId(Long prodImgId) {
+		this.prodImgId = prodImgId;
+	}
+
+	public Long getProdId() {
+		return prodId;
+	}
+
+	public void setProdId(Long prodId) {
 		this.prodId = prodId;
 	}
-	/**
-	 * 返回 prod_id
-	 * @return
-	 */
-	public Long getProdId(){
-		return this.prodId;
+
+	public String getProdImgName() {
+		return prodImgName;
 	}
-	
-	public void setProdName(String prodName){
-		this.prodName = prodName;
-	}
-	/**
-	 * 返回 prod_name
-	 * @return
-	 */
-	public String getProdName(){
-		return this.prodName;
+
+	public void setProdImgName(String prodImgName) {
+		this.prodImgName = prodImgName;
 	}
 
 	public Integer getBusType() {
@@ -417,6 +439,30 @@ public class PayLog extends PageModel{
 		this.orderid = orderid;
 	}
 
+	public String getUserPhone() {
+		return userPhone;
+	}
+
+	public void setUserPhone(String userPhone) {
+		this.userPhone = userPhone;
+	}
+
+	public String getUserAddress() {
+		return userAddress;
+	}
+
+	public void setUserAddress(String userAddress) {
+		this.userAddress = userAddress;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
 	public String getPayStateStr() {
 		//支付状态 -1：未知状态，0：等待支付 1：支付成功，2：支付失败，11：账户余额不足，12：账户套餐过期，13：支付超时
 		switch (this.payState){
@@ -460,5 +506,13 @@ public class PayLog extends PageModel{
 
 	public void setCreatetimeStr(String createtimeStr) {
 		this.createtimeStr = createtimeStr;
+	}
+
+	public String getPayImgPriceStr() {
+		return String.format("%.2f", this.payImgPrice) ;
+	}
+
+	public void setPayImgPriceStr(String payImgPriceStr) {
+		this.payImgPriceStr = payImgPriceStr;
 	}
 }

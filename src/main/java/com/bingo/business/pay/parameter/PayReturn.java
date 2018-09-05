@@ -60,7 +60,7 @@ public class PayReturn {
         this.pay_demo = log.getPayDemo();
         this.pay_state = log.getPayState();
         this.return_url = log.getReturnUrl();
-        if(log.getProdId()!=null&&log.getProdId()>0){
+        if(log.getProdImgId()!=null&&log.getProdImgId()>0){
             qrcode_type = 2;
         }else{
             qrcode_type = 1;

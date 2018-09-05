@@ -117,6 +117,37 @@ public class PayProdController  {
         return  new XJsonInfo().setPageData(payprodService.findPage(vo));
     }
 
+	/**
+	 * 查看快捷支付的二维码
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 * @throws DaoException
+	 */
+	@RequestMapping("/prod_qr_img")
+	public void prod_qr_img(HttpServletRequest request, HttpServletResponse response, String prodid) throws IOException, DaoException {
+		OutputStream out = null;
+		InputStream in = null;
+		try{
+			out = response.getOutputStream();
+			StringBuffer requrl = request.getRequestURL();
+			String tempContextUrl = requrl.delete(requrl.length() - request.getRequestURI().length(), requrl.length()).toString();
+			String url = tempContextUrl+"/payapi/create_quick?prodid="+prodid;
+
+			QRCodeUtils.createQRcode(url,out);
+			out.flush();
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try{
+				if(in!=null) in.close();
+			}catch(Exception e){}
+			try{
+				if(out!=null) out.close();
+			}catch(Exception e){}
+		}
+	}
+
 
 
 

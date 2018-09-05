@@ -27,8 +27,10 @@ public class PayProd extends PageModel{
 	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "prod_id")
 	private Long  prodId;//产品ID
-	
-	
+
+	@Column(name = "rid")
+	private String  rid;//产品的rid
+
 	@Column(name = "prod_name")
 	private String  prodName;//产品名称
 	
@@ -37,10 +39,11 @@ public class PayProd extends PageModel{
 	private Float  prodPrice;//产品价格
 
 	@Column(name = "address_type")
-	private Integer addressType;
+	private Integer addressType=1;//地址类型，0：无需要配送地址 1：需要配送
+
 
 	@Column(name = "max_count")
-	private Integer maxCount;
+	private Integer maxCount=1;//最多订购商品，1：一次最多只能订购1个
 
 
 	@Column(name = "state")
@@ -52,6 +55,9 @@ public class PayProd extends PageModel{
 
 	@Transient
 	private String createtimeStr = "";//日期的格式化输出
+
+	@Transient
+	private String prodPriceStr = "";//价格格式输出
 	
 	
 	
@@ -61,6 +67,7 @@ public class PayProd extends PageModel{
 	 */
 	public PayProd(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		this.rid= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		this.createtime=format.format(new Date());
 	}
 
@@ -142,6 +149,14 @@ public class PayProd extends PageModel{
 		this.maxCount = maxCount;
 	}
 
+	public String getRid() {
+		return rid;
+	}
+
+	public void setRid(String rid) {
+		this.rid = rid;
+	}
+
 	public String getCreatetimeStr() throws ParseException {
 		if(this.createtime==null){
 			return null;
@@ -159,5 +174,14 @@ public class PayProd extends PageModel{
 
 	public void setCreatetimeStr(String createtimeStr) {
 		this.createtimeStr = createtimeStr;
+	}
+
+	public String getProdPriceStr() {
+		return String.format("%.2f", this.prodPrice) ;
+		//return prodPriceStr;
+	}
+
+	public void setProdPriceStr(String prodPriceStr) {
+		this.prodPriceStr = prodPriceStr;
 	}
 }

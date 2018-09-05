@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * @author huangtw
  * 2018-09-02 19:36:28
- * 对象功能:  Model对象
+ * 对象功能:  Model对象,作废哦。
  */
 @Entity
 @Table(name="T_PAY_PROD_LOG")
@@ -18,63 +18,62 @@ public class PayProdLog extends PageModel{
 
 	@Id
 	@Column(name = "orderid")
-	protected String  orderid;//orderid
+	protected String  orderid;//订单ID
 	
 	
 	@Column(name = "bus_id")
-	protected Long  busId;//bus_id
+	protected Long  busId;//商户ID
 	
 	
 	@Column(name = "prod_id")
-	protected Long  prodId;//prod_id
+	protected Long  prodId;//商品ID
 	
 	
 	@Column(name = "prod_name")
-	protected String  prodName;//prod_name
+	protected String  prodName;//商品名称
 	
 	
 	@Column(name = "prod_count")
-	protected Long  prodCount;//prod_count
+	protected Long  prodCount;//商品数量
 	
 	
 	@Column(name = "order_state")
-	protected Long  orderState;//order_state
-	
+	protected Long  orderState;//订单状态 0：未支付，1已支付
 	
 	@Column(name = "order_price")
-	protected String  orderPrice;//order_price
+	protected String  orderPrice;//订单价格
 	
 	
 	@Column(name = "pay_price")
-	protected String  payPrice;//pay_price
+	protected String  payPrice;//支付价格
 	
 	
 	@Column(name = "pay_id")
-	protected Long  payId;//pay_id
+	protected Long  payId;//支付订单ID
 	
 	
 	@Column(name = "create_time")
-	protected Long  createTime;//create_time
+	protected Long  createTime;//创建时间
 	
 	
 	@Column(name = "user_id")
-	protected String  userId;//user_id
+	protected String  userId;//用户ID
 	
 	
 	@Column(name = "user_phone")
-	protected String  userPhone;//user_phone
+	protected String  userPhone;//用户手机号码
 	
 	
 	@Column(name = "user_address")
-	protected String  userAddress;//user_address
+	protected String  userAddress;//用户配送地址
 	
 	
 	@Column(name = "user_name")
-	protected String  userName;//user_name
+	protected String  userName;//用户姓名
 	
 	
 	@Column(name = "pay_time")
-	protected Long  payTime;//pay_time
+	protected Long  payTime;//支付时间,这个没用，采用支付表的支付时间
 	
 	
 	

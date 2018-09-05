@@ -3,6 +3,7 @@ package com.bingo.business.pay.parameter;
 import com.bingo.common.utility.SecurityClass;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.persistence.Column;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,12 @@ public class PayInput {
     private String pay_name;
     private String pay_demo;
     private String return_url;
+
+    //订单配送信息
+    private String  userPhone;//用户手机号码
+    private String  userAddress;//用户配送地址
+    private String  userName;//用户姓名
+
 
     private String sign;
 
@@ -124,7 +131,29 @@ public class PayInput {
         this.nonce_str = nonce_str;
     }
 
+    public String getUserPhone() {
+        return userPhone;
+    }
 
+    public void setUserPhone(String userPhone) {
+        this.userPhone = userPhone;
+    }
+
+    public String getUserAddress() {
+        return userAddress;
+    }
+
+    public void setUserAddress(String userAddress) {
+        this.userAddress = userAddress;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     /**
      * 对pay对象进行签名

@@ -94,7 +94,7 @@ public class PayRechargeController {
      * @throws DaoException
      */
     @RequestMapping("/createpay")
-    public XJsonInfo createpay(Integer pay_type,Float price) throws Exception {
+    public XJsonInfo createpay(HttpServletRequest request, Integer pay_type,Float price) throws Exception {
         XJsonInfo ret = new XJsonInfo(false);
         SessionUser loginuser = sessionCache.getLoginUser();
         if(loginuser==null){
@@ -107,6 +107,9 @@ public class PayRechargeController {
             ret.setMsg("对不起，目前只能只能进行10、50、100 三种金额的充值");
             return ret;
         }
+
+        StringBuffer requrl = request.getRequestURL();
+        String tempContextUrl = requrl.delete(requrl.length() - request.getRequestURI().length(), requrl.length()).toString();
 
         //创建支付订单
         String url = pay_local_url+"/payapi/create";
@@ -143,7 +146,7 @@ public class PayRechargeController {
         if(retj.getInt("ret_code")==1){
             //创建支付订单成功,跳转到支付页
             ret.setSuccess(true);
-            ret.setData(pay_url+"/payapi/pay_page?pay_id="+retj.getString("pay_id")+"&nonce_str="+System.currentTimeMillis());
+            ret.setData(tempContextUrl+"/payapi/pay_page?pay_id="+retj.getString("pay_id")+"&nonce_str="+System.currentTimeMillis());
         }else{
             ret.setSuccess(false);
             ret.setMsg(retj.getString("ret_msg"));
@@ -158,7 +161,7 @@ public class PayRechargeController {
      * @throws Exception
      */
     @RequestMapping("/createtest")
-    public XJsonInfo createtest(Integer pay_type) throws Exception {
+    public XJsonInfo createtest(HttpServletRequest request, Integer pay_type) throws Exception {
         XJsonInfo ret = new XJsonInfo(false);
         String sessid = sessionCache.getCurrSessionId();
 
@@ -182,6 +185,9 @@ public class PayRechargeController {
             redis.set(c_key,orderid,60*2);
         }
 
+        StringBuffer requrl = request.getRequestURL();
+        String tempContextUrl = requrl.delete(requrl.length() - request.getRequestURI().length(), requrl.length()).toString();
+
 
         PayInput payi = new PayInput();
         payi.setUid(pay_uid);
@@ -200,7 +206,7 @@ public class PayRechargeController {
         if(retj.getInt("ret_code")==1){
             //创建支付订单成功,跳转到支付页
             ret.setSuccess(true);
-            ret.setData(pay_url+"/payapi/pay_page?pay_id="+retj.getString("pay_id")+"&nonce_str="+System.currentTimeMillis());
+            ret.setData(tempContextUrl+"/payapi/pay_page?pay_id="+retj.getString("pay_id")+"&nonce_str="+System.currentTimeMillis());
         }else{
             ret.setSuccess(false);
             ret.setMsg(retj.getString("ret_msg"));
