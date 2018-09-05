@@ -52,13 +52,14 @@
 	<h1 class="mod-title">
 		商品名称：${prod.prodName}
 		<br>
-		应付款：<font color="red" style="font-weight:bold">￥${prod.getProdPriceStr}元</font>
+		应付款：<font color="red" style="font-weight:bold">￥${prod.prodPriceStr}元</font>
 	</h1>
 
 	<div class="mod-ct">
-		<form id="myForm" name="myForm"  method="post" action="/payapi/submit_quick">
+		<form class="cmxform" id="myForm" name="myForm"  method="post" action="/payapi/submit_quick" >
 			<input type="hidden" name="prodid" id="prodid"    VALUE="${prod.rid}">
 			<input type="hidden" name="orderid" id="orderid"    VALUE="${orderid}">
+			<input type="hidden" name="pay_type" id="pay_type"    VALUE="1">
 			<#if prod.addressType == 1>
 			<div class="my-text"  >
 
@@ -102,6 +103,7 @@
         if(!validatestatus){
             return false;
         }
+        $('#pay_type').val(pay_type);
         $('#myForm').submit();
         return false;
     }
@@ -114,7 +116,7 @@
     }, "请正确填写您的手机号码");
 
     // 在键盘按下并释放及提交后验证提交表单
-    $("#regeditForm").validate({
+    $("#myForm").validate({
         rules: {
             userName:{
                 required: true,
