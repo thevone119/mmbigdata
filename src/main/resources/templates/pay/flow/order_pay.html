@@ -26,8 +26,9 @@
 	<h1 class="mod-title">
 		<#if ret.pay_type == 1>
 			<span class="ico_log ico-1"></span>
-			<#else>
-				<span class="ico_log ico-3"></span>
+		</#if>
+		<#if ret.pay_type == 2>
+			<span class="ico_log ico-3"></span>
 		</#if>
 	</h1>
 
@@ -72,7 +73,12 @@
 		<div class="tip">
 			<div class="ico-scan"></div>
 			<div class="tip-text">
-				<p id="showtext">打开支付宝 [扫一扫]</p>
+				<#if ret.pay_type == 1>
+					<p id="showtext">打开支付宝 [扫一扫]</p>
+				</#if>
+				<#if ret.pay_type == 2>
+					<p id="showtext">打开微信 [扫一扫]</p>
+				</#if>
 			</div>
 		</div>
 

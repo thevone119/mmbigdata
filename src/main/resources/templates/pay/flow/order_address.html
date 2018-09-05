@@ -50,37 +50,40 @@
 <body>
 <div class="body">
 	<h1 class="mod-title">
-		商品名称：测试商品
+		商品名称：${prod.prodName}
 		<br>
-		应付款：<font color="red" style="font-weight:bold">￥0.01元</font>
+		应付款：<font color="red" style="font-weight:bold">￥${prod.getProdPriceStr}元</font>
 	</h1>
 
 	<div class="mod-ct">
+		<form id="myForm" name="myForm"  method="post" action="/payapi/submit_quick">
+			<input type="hidden" name="prodid" id="prodid"    VALUE="${prod.rid}">
+			<input type="hidden" name="orderid" id="orderid"    VALUE="${orderid}">
+			<#if prod.addressType == 1>
+			<div class="my-text"  >
 
-		<div class="my-text"  >
-			<form class="cmxform" id="regeditForm" method="post" action="#" onsubmit="return false">
-				<div   style = "padding-top: 20px;">
-					<h4 style = "line-height: 25px;">收货人姓名：</h4>
-					<input type="text" name="userName" id="userName" class="form-control"  placeholder="请输入收货人姓名" VALUE="">
-				</div>
+					<div   style = "padding-top: 20px;">
+						<h4 style = "line-height: 25px;">收货人姓名：</h4>
+						<input type="text" name="userName" id="userName" class="form-control"  placeholder="请输入收货人姓名" VALUE="">
+					</div>
 
-				<div   style = "padding-top: 20px;">
-					<h4 style = "line-height: 25px;">联系手机号：</h4>
-					<input type="text" name="userPhone" id="userPhone" class="form-control" placeholder="请输入联系手机号" VALUE="">
-				</div>
-				<div   style = "padding-top: 20px;">
-					<h4 style = "line-height: 25px;">收货地址：</h4>
-					<input type="text" name="userAddress" id="userAddress" class="form-control" placeholder="请输入收货地址" VALUE="">
-				</div>
-			</form>
-		</div>
+					<div   style = "padding-top: 20px;">
+						<h4 style = "line-height: 25px;">联系手机号：</h4>
+						<input type="text" name="userPhone" id="userPhone" class="form-control" placeholder="请输入联系手机号" VALUE="">
+					</div>
+					<div   style = "padding-top: 20px;">
+						<h4 style = "line-height: 25px;">收货地址：</h4>
+						<input type="text" name="userAddress" id="userAddress" class="form-control" placeholder="请输入收货地址" VALUE="">
+					</div>
 
+			</div>
+			</#if>
 
-		<div style = "padding-top: 35px"><a href="#" id="paybut1" class="btn btn-primary" onclick="crearepay(1)">使用支付宝付款</a></div>
-		<div style = "padding-top: 20px"><a href="#" id="paybut2" class="btn btn-success" onclick="crearepay(2)">使用微信付款</a></div>
-		<div class="tip-text" style = "padding-top: 20px">
-		</div>
-
+			<div style = "padding-top: 35px"><a href="#" id="paybut1" class="btn btn-primary" onclick="crearepay(1)">使用支付宝付款</a></div>
+			<div style = "padding-top: 20px"><a href="#" id="paybut2" class="btn btn-success" onclick="crearepay(2)">使用微信付款</a></div>
+			<div class="tip-text" style = "padding-top: 20px">
+			</div>
+		</form>
 
 	</div>
 
@@ -95,33 +98,11 @@
      */
     function crearepay(pay_type){
         //判断输入框内容是否完整
-        var validatestatus = $('#regeditForm').valid();//与validate配合使用,必须先验证
+        var validatestatus = $('#myForm').valid();//与validate配合使用,必须先验证
         if(!validatestatus){
             return false;
         }
-        var loading1 = layer.load();
-        var post={
-            type: 'post', // 提交方式 get/post
-            url: '/api/sys/login/regeditbus', // 需要提交的 u
-            async:true,
-            cache:false,
-            dataType:'json',
-            success: function(data) {
-                layer.close(loading1);
-                if(data.success){
-                    layer.alert("注册成功,请登录");
-                    window.location.href="/pay/login.html";
-                }else{
-                    layer.alert(data.msg);
-                }
-            },
-            error:function(){
-                layer.close(loading1);
-                layer.alert("系统繁忙，请稍候再试");
-            }
-        }
-
-        $('#regeditForm').ajaxSubmit(post);
+        $('#myForm').submit();
         return false;
     }
 
