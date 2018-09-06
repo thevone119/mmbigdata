@@ -1,5 +1,6 @@
 package com.bingo.common.utility;
 
+import com.bingo.common.http.HttpReturn;
 import com.bingo.common.http.MyOkHttp;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
@@ -148,13 +149,12 @@ public class QRCodeUtils {
     public static Result getQRresultByWeb(byte[] imgbyte) {
         Result result = null;
         try {
-
             MyOkHttp req = new MyOkHttp();
             Map files = new HashMap<String,byte[]>();
             files.put("file",imgbyte);
-            String retstr = req.PostImage("https://www.sojson.com/qrcode/deqrByImages.shtml",null,files);
-            if(retstr!=null){
-                JSONObject json = new JSONObject(retstr);
+            HttpReturn ret = req.PostImage("https://www.sojson.com/qrcode/deqrByImages.shtml",null,files);
+            if(ret.code==200){
+                JSONObject json = new JSONObject(ret.body);
                 result = new Result(json.getString("txt"),null,null,null);
             }
             //System.out.println(retstr);
