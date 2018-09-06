@@ -58,7 +58,7 @@
 				<p>我们配置了一个小额支付的快捷商品，您可以用支付宝或微信扫码下面的二维码完成测试体验</p>
 
 				<p>
-					<img width="200px" src="/api/pay/payprod/prod_qr_img?prodid=testprod"/>
+					<img  id="idx_qr_img" width="200px" src=""/>
 				</p>
 			</div>
 		</div>
@@ -243,6 +243,13 @@
                 content: '/pay/index_help.html'
             });
         }
+
+
+        $().ready(function(){
+            var baseurl =  window.location.protocol+"//"+window.location.host;
+            var img_url = "http://mobile.qq.com/qrcode?url="+baseurl+"/payapi/create_quick?prodid=testprod";
+            $("#idx_qr_img").attr("src",img_url);
+        });
 
 
 
