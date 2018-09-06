@@ -1,14 +1,11 @@
 package com.bingo.common.filter;
 
 
-
-import com.alibaba.druid.support.json.JSONParser;
 import com.alibaba.fastjson.JSON;
 import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.XJsonInfo;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,43 +27,43 @@ import java.util.regex.Pattern;
  * Created by Administrator on 2018-06-26.
  */
 @Component
-public class URLInterceptor  extends HandlerInterceptorAdapter {
+public class URLInterceptor extends HandlerInterceptorAdapter {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private long currTime = 0;
 
     private static int currThread = 0;
-    private static Map<String,String> currThreadMap = new HashMap<String,String>();
-    private static final int  maxThread = 50;//最大允许并发线程数
+    private static Map<String, String> currThreadMap = new HashMap<String, String>();
+    private static final int maxThread = 50;//最大允许并发线程数
 
 
     @Resource
     private SessionCacheService sessionCache;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
-        currTime=System.currentTimeMillis();
-        HandlerMethod hm = (HandlerMethod)handler;
-        if(isbusy()){//系统繁忙，终止部分请求
-            if(XJsonInfo.class.getName().equals(hm.getMethod().getReturnType().getName())){
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        currTime = System.currentTimeMillis();
+        HandlerMethod hm = (HandlerMethod) handler;
+        if (isbusy()) {//系统繁忙，终止部分请求
+            if (XJsonInfo.class.getName().equals(hm.getMethod().getReturnType().getName())) {
                 response.setHeader("Content-type", "text/html;charset=UTF-8");
-                String retstr =  JSON.toJSONString(new XJsonInfo(false,"对不起，系统繁忙，请稍候再试.错误码0021"));
+                String retstr = JSON.toJSONString(new XJsonInfo(false, "对不起，系统繁忙，请稍候再试.错误码0021"));
                 response.getOutputStream().write(retstr.getBytes("utf-8"));
-            }else{
+            } else {
                 response.sendRedirect("/error/error.html");
             }
             return false;
         }
-        boolean ret = preHandleProxy(request,response,handler);
+        boolean ret = preHandleProxy(request, response, handler);
 
         String actionname = hm.getMethod().toString();
-        if(ret){
-            threadadd(actionname+currTime);
-        }else{
-            if(XJsonInfo.class.getName().equals(hm.getMethod().getReturnType().getName())){
+        if (ret) {
+            threadadd(actionname + currTime);
+        } else {
+            if (XJsonInfo.class.getName().equals(hm.getMethod().getReturnType().getName())) {
                 response.setHeader("Content-type", "text/html;charset=UTF-8");
-                String retstr =  JSON.toJSONString(new XJsonInfo(false,"对不起，您还没有登录，请登录后再进行操作."));
+                String retstr = JSON.toJSONString(new XJsonInfo(false, "对不起，您还没有登录，请登录后再进行操作."));
                 response.getOutputStream().write(retstr.getBytes("utf-8"));
-            }else{
+            } else {
                 //直接跳转到首页
                 response.sendRedirect("/");
             }
@@ -76,59 +73,60 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
 
     /**
      * 前置拦截处理
+     *
      * @param request
      * @param response
      * @param handler
      * @return
      * @throws Exception
      */
-    private boolean preHandleProxy(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
-        HandlerMethod hm = (HandlerMethod)handler;
-        String actionname = hm.getMethod().getDeclaringClass().getName()+"."+hm.getMethod().getName().toString();
+    private boolean preHandleProxy(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        HandlerMethod hm = (HandlerMethod) handler;
+        String actionname = hm.getMethod().getDeclaringClass().getName() + "." + hm.getMethod().getName().toString();
         //1.获取方法的注解
         ControllerFilter filter = hm.getMethodAnnotation(ControllerFilter.class);
         //2.如果方法上没有注解，则获取类上的注解
-        if(filter==null){
+        if (filter == null) {
             filter = hm.getBean().getClass().getAnnotation(ControllerFilter.class);
         }
         //3.如果方法和类上都没有注解，则直接返回
-        if(filter==null){
+        if (filter == null) {
             return true;
         }
         //4.获取登录用户
-        SessionUser user =(SessionUser)sessionCache.getLoginUser();
+        SessionUser user = (SessionUser) sessionCache.getLoginUser();
 
         //4.判断注解权限，判断是否登录
-        if(filter.LoginType()==ControllerType.LOGIN_TYPE_LOGIN){
-            if(user==null){
-                logger.info("当前用户没有权限访问此页面01"+actionname);
+        if (filter.LoginType() == ControllerType.LOGIN_TYPE_LOGIN) {
+            if (user == null) {
+                logger.info("当前用户没有权限访问此页面01" + actionname);
                 return false;
             }
         }
         //4.判断注解权限，判断是否管理员
-        if(filter.UserType()==ControllerType.USER_TYPE_ADMIN){
-            if(user==null||user.getUsertype()!=1){
-                logger.info("当前用户没有权限访问此页面02"+actionname);
+        if (filter.UserType() == ControllerType.USER_TYPE_ADMIN) {
+            if (user == null || user.getUsertype() != 1) {
+                logger.info("当前用户没有权限访问此页面02" + actionname);
                 return false;
             }
         }
         //4.判断注解权限，判断角色
-        if(filter.roles()!=null && filter.roles().length>0){
-            if(user==null){
-                logger.info("当前用户没有权限访问此页面031"+actionname);
+        if (filter.roles() != null && filter.roles().length > 0) {
+            if (user == null) {
+                logger.info("当前用户没有权限访问此页面031" + actionname);
                 return false;
             }
             boolean hasrole = false;
-            for(String role:filter.roles()){
-                for(String urole:user.getRolecodes()){
-                    if(role.equals(urole)){
+            for (String role : filter.roles()) {
+                for (String urole : user.getRolecodes()) {
+                    if (role.equals(urole)) {
                         hasrole = true;
                         break;
                     }
                 }
             }
-            if(!hasrole){
-                logger.info("当前用户没有权限访问此页面032"+actionname);
+            if (!hasrole) {
+                logger.info("当前用户没有权限访问此页面032" + actionname);
                 return false;
             }
         }
@@ -137,22 +135,22 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
     }
 
 
-    private static synchronized void threadadd(String key){
+    private static synchronized void threadadd(String key) {
         currThread++;
         currThreadMap.put(key, null);
     }
 
-    private static synchronized void threaddel(String key){
+    private static synchronized void threaddel(String key) {
         currThread--;
         currThreadMap.remove(key);
     }
 
-    private boolean isbusy(){
-        if(currThread>=maxThread){
-            logger.info("当前并发线程数(锁):"+currThread+currThreadMap.toString());
+    private boolean isbusy() {
+        if (currThread >= maxThread) {
+            logger.info("当前并发线程数(锁):" + currThread + currThreadMap.toString());
             return true;
         }
-        logger.info("当前并发线程数:"+currThread);
+        logger.info("当前并发线程数:" + currThread);
         return false;
     }
 
@@ -160,16 +158,15 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         //String param=request.getParameter(METHOD);
-        HandlerMethod hm = (HandlerMethod)handler;
+        HandlerMethod hm = (HandlerMethod) handler;
 
-        String actionname = hm.getMethod().getDeclaringClass().getName()+"."+hm.getMethod().getName().toString();
-        threaddel(actionname+currTime);
+        String actionname = hm.getMethod().getDeclaringClass().getName() + "." + hm.getMethod().getName().toString();
+        threaddel(actionname + currTime);
         //Runtime imp = Runtime.getRuntime();
         //String memory = ",maxMemory:"+imp.maxMemory()/1024/1024+"M,freeMemory:"+imp.freeMemory()/1024/1024+"M"+",userMemory:"+(imp.maxMemory()-imp.freeMemory())/1024/1024+"M";
         String memory = "";
-        logger.info("Action end:"+actionname+",usetime:"+(System.currentTimeMillis()-currTime)+memory);
+        logger.info("Action end:" + actionname + ",usetime:" + (System.currentTimeMillis() - currTime) + memory);
     }
-
 
 
     /**
