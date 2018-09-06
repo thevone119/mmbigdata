@@ -61,7 +61,7 @@
                     },
                     {
                         title: '商品价格',
-                        key: 'prodPrice'
+                        key: 'prodPriceStr'
                     },
                     {
                         title: '是否需要配送',
@@ -103,7 +103,7 @@
                                     },
                                      on: {
                                          click:function(){
-                                             vm.Imgview(params.row.prodId);
+                                             vm.Imgview(params.row.rid);
                                          }
                                      }
                                 }, '二维码'),
@@ -216,16 +216,19 @@
                     this.add();
                 }
             },
-            Imgview:function(prodId){//查看支付二维码
+            Imgview:function(rid){//查看支付二维码
+                var host = window.location.host;
+                var p_url="http://"+host+"/payapi/create_quick?prodid="+rid;
                 layer.open({
                     type: 2,
-                    title: '查看支付二维码',
+                    title: '查看快捷商品二维码',
                     maxmin: true,
                     shadeClose: true, //点击遮罩关闭层
                     area : ['400px' , '400px'],
-                    content: '/api/pay/payprod/qr_img_view?prodId='+prodId
+                    content: '/pay/work/qr_img_view_down.html?url='+p_url
                 });
             },
+
 
             remove:function(){
                 if(this.myform.selRows) {
