@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head.html" />
+	<script src="/pay/js/jquery.validate.min.js"></script>
+	<script src="/pay/js/messages_zh.min.js"></script>
+	<script src="/pay/js/jquery.form.js"></script>
+	<style>
+		input.error { border: 1px solid red; }
+		label.error {
+			padding-left: 16px;
+
+			padding-bottom: 2px;
+
+			font-weight: bold;
+
+			color: red;
+		}
+
+	</style>
+</head>
+
+<body>
+<#include "/pay/include/header.html" />
+
+	<!-------登陆------------->
+	<div class="banner_box">
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-4 pull-right">
+					<div class="logo_in">
+						<h2>留言与建议</h2>
+						<form class="cmxform" id="regeditForm" method="post" action="#" onsubmit="return false">
+						<ul>
+							<li>
+								<input id="username" name="username" type="text" class="form-control" placeholder="姓名/昵称" required/>
+							</li>
+							<li>
+								<input id="phone" name="phone" type="text" class="form-control" placeholder="联系电话，方便我们后续联系您" required/>
+							</li>
+
+							<li>
+								<textarea id="leaveMsg" name="leaveMsg"  rows="6" type="text" class="form-control" placeholder="请输入留言，建议内容" required></textarea>
+							</li>
+
+
+
+							<li>
+								<button class="btn btn-danger" onclick="savemsg()"> 留 言 </button>
+							</li>
+
+						</ul>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	
+	
+	
+	
+	
+<!---------footer-------------->
+<#include "/pay/include/footer.html" />
+<#include "/pay/include/hmt.html" />
+</body>
+<script>
+
+    jQuery.validator.addMethod("isMobile", function(value, element) {
+        var length = value.length;
+        var mobile = /^(13[0-9]{9})|(18[0-9]{9})|(14[0-9]{9})|(17[0-9]{9})|(15[0-9]{9})$/;
+        return this.optional(element) || (length == 11 && mobile.test(value));
+    }, "请正确填写您的手机号码");
+
+        /**
+		 * 注册
+         */
+		function savemsg(){
+			//判断输入框内容是否完整
+            var validatestatus = $('#regeditForm').valid();//与validate配合使用,必须先验证
+			if(!validatestatus){
+			    return false;
+			}
+            var loading1 = layer.load();
+			var post={
+                type: 'post', // 提交方式 get/post
+                url: '/api/pay/payleavemsg/save', // 需要提交的 u
+                async:true,
+                cache:false,
+                dataType:'json',
+                success: function(data) {
+                    layer.close(loading1);
+                    if(data.success){
+                        layer.alert("您的留言我们已收到，非常感谢你的留言建议，我们将会稍候整理留言信息，如有疑问可能会联系您咨询哦...",{icon: 6});
+					}else{
+                        layer.alert(data.msg);
+					}
+                },
+				error:function(){
+                    layer.close(loading1);
+                    layer.alert("系统繁忙，请稍候再试");
+				}
+			}
+
+            $('#regeditForm').ajaxSubmit(post);
+			return false;
+
+		}
+
+        // 在键盘按下并释放及提交后验证提交表单
+        $("#regeditForm").validate({
+            rules: {
+                username:{
+                    required: true
+                },
+                phone:{
+                    required: true,
+                    minlength : 11,
+                    isMobile : true
+                },
+                leaveMsg: {
+                    required: true,
+                    minlength: 10,
+                    maxlength:100
+                }
+            },
+            messages: {
+                username: {
+                    required: "请输入姓名/昵称",
+                },
+                phone: {
+                    required: "请输入您的联系电话",
+                    minlength: "联系电话请输入11位的手机号码哦",
+                    isMobile : "请正确填写联系人手机号码"
+                },
+                leaveMsg: {
+                    required: "请输入留言，建议内容",
+                    minlength: "留言，建议内容长度要在10-100之间",
+                    maxlength:"留言，建议内容长度要在10-100之间"
+                }
+            }
+        })
+	</script>
+</html>
