@@ -14,6 +14,7 @@
 	<i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="10">
 		<table id="sample-table-1" class="table table-striped table-bordered table-hover">
 			<tbody>
+			<!--
 			<tr height="35px">
 				<td width="15%">
 					商户uid:
@@ -28,6 +29,7 @@
 					{{myform.busAcc}}
 				</td>
 			</tr>
+			-->
 			<tr>
 				<td>
 					支付订单名称:
@@ -53,7 +55,7 @@
 					平台订单号:
 				</td>
 				<td>
-					{{myform.logId}}
+					{{myform.rid}}
 				</td>
 			</tr>
 			<tr>
@@ -114,6 +116,22 @@
 			</tr>
 			<tr>
 				<td>
+					收货人:
+				</td>
+				<td>
+					{{myform.userName}}
+					<br>
+					{{myform.userPhone}}
+				</td>
+				<td>
+					收货地址:
+				</td>
+				<td>
+					{{myform.userAddress}}
+				</td>
+			</tr>
+			<tr>
+				<td>
 					回调通知:
 				</td>
 				<td>
@@ -126,6 +144,7 @@
 					{{myform.notifyCount}}
 				</td>
 			</tr>
+
 			</tbody>
 		</table>
 
@@ -227,7 +246,7 @@
                 },
                 checkPay:function(){
 
-                    layer.confirm('此操作会将此订单手动设置为已收款状态，确认要进行此操作么?', function(){
+                    layer.confirm('此操作会将此订单手动设置为已收款状态，并且无法回退，确认要进行此操作么?', function(){
                         vm.myform.checkType=2;
                         $.ajax(
                             {
