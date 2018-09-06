@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>黑米支付-个人支付收款黑科技</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="keywords" content="个人网站支付;微信支付;支付宝支付收款;第四方支付平台" />
+	<meta name="description" content="专为个人收款而生的支付工具。为支付宝、微信支付的个人账户，提供即时到账收款API接口。安全可靠，费率低。">
+	<script src="/pay/js/jquery-1.9.1.min.js"></script>
+	<link href="/pay/css/bootstrap.css" rel="stylesheet" type="text/css" />
+	<link rel="icon" type="image/x-icon" href="/pay/images/favicon.ico">
+	<style>
+
+		.my-text {
+			vertical-align: middle;
+			font-size: 14px;width:100%;display: inline-block;text-align: center;
+		}
+
+	</style>
+</head>
+<!--二维码查看与下载-->
+<body>
+
+<div class="my-text" >
+	<img width="300px" id="img" src=""/>
+	<br>
+	<a id="a_img" href=""  class="btn btn-success" > 下载二维码 </a>
+</div>
+
+
+
+
+</body>
+
+<script>
+    function getPara(name) {
+        var r = new RegExp("(\\?|#|&)" + name + "=([^&#]*)(&|#|$)");
+        var m = location.href.match(r);
+        return (!m ? "" : m[2]);
+    }
+    var p_url=getPara("url");
+    var img_url = "http://mobile.qq.com/qrcode?url="+p_url;
+    var img_url_down = "/comm/down_qr_img?url="+p_url;
+    $("#img").attr("src",img_url);
+    $("#a_img").attr("href",img_url_down);
+
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
