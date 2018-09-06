@@ -9,6 +9,8 @@ import com.bingo.business.pay.service.PayProdImgService;
 import com.bingo.business.pay.service.PayService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.http.HttpReturn;
+import com.bingo.common.http.MyOkHttp;
 import com.bingo.common.http.MyRequests;
 import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.RedisCacheService;
@@ -138,11 +140,11 @@ public class PayRechargeController {
         payi.setPay_name("支付平台充值(￥"+price+"元)");
         payi.setPay_type(pay_type);
         payi.setPrice(price);
-        MyRequests req = new MyRequests();
-        String body = req.httpPost(url,payi.getPostData(pay_sign_key));
+        MyOkHttp req = new MyOkHttp();
+        HttpReturn httpret = req.post(url,payi.getPostData(pay_sign_key));
         //String body = response.body();
         //1.查询商户
-        JSONObject retj = new JSONObject(body);
+        JSONObject retj = new JSONObject(httpret.body);
         if(retj.getInt("ret_code")==1){
             //创建支付订单成功,跳转到支付页
             ret.setSuccess(true);
@@ -198,11 +200,12 @@ public class PayRechargeController {
         payi.setPay_name("测试支付(￥"+price+"元)");
         payi.setPay_type(pay_type);
         payi.setPrice(price);
-        MyRequests req = new MyRequests();
-        String body = req.httpPost(url,payi.getPostData(pay_sign_key));
+
+        MyOkHttp req = new MyOkHttp();
+        HttpReturn httpret = req.post(url,payi.getPostData(pay_sign_key));
         //String body = response.body();
         //1.查询商户
-        JSONObject retj = new JSONObject(body);
+        JSONObject retj = new JSONObject(httpret.body);
         if(retj.getInt("ret_code")==1){
             //创建支付订单成功,跳转到支付页
             ret.setSuccess(true);
@@ -261,11 +264,11 @@ public class PayRechargeController {
         payi.setUid(pay_uid);
         payi.setNonce_str(System.currentTimeMillis()+"");
         payi.setOrderid(orderid);
-        MyRequests req = new MyRequests();
 
-        String body = req.httpPost(url,payi.getPostData(pay_sign_key));
+        MyOkHttp req = new MyOkHttp();
+        HttpReturn httpret = req.post(url,payi.getPostData(pay_sign_key));
         //
-        JSONObject retj = new JSONObject(body);
+        JSONObject retj = new JSONObject(httpret.body);
         //查询订单成功
         if(retj.getInt("ret_code")==1){
             Integer pay_type = retj.getInt("pay_type");

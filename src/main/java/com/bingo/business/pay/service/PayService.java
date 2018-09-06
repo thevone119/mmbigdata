@@ -7,6 +7,8 @@ import com.bingo.business.pay.parameter.PayReturn;
 import com.bingo.business.pay.repository.*;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
+import com.bingo.common.http.HttpReturn;
+import com.bingo.common.http.MyOkHttp;
 import com.bingo.common.http.MyRequests;
 import com.bingo.common.thread.MyThreadPool;
 import com.bingo.common.utility.SecurityClass;
@@ -362,27 +364,27 @@ public class PayService {
             PayReturn pret = new PayReturn(paylog);
             pret.setRet_code(1);
             pret.setRet_msg("ok");
-            MyRequests req = new MyRequests();
-            String body = req.httpPost(url,pret.getPostData(bus.getSignKey()));
-
-            if(body!=null && body.indexOf("SUCCESS")!=-1){
+            //用okhttp发起请求
+            MyOkHttp req = new MyOkHttp();
+            HttpReturn httpret =  req.post(url,pret.getPostData(bus.getSignKey()));
+            if(httpret.code==200){
                 //通知成功
                 notify.setNotifyState(1);
-                notify.setNotifyResult("支付通知成功:"+body);
+                notify.setNotifyResult("支付通知成功:"+httpret.body);
                 notify.setNotifyEndTime(format.format(new Date()));
                 payLogNotifyRepository.saveOrUpdate(notify);
                 paylogRepository.executeByHql(uhql,new Object[]{1,paylog.getLogId()});
                 ret.setSuccess(true);
-                ret.setMsg("支付通知成功:"+body);
+                ret.setMsg("支付通知成功:"+httpret.body);
                 return ret;
             }else{
                 //通知失败
                 notify.setNotifyState(2);
-                notify.setNotifyResult("支付通知失败:"+body);
+                notify.setNotifyResult("支付通知失败:"+httpret.body);
                 notify.setNotifyEndTime(format.format(new Date()));
                 payLogNotifyRepository.saveOrUpdate(notify);
                 paylogRepository.executeByHql(uhql,new Object[]{2,paylog.getLogId()});
-                ret.setMsg("支付通知失败:"+body);
+                ret.setMsg("支付通知失败:"+httpret.body);
                 return ret;
             }
         }catch (Exception e){

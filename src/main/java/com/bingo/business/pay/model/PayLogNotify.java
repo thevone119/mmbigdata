@@ -121,8 +121,8 @@ public class PayLogNotify extends PageModel{
 	}
 	
 	public void setNotifyResult(String notifyResult){
-		if(notifyResult!=null && notifyResult.length()>128){
-			notifyResult = notifyResult.substring(0,128);
+		if(notifyResult!=null && notifyResult.length()>64){
+			notifyResult = notifyResult.substring(0,64);
 		}
 		this.notifyResult = notifyResult;
 	}

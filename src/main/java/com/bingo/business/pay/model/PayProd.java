@@ -1,6 +1,7 @@
 package com.bingo.business.pay.model;
 
 import com.bingo.common.model.PageModel;
+import com.bingo.common.utility.RandomUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
@@ -67,7 +68,7 @@ public class PayProd extends PageModel{
 	 */
 	public PayProd(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		this.rid= UUID.randomUUID().toString().replace("-", "").toLowerCase();
+		this.rid= RandomUtils.getRandomString(16);
 		this.createtime=format.format(new Date());
 	}
 

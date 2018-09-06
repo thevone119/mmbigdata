@@ -30,6 +30,8 @@ public class PayProdImgService {
 	@Resource
 	private PayProdImgRepository payProdImgRepository;
 
+
+
 	/**
 	 * @description: <保存对象>
 	 * @param:
@@ -75,7 +77,7 @@ public class PayProdImgService {
 		if(vo.getImgPrice()!=null && vo.getImgPrice()>0){
 			hql.append(" and imgPrice <= ? and imgPrice >= ? ");
 			fldValues.add(vo.getImgPrice());
-			fldValues.add(vo.getImgPrice()-0.1f);
+			fldValues.add(vo.getImgPrice()-0.5f);
 		}
 		if(vo.getUserId()!=null){
 			hql.append(" and userId = ?");
@@ -98,7 +100,7 @@ public class PayProdImgService {
 	 */
 	public List<PayProdImg> listByPrice(Long userId,Float imgPrice,Integer payType){
 		StringBuffer hql = new StringBuffer(" from PayProdImg where userId=? and  imgPrice <= ? and imgPrice >= ? and payType=? order by imgPrice desc");
-		return payProdImgRepository.query(hql.toString(),new Object[]{userId,imgPrice,imgPrice-0.1f,payType});
+		return payProdImgRepository.query(hql.toString(),new Object[]{userId,imgPrice,imgPrice-0.5f,payType});
 	}
 
 	/**
@@ -115,7 +117,7 @@ public class PayProdImgService {
 		//锁多一分钟
 		cal.add(Calendar.MINUTE,-payTimeOut-1);
 		String validtime = format.format(cal.getTime());
-		return payProdImgRepository.query(hql.toString(),new Object[]{userId,imgPrice,imgPrice-0.1f,payType,userId,validtime,payType});
+		return payProdImgRepository.query(hql.toString(),new Object[]{userId,imgPrice,imgPrice-0.5f,payType,userId,validtime,payType});
 	}
 
 	/**
