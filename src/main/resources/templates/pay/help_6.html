@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head.html" />
+</head>
+
+<body>
+<#include "/pay/include/header.html" />
+
+	<!---------------用户信息------------------>
+	<div class="container serve_box">
+		<div class="row">
+			<div class="col-xs-3">
+				<div class="serve_lf">
+					<ul>
+						<li>
+							<a href="help.html" >准备工作</a>
+						</li>
+						<li>
+							<a href="help_2.html">发起支付</a>
+						</li>
+						<li>
+							<a href="help_3.html">查询支付结果</a>
+						</li>
+						<li>
+							<a href="help_4.html">相关文档下载</a>
+						</li>
+						<li>
+							<a href="help_5.html" >签名算法</a>
+						</li>
+						<li>
+							<a href="help_6.html" class="ac_s">快捷商品</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-xs-9">
+				<div class="record_ron">
+					<div class="state">
+							<h4>1.快捷商品是不是必须的？</h4>
+							<p>快捷商品不是必须的，如果采用支付接口进行系统编码对接，则可不配置快捷商品。<p/>
+					</div>
+					<div class="state">
+						<h4>2.什么时候使用快捷商品，有什么用？</h4>
+						<p>快捷商品是针对不需要对接的场景，通过配置快捷商品，可以快速生成代码，直接复制代码到自己的网站中即可集成支付，不需要对接接口。<p/>
+					</div>
+					<div class="state">
+						<h4>3.使用快捷商品有什么好处，坏处？</h4>
+						<p>优点：快捷商品可以快速对接您的某个商品完成商品下单支付流程。<p/>
+						<p>缺点：快捷商品必须为每个商品单独配置快捷商品，同时对您商品的订单，支付页面等无法定制个性的内容。<p/>
+					</div>
+					<div class="state">
+						<h4>4.使用快捷商品，还需要配置收款码等信息么？</h4>
+						<p>需要的，快捷商品最终支付也是用您配置的收款码，也是需要安装APP等，只是支付接口代码对接完全在我们平台完成而已。<p/>
+						<p>但是好处是，不需要进行任何的编码对接，即可使用快捷商品完成下单，支付流程的哦。<p/>
+					</div>
+			</div>
+			
+		</div>
+	</div>
+	</div>
+
+<!---------footer-------------->
+		<#include "/pay/include/footer.html" />
+		<#include "/pay/include/hmt.html" />
+</body>
+</html>
