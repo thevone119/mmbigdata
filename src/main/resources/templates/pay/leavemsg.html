@@ -30,7 +30,7 @@
 				<div class="col-xs-4 pull-right">
 					<div class="logo_in">
 						<h2>留言与建议</h2>
-						<form class="cmxform" id="regeditForm" method="post" action="#" onsubmit="return false">
+						<form class="cmxform" id="myFrom" method="post" action="#" onsubmit="return false">
 						<ul>
 							<li>
 								<input id="username" name="username" type="text" class="form-control" placeholder="姓名/昵称" required/>
@@ -80,7 +80,7 @@
          */
 		function savemsg(){
 			//判断输入框内容是否完整
-            var validatestatus = $('#regeditForm').valid();//与validate配合使用,必须先验证
+            var validatestatus = $('#myFrom').valid();//与validate配合使用,必须先验证
 			if(!validatestatus){
 			    return false;
 			}
@@ -94,6 +94,7 @@
                 success: function(data) {
                     layer.close(loading1);
                     if(data.success){
+                        $('#leaveMsg').val("");
                         layer.alert("您的留言我们已收到，非常感谢你的留言建议，我们将会稍候整理留言信息，如有疑问可能会联系您咨询哦...",{icon: 6});
 					}else{
                         layer.alert(data.msg);
@@ -105,13 +106,13 @@
 				}
 			}
 
-            $('#regeditForm').ajaxSubmit(post);
+            $('#myFrom').ajaxSubmit(post);
 			return false;
 
 		}
 
         // 在键盘按下并释放及提交后验证提交表单
-        $("#regeditForm").validate({
+        $("#myFrom").validate({
             rules: {
                 username:{
                     required: true
