@@ -2,8 +2,13 @@ package com.bingo.common.filter;
 
 
 
+import com.alibaba.druid.support.json.JSONParser;
+import com.alibaba.fastjson.JSON;
 import com.bingo.common.model.SessionUser;
 import com.bingo.common.service.SessionCacheService;
+import com.bingo.common.utility.XJsonInfo;
+
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -27,7 +32,6 @@ import java.util.regex.Pattern;
 @Component
 public class URLInterceptor  extends HandlerInterceptorAdapter {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    private final static String METHOD="method";
     private long currTime = 0;
 
     private static int currThread = 0;
@@ -41,18 +45,31 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
         currTime=System.currentTimeMillis();
+        HandlerMethod hm = (HandlerMethod)handler;
         if(isbusy()){//系统繁忙，终止部分请求
-            response.sendRedirect("/error_busy.jsp");
+            if(XJsonInfo.class.getName().equals(hm.getMethod().getReturnType().getName())){
+                response.setHeader("Content-type", "text/html;charset=UTF-8");
+                String retstr =  JSON.toJSONString(new XJsonInfo(false,"对不起，系统繁忙，请稍候再试.错误码0021"));
+                response.getOutputStream().write(retstr.getBytes("utf-8"));
+            }else{
+                response.sendRedirect("/error/error.html");
+            }
             return false;
         }
         boolean ret = preHandleProxy(request,response,handler);
-        HandlerMethod hm = (HandlerMethod)handler;
+
         String actionname = hm.getMethod().toString();
         if(ret){
             threadadd(actionname+currTime);
         }else{
-            //直接跳转到首页
-            response.sendRedirect("/");
+            if(XJsonInfo.class.getName().equals(hm.getMethod().getReturnType().getName())){
+                response.setHeader("Content-type", "text/html;charset=UTF-8");
+                String retstr =  JSON.toJSONString(new XJsonInfo(false,"对不起，您还没有登录，请登录后再进行操作."));
+                response.getOutputStream().write(retstr.getBytes("utf-8"));
+            }else{
+                //直接跳转到首页
+                response.sendRedirect("/");
+            }
         }
         return ret;
     }
@@ -67,6 +84,7 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
      */
     private boolean preHandleProxy(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
         HandlerMethod hm = (HandlerMethod)handler;
+        String actionname = hm.getMethod().getDeclaringClass().getName()+"."+hm.getMethod().getName().toString();
         //1.获取方法的注解
         ControllerFilter filter = hm.getMethodAnnotation(ControllerFilter.class);
         //2.如果方法上没有注解，则获取类上的注解
@@ -83,21 +101,21 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
         //4.判断注解权限，判断是否登录
         if(filter.LoginType()==ControllerType.LOGIN_TYPE_LOGIN){
             if(user==null){
-                logger.info("当前用户没有权限访问此页面01");
+                logger.info("当前用户没有权限访问此页面01"+actionname);
                 return false;
             }
         }
         //4.判断注解权限，判断是否管理员
         if(filter.UserType()==ControllerType.USER_TYPE_ADMIN){
             if(user==null||user.getUsertype()!=1){
-                logger.info("当前用户没有权限访问此页面02");
+                logger.info("当前用户没有权限访问此页面02"+actionname);
                 return false;
             }
         }
         //4.判断注解权限，判断角色
         if(filter.roles()!=null && filter.roles().length>0){
             if(user==null){
-                logger.info("当前用户没有权限访问此页面031");
+                logger.info("当前用户没有权限访问此页面031"+actionname);
                 return false;
             }
             boolean hasrole = false;
@@ -110,7 +128,7 @@ public class URLInterceptor  extends HandlerInterceptorAdapter {
                 }
             }
             if(!hasrole){
-                logger.info("当前用户没有权限访问此页面032");
+                logger.info("当前用户没有权限访问此页面032"+actionname);
                 return false;
             }
         }
