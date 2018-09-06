@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+	<#include "/pay/include/head.html" />
+</head>
+
+<body>
+
+<div class="state" style="padding-left: 10px">
+	<h4>1.当前商品的快捷链接为: </h4>
+	<span id="p_url"></span>
+
+	<div  style="padding-top: 10px">复制以上链接，直接放到您的商品页面中作为支付链接即可集成快捷支付下单与支付流程。</div>
+
+	<div  style="padding-top: 10px">如果需要关联您的订单号，则后面加上&orderid=xxx的订单号参数即可。</div>
+	<div  style="padding-top: 10px">没有加订单号，我们默认会加上一个随机单号，后续支付成功通知也会带这个单号哦。</div>
+
+
+	<h4>2.什么时候需要加单号? </h4>
+	<div  style="padding-top: 5px">	您自己系统有订单号，并且需要后续关联，查询订单，回调通知等则需要加单号。</div>
+
+	<div  style="padding-top: 10px">	如果您的系统没有做订单，则可以不加单号，直接使用我们的订单即可。</div>
+
+
+
+</div>
+
+
+
+										
+
+
+</body>
+
+
+<script type="text/javascript">
+    function getPara(name) {
+        var r = new RegExp("(\\?|#|&)" + name + "=([^&#]*)(&|#|$)");
+        var m = location.href.match(r);
+        return (!m ? "" : m[2]);
+    }
+
+    $().ready(function(){
+        var prodid = getPara("prodid");
+        var baseurl =  window.location.protocol+"//"+window.location.host;
+        var p_url= baseurl+"/payapi/create_quick?prodid="+prodid;
+        $('#p_url').html(p_url);
+
+
+    });
+</script>
+<#include "/pay/include/hmt.html" />
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
