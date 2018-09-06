@@ -69,8 +69,9 @@ public class MyOkHttp {
      * @param url
      * @return
      */
-    public String get(String url){
+    public HttpReturn get(String url){
         //1.创建OkHttpClient对象
+        HttpReturn ret = new HttpReturn();
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
@@ -83,13 +84,14 @@ public class MyOkHttp {
         try {
             //同步调用,返回Response,会抛出IO异常
             Response response = call.execute();
-            if(response.code()==200){
-                return response.body().string();
+            ret.setCode(response.code());
+            if(response.body()!=null){
+                ret.setBody(response.body().string());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return ret;
     }
 
 
@@ -100,8 +102,9 @@ public class MyOkHttp {
      * @param postData
      * @return
      */
-    public String post(String url,Map<String,String> postData){
+    public HttpReturn post(String url,Map<String,String> postData){
         //1.创建OkHttpClient对象
+        HttpReturn ret = new HttpReturn();
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
@@ -123,15 +126,14 @@ public class MyOkHttp {
         try {
             //同步调用,返回Response,会抛出IO异常
             Response response = call.execute();
-            if(response.code()==200){
-                String rets = response.body().string();
-
-                return rets;
+            ret.setCode(response.code());
+            if(response.body()!=null){
+                ret.setBody(response.body().string());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return ret;
     }
 
     /**
@@ -140,8 +142,9 @@ public class MyOkHttp {
      * @param postData
      * @return
      */
-    public String PostFile(String url,Map<String,String> postData,Map<String,File> files){
+    public HttpReturn PostFile(String url,Map<String,String> postData,Map<String,File> files){
         //1.创建OkHttpClient对象
+        HttpReturn ret = new HttpReturn();
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
@@ -170,13 +173,14 @@ public class MyOkHttp {
         try {
             //同步调用,返回Response,会抛出IO异常
             Response response = call.execute();
-            if(response.code()==200){
-                return response.body().string();
+            ret.setCode(response.code());
+            if(response.body()!=null){
+                ret.setBody(response.body().string());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return ret;
     }
 
 
@@ -186,8 +190,9 @@ public class MyOkHttp {
      * @param postData
      * @return
      */
-    public String PostImage(String url,Map<String,String> postData,Map<String,byte[]> files){
+    public HttpReturn PostImage(String url,Map<String,String> postData,Map<String,byte[]> files){
         //1.创建OkHttpClient对象
+        HttpReturn ret = new HttpReturn();
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
@@ -216,13 +221,14 @@ public class MyOkHttp {
         try {
             //同步调用,返回Response,会抛出IO异常
             Response response = call.execute();
-            if(response.code()==200){
-                return response.body().string();
+            ret.setCode(response.code());
+            if(response.body()!=null){
+                ret.setBody(response.body().string());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return ret;
     }
 
     /**
