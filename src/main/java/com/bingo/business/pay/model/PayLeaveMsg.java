@@ -4,8 +4,10 @@ import com.bingo.common.model.PageModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author huangtw
@@ -17,8 +19,7 @@ import java.util.Date;
 public class PayLeaveMsg extends PageModel{
 
 	@Id
-	@TableGenerator(name="GENERATOR_ID",table="T_SYS_DB_GENERATOR",allocationSize=10) 
-    @GeneratedValue(strategy=GenerationType.TABLE, generator="GENERATOR_ID")
+	@GeneratedValue //相当于native  相当于mysql的表内自增)
 	@Column(name = "mid")
 	protected Long  mid;//mid
 	
@@ -49,7 +50,8 @@ public class PayLeaveMsg extends PageModel{
 	 * @return
 	 */
 	public PayLeaveMsg(){
-	
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		this.createtime=format.format(new Date());
 	}
 	
 	public void setMid(Long mid){

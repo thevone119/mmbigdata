@@ -158,7 +158,7 @@ public class MyRequests {
      * @return
      * @throws IOException
      */
-    public String httpPost(String url,Map<String,String> postData) throws IOException {
+    public String httpPost2(String url,Map<String,String> postData) throws IOException {
         String retstr = null;
         HttpPost httpPost = new HttpPost(url);
 
@@ -224,7 +224,7 @@ public class MyRequests {
         //req.proxyIp = "107.183.211.173";
         //req.proxyPort = 1080;
         //req.proxyType = "HTTP";
-        System.out.println(req.httpPost("http://localhost:8090/payapi/create2",null));
+        System.out.println(req.httpPost2("http://localhost:8090/payapi/create2",null));
 
 
     }
