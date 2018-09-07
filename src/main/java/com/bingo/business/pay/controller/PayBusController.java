@@ -14,6 +14,7 @@ import com.bingo.common.utility.QRCodeUtils;
 import com.bingo.common.utility.SecurityClass;
 import com.bingo.common.utility.XJsonInfo;
 import com.google.zxing.Result;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -45,7 +46,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/pay/paybus")
 public class PayBusController  {
-
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PayBusController.class);
 	@Resource
 	private SessionCacheService sessionCache;
 
@@ -121,6 +122,7 @@ public class PayBusController  {
 		ret.setSuccess(false);
 		if(acc==null || pwd==null || acc.length()<3 || pwd.length()<3){
 			ret.setMsg("参数错误，请重新输入1");
+
 			return ret;
 		}
 
