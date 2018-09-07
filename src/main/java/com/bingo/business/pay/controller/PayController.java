@@ -373,19 +373,18 @@ public class PayController {
                 log.setBusType(bus.getBusType());
                 log.setNotifyCount(0);
                 log.setNotifyState(0);
-                log.setOrderid(payin.getOrderid());
-
-                //返回地址
-                log.setReturnUrl(bus.getGobackUrl());
-                if(payin.getReturn_url()!=null && payin.getReturn_url().length()>5){
-                    log.setReturnUrl(payin.getReturn_url());
-                }
-                log.setProdPrice(payin.getPrice());
-                log.setUid(payin.getUid());
                 log.setPayState(0);
             }
 
             //不管新旧订单，这些内容都可以更改
+            log.setOrderid(payin.getOrderid());
+            //返回地址
+            log.setReturnUrl(bus.getGobackUrl());
+            if(payin.getReturn_url()!=null && payin.getReturn_url().length()>5){
+                log.setReturnUrl(payin.getReturn_url());
+            }
+            log.setProdPrice(payin.getPrice());
+            log.setUid(payin.getUid());
             log.setPayDemo(payin.getPay_demo());
             log.setPayExt1(payin.getPay_ext1());
             log.setPayExt2(payin.getPay_ext2());
