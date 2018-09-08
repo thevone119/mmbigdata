@@ -5,6 +5,7 @@ import okhttp3.*;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -76,6 +77,7 @@ public class MyOkHttp {
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+
                 .build();
         //2.创建Request对象，设置一个url地址（百度地址）,设置请求方式。
         Request request = new Request.Builder().url(url).method("GET",null).build();
@@ -109,6 +111,7 @@ public class MyOkHttp {
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+
                 .build();
         //2.通过new FormBody()调用build方法,创建一个RequestBody,可以用add添加键值对
         FormBody.Builder formb = new FormBody.Builder(Charset.forName(defaultCharset));
@@ -149,6 +152,7 @@ public class MyOkHttp {
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+
                 .build();
         //2.通过new FormBody()调用build方法,创建一个RequestBody,可以用add添加键值对
         MultipartBody.Builder formb =new MultipartBody.Builder().setType(MultipartBody.FORM);
@@ -197,6 +201,7 @@ public class MyOkHttp {
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+
                 .build();
         //2.通过new FormBody()调用build方法,创建一个RequestBody,可以用add添加键值对
         MultipartBody.Builder formb =new MultipartBody.Builder().setType(MultipartBody.FORM);
@@ -242,6 +247,7 @@ public class MyOkHttp {
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+
                 .build();
         //2.创建Request对象，设置一个url地址,设置请求方式。
         Request request = new Request.Builder().url(url).method("GET",null).build();
@@ -257,6 +263,17 @@ public class MyOkHttp {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void main(String args[]){
+
+        String url = "https://www.heimipay.com/comm/test_service";
+
+        Map<String,String> postData =new HashMap<String,String>();
+        postData.put("p","123");
+        postData.put("pwd","1234567");
+        HttpReturn ret = new MyOkHttp().post(url,postData);
+        System.out.println(ret.body);
     }
 
 }

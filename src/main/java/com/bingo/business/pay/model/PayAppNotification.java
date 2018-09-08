@@ -209,4 +209,18 @@ public class PayAppNotification  extends PageModel {
                 ", sign='" + sign + '\'' +
                 '}';
     }
+
+    public static void main(String args[]) throws IllegalAccessException {
+        PayAppNotification n = new PayAppNotification();
+        n.setId(4097);
+        n.setNkey("n_com.tencent.mm_4097_1536313901084");
+        n.setPackageName("com.tencent.mm");
+        n.setPostTime(1536313901084l);
+        n.setPostTimeService(1536313901191l);
+        n.setTitle("微信支付");
+        n.setText("[37条]微信支付: 微信支付收款0.05元");
+        n.setUid("662b292a41104fb28a0aa9507f22121d");
+        System.out.println(n.MarkSign());
+
+    }
 }

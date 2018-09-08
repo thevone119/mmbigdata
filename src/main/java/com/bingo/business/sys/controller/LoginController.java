@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
@@ -285,7 +286,7 @@ public class LoginController {
      */
     @ResponseBody
     @RequestMapping("/repwd_mail")
-    public XJsonInfo repwd_mail(HttpServletResponse response, HttpServletRequest request,String acc,String imgcode) throws ServiceException, DaoException {
+    public XJsonInfo repwd_mail(HttpServletResponse response, HttpServletRequest request,String acc,String imgcode) throws ServiceException, DaoException, MessagingException {
         XJsonInfo ret = new XJsonInfo(false);
         String sessid = sessionCache.getCurrSessionId();
         String code = (String)redis.get("RandomImg:"+sessid);
@@ -308,8 +309,10 @@ public class LoginController {
         String repwd_code= UUID.randomUUID().toString().replace("-", "").toLowerCase();
         //存入缓存中
         redis.set("repwd_code:"+loginuser.getUuid(),repwd_code,60);
+        StringBuffer requrl = request.getRequestURL();
+        String tempContextUrl = requrl.delete(requrl.length() - request.getRequestURI().length(), requrl.length()).toString();
         //发送email
-        String rurl = base_url+"/pay/repwd_2.html?uuid="+loginuser.getUuid()+"&repwd_code="+repwd_code;
+        String rurl = tempContextUrl+"/pay/repwd_2.html?uuid="+loginuser.getUuid()+"&repwd_code="+repwd_code;
         StringBuffer sendhtml = new StringBuffer();
         sendhtml.append("<h>请点击下列链接进行密码重置(链接1个小时内有效)<h><br>");
         sendhtml.append("<a href='");
@@ -318,7 +321,7 @@ public class LoginController {
         sendhtml.append("<br><br>也可以复制以下链接到浏览器中进行密码找回<br><br>");
         sendhtml.append(rurl);
 
-        mailService.sendMailHtml(loginuser.getEmail(),"找回密码",sendhtml.toString());
+        mailService.sendMailSSL(loginuser.getEmail(),"找回密码",sendhtml.toString());
 
         ret.setMsg("已发重设密码的链接发送到您的邮箱，请进入邮箱后重设密码（1小时内有效）");
         ret.setSuccess(true);

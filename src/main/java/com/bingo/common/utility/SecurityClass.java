@@ -10,6 +10,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -478,7 +479,11 @@ public class SecurityClass {
         MessageDigest dig;
         try {
             dig = MessageDigest.getInstance(type);
-            dig.update(str.getBytes());
+            try {
+                dig.update(str.getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             byte[] digest = dig.digest();
 
             String hex = asHex(digest);

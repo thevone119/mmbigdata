@@ -65,9 +65,12 @@ public class CommonController {
     public Map<String,String> test_service(String p,String app) throws Exception {
         Map<String,String> map = new HashMap<String,String>();
         map.put("p",p);
-        map.put("url",heimipayurl);
+        StringBuffer requrl = request.getRequestURL();
+        String tempContextUrl = requrl.delete(requrl.length() - request.getRequestURI().length(), requrl.length()).toString();
+
+        map.put("url",tempContextUrl);
         if(app!=null && app.equals("heimipay")){
-            map.put("url",heimipayurl);
+            map.put("url",tempContextUrl);
         }
         return map;
     }

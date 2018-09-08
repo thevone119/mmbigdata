@@ -34,7 +34,7 @@ public class MailService {
 
 
 
-    public void sendMail2(String mailto,String title,String textmsg){
+    public void sendMail(String mailto,String title,String textmsg){
         //建立邮件消息
         SimpleMailMessage mainMessage = new SimpleMailMessage();
         //发送者
@@ -67,6 +67,7 @@ public class MailService {
 
         //建立邮件消息
         MimeMessage  mainMessage = new MimeMessage(session);
+
         /**
         //发送者
         mainMessage.setFrom(new InternetAddress(mailfrom));
@@ -79,11 +80,12 @@ public class MailService {
         //发送的内容
         mainMessage.setText(textmsg);
         **/
-        MimeMessageHelper helper = new MimeMessageHelper(mainMessage, true);
+        MimeMessageHelper helper = new MimeMessageHelper(mainMessage, true,"UTF-8");
         helper.setFrom(mailfrom);
         helper.setTo(mailto);
         helper.setSubject(title);
         helper.setText(textmsg, true);
+
 
         Transport.send(mainMessage);
         //jms.send(mainMessage);
@@ -91,7 +93,7 @@ public class MailService {
 
 
 
-    public void sendMailHtml2(String mailto,String title,String html){
+    public void sendMailHtml(String mailto,String title,String html){
         MimeMessage message = null;
         try {
             message = jms.createMimeMessage();
