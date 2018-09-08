@@ -47,18 +47,18 @@
                 </li>
                 <li id="li_appset">
                     <a href="/pay/appset.html">
-                        <i class="icon iconfont">&#xe605;</i>
+                        <i class="icon iconfont">&#xe640;</i>
                         app设置
                     </a>
                 </li>
-                <!--
-                <li id="li_work" style="display:none;">
-                    <a href="/pay/record.html">
+
+                <li id="li_leavemsg" >
+                    <a href="/pay/leavemsg.html">
                         <i class="icon iconfont">&#xe66c;</i>
-                        商户管理平台
+                        留言与建议
                     </a>
                 </li>
-                -->
+
                 <div class="clear"></div>
             </ul>
             <div class="logoin pull-right" id="div_nouser" style="display:none;">
@@ -93,6 +93,8 @@
         $('#li_appset').attr({"class" : "ac"});
     }else if(url.indexOf("work")>0){
         $('#li_work').attr({"class" : "ac"});
+    }else if(url.indexOf("leavemsg")>0){
+        $('#li_leavemsg').attr({"class" : "ac"});
     }else{
         $('#li_index').attr({"class" : "ac"});
     }
