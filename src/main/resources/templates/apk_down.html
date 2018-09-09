@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Language" content="zh-cn">
+	<meta name="apple-mobile-web-app-capable" content="no"/>
+	<meta name="apple-touch-fullscreen" content="yes"/>
+	<meta name="format-detection" content="telephone=no,email=no"/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="white">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+	<meta http-equiv="Expires" content="0">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-control" content="no-cache">
+	<meta http-equiv="Cache" content="no-cache">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>安卓APP扫码下载</title>
+	<link href="/pay/css/pay1.css" rel="stylesheet" media="screen">
+	<script type="text/javascript" src="https://cdn.staticfile.org/jquery/1.11.1/jquery.min.js"></script>
+
+	<link rel="icon" type="image/x-icon" href="/pay/images/favicon.ico">
+	<style>
+		.mod-title2 {
+			line-height: 30px;
+			text-align: center;
+			border-bottom: 1px solid #ddd;
+			background: #fff;
+			font-size: 14px;
+		}
+
+		.my-text {
+			vertical-align: middle;
+			padding-top:15px;
+			font-size: 16px;width:80%;display: inline-block;text-align: left;
+		}
+
+		input.error { border: 1px solid red; }
+		label.error {
+			padding-left: 14px;
+			color: red;
+		}
+
+	</style>
+</head>
+
+<body>
+<div class="body">
+	<h1 class="mod-title">
+		安卓APP扫码下载
+	</h1>
+
+	<div class="mod-ct">
+		<div class="my-text">
+		</div>
+		<div class="my-text" id="msg1">请使用安卓手机的浏览器，百度APP等进行扫码下载,微信/支付宝APP不支持下载的哦</div>
+
+		<div class="my-text" id="msg2">欢迎使用黑米支付APP，请点击下面的链接进行下载安装，如果无法下载，请使用不同的手机浏览器试下</div>
+		<div class="tip-text">
+		</div>
+
+
+		<div class="tip-text">
+		</div>
+		<div class ="payweixinbtn" style = "padding-top: 35px" id="dwonapp"><a href="/heimipay.apk" class="btn btn-primary" >下载黑米支付APP</a></div>
+
+	</div>
+
+</div>
+
+<script>
+
+    function getWindowType(){
+        if (/MicroMessenger/.test(window.navigator.userAgent)) {
+            return 2;
+        } else if (/AlipayClient/.test(window.navigator.userAgent)) {
+            return 1;
+        }else{
+            return 3
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+    $().ready(function(){
+        if (getWindowType() == 3){
+            $("#dwonapp").show();
+            $("#msg2").show();
+            $("#msg1").hide();
+        }else{
+            $("#dwonapp").hide();
+            $("#msg2").hide();
+            $("#msg1").show();
+		}
+    });
+</script>
+
+
+<#include "/pay/include/hmt.html" />
+</body>
+</html>
