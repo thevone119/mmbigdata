@@ -630,7 +630,7 @@ public class PayController {
         }
         //创建支付订单
         PayInput input = new PayInput();
-        input.setPrice(prod.getProdPrice());
+        input.setPrice(prod.getProdPrice()+"");
         input.setPay_type(pay_type);
         input.setPay_name(prod.getProdName());
         input.setOrderid(orderid);

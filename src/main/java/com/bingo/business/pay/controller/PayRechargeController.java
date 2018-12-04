@@ -139,7 +139,7 @@ public class PayRechargeController {
         payi.setPay_ext2(price+"");
         payi.setPay_name("支付平台充值(￥"+price+"元)");
         payi.setPay_type(pay_type);
-        payi.setPrice(price);
+        payi.setPrice(price+"");
         payi.setReturn_url(tempContextUrl+"/api/pay/recharge/goback");
         MyOkHttp req = new MyOkHttp();
         HttpReturn httpret = req.post(url,payi.getPostData(pay_sign_key));
@@ -201,7 +201,7 @@ public class PayRechargeController {
         payi.setPay_ext2(price+"");
         payi.setPay_name("测试支付(￥"+price+"元)");
         payi.setPay_type(pay_type);
-        payi.setPrice(price);
+        payi.setPrice(price+"");
         payi.setReturn_url(tempContextUrl+"/api/pay/recharge/goback");
 
         MyOkHttp req = new MyOkHttp();

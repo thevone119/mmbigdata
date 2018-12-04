@@ -20,7 +20,7 @@ public class PayInput {
     private String uid;
     private String orderid;
     private String nonce_str;//随机字符串
-    private Float price;
+    private String price;//这个用字符串，避免传输的时候，有些人用10,有些人用10.0等不同格式的，照常签名的错误
     private String pay_ext1;
     private String pay_ext2;
     private Integer pay_type; //1：支付宝；2：微信支付
@@ -60,10 +60,11 @@ public class PayInput {
     }
 
     public Float getPrice() {
-        return price;
+
+        return new Float(price);
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
@@ -187,7 +188,7 @@ public class PayInput {
             stringA.append(kv+"&");
         }
         stringA.append("sign_key="+sign_key);
-
+        System.out.println(stringA.toString());
         //签名
         String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
         return _sign;
@@ -232,5 +233,20 @@ public class PayInput {
         String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
         kvmap.put("sign",_sign);
         return kvmap;
+    }
+
+
+    public static void main(String args[]) throws IllegalAccessException{
+        PayInput pay = new PayInput();
+        pay.setNonce_str("291794923930000001");
+        pay.setOrderid("291794923930000001");
+        pay.setPay_name("传奇充值");
+        pay.setPay_demo("传奇充值_1");
+        pay.setPay_type(1);
+        pay.setPrice("10");
+        pay.setUid("662b292a41104fb28a0aa9507f22121d");
+        System.out.println(pay.MarkSign("5df29ca6f8ee4c12a85e8037dd56675b"));
+        float f=10;
+        System.out.println("f:"+f);
     }
 }
