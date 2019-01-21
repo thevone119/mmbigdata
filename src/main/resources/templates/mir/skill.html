@@ -1,0 +1,1334 @@
+<!doctype html>
+<html>
+<head>
+
+	<#include "/mir/include/head.html" />
+
+</head>
+
+<body>
+<#include "/mir/include/header.html" />
+
+<!------------banner---------->
+<#include "/mir/include/banner.html" />
+
+<!-------主体------------->
+
+<div class="container">
+	<div class="title">
+		<h1>战士技能篇</h1>
+		<table id="sample-table-1" class="table table-striped table-bordered table-hover">
+			<thead>
+			<tr>
+				<th>技能图标</th>
+				<th>技能名称</th>
+				<th>技能等级</th>
+				<th>技能说明</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs07.png"/>
+				</td>
+				<td>
+					基本剑法
+				</td>
+				<td>
+					7级
+				</td>
+				<td>
+					提高自身的攻击命中率的初级剑法
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs15.png"/>
+				</td>
+				<td>
+					攻杀剑法
+				</td>
+				<td>
+					15级
+				</td>
+				<td>
+					攻击时有机率造成追加伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs18.png"/>
+				</td>
+				<td>
+					擒 龙 手
+				</td>
+				<td>
+					18级
+				</td>
+				<td>
+					麻痹怪物,并把它们拖向施法者
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs22.png"/>
+				</td>
+				<td>
+					刺杀剑法
+				</td>
+				<td>
+					22级
+				</td>
+				<td>
+					隔位施展剑气，无视隔位敌人的防御
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs26.png"/>
+				</td>
+				<td>
+					半月弯刀
+				</td>
+				<td>
+					26级
+				</td>
+				<td>
+					使用劲气可同时攻击半圈的敌人目标
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs30.png"/>
+				</td>
+				<td>
+					野蛮冲撞
+				</td>
+				<td>
+					30级
+				</td>
+				<td>
+					用肩膀把敌人撞开，撞到障碍物会对自己造成伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs32.png"/>
+				</td>
+				<td>
+					雷霆剑法
+				</td>
+				<td>
+					32级
+				</td>
+				<td>
+					造成多重伤害的剑法，有一定几率麻痹敌人
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs34.png"/>
+				</td>
+				<td>
+					空 破 斩
+				</td>
+				<td>
+					34级
+				</td>
+				<td>
+					刺出3道剑气，并无视目标防御
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs35.png"/>
+				</td>
+				<td>
+					烈火剑法
+				</td>
+				<td>
+					35级
+				</td>
+				<td>
+					召唤火精灵到武器上来增加伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs36.png"/>
+				</td>
+				<td>
+					狂 风 斩
+				</td>
+				<td>
+					36级
+				</td>
+				<td>
+					挥出2层劲气同时攻击周围的敌人目标
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs38.png"/>
+				</td>
+				<td>
+					狮 子 吼
+				</td>
+				<td>
+					38级
+				</td>
+				<td>
+					用强烈的吼叫使范围5x5的怪物暂时麻痹
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs40.png"/>
+				</td>
+				<td>
+					剑 气 爆
+				</td>
+				<td>
+					40级
+				</td>
+				<td>
+					提起内力,在一定之间内增加攻击
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs42.png"/>
+				</td>
+				<td>
+					血龙剑法
+				</td>
+				<td>
+					42级
+				</td>
+				<td>
+					使攻击加快的强力剑法
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs45.png"/>
+				</td>
+				<td>
+					金刚不坏
+				</td>
+				<td>
+					45级
+				</td>
+				<td>
+					大量提升自身双防，并提高抗性
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/zs48.png"/>
+				</td>
+				<td>
+					逐日剑法
+				</td>
+				<td>
+					48级
+				</td>
+				<td>
+					毁灭性中距离突击神技
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+
+
+	<div class="title">
+		<h1>法师技能篇</h1>
+		<table  class="table table-striped table-bordered table-hover">
+			<thead>
+			<tr>
+				<th>技能图标</th>
+				<th>技能名称</th>
+				<th>技能等级</th>
+				<th>技能说明</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs07.png"/>
+				</td>
+				<td>
+					火 球 术
+				</td>
+				<td>
+					7级
+				</td>
+				<td>
+					凝聚魔法发射一枚火球攻击目标
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs12.png"/>
+				</td>
+				<td>
+					抗拒火环
+				</td>
+				<td>
+					12级
+				</td>
+				<td>
+					将周围的人或者怪物弹开
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs13.png"/>
+				</td>
+				<td>
+					诱惑之光
+				</td>
+				<td>
+					13级
+				</td>
+				<td>
+					用于麻痹或迷惑怪物，也可以驯服怪物
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs15.png"/>
+				</td>
+				<td>
+					大 火 球
+				</td>
+				<td>
+					15级
+				</td>
+				<td>
+					凝聚魔力发射一枚大火球攻击目标
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs16.png"/>
+				</td>
+				<td>
+					地 狱 火
+				</td>
+				<td>
+					16级
+				</td>
+				<td>
+					向前挥出三火焰墙，使法术区域内的敌人受到伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs17.png"/>
+				</td>
+				<td>
+					雷 电 术
+				</td>
+				<td>
+					17级
+				</td>
+				<td>
+					从空中召唤一道雷电攻击敌人，对不死系有加成
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs19.png"/>
+				</td>
+				<td>
+					瞬息移动
+				</td>
+				<td>
+					19级
+				</td>
+				<td>
+					利用强大魔力打乱空间，从而达到随机传送目的的法术
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs22.png"/>
+				</td>
+				<td>
+					爆裂火焰
+				</td>
+				<td>
+					22级
+				</td>
+				<td>
+					产生高热的火焰，使法术区域内的敌人受到伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs24.png"/>
+				</td>
+				<td>
+					火  墙
+				</td>
+				<td>
+					24级
+				</td>
+				<td>
+					在地面上产生火焰，使踏入的敌人受到伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs26.png"/>
+				</td>
+				<td>
+					疾光电影
+				</td>
+				<td>
+					26级
+				</td>
+				<td>
+					积蓄一道闪电，使直线上所有敌人受到伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs30.png"/>
+				</td>
+				<td>
+					地狱雷光
+				</td>
+				<td>
+					30级
+				</td>
+				<td>
+					呼唤出一股强力的雷光风暴，伤害所有围在身边的敌人
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs31.png"/>
+				</td>
+				<td>
+					魔 法 盾
+				</td>
+				<td>
+					31级
+				</td>
+				<td>
+					使用自身魔力制造一个魔法盾减少施法者受到的伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs32.png"/>
+				</td>
+				<td>
+					圣 言 术
+				</td>
+				<td>
+					32级
+				</td>
+				<td>
+					有机率一击杀死不死系怪物
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs35.png"/>
+				</td>
+				<td>
+					冰 咆 哮
+				</td>
+				<td>
+					35级
+				</td>
+				<td>
+					召唤暴风雪伤害3*3范围的敌人
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs36.png"/>
+				</td>
+				<td>
+					灭 天 火
+				</td>
+				<td>
+					36级
+				</td>
+				<td>
+					召唤一个强烈的火柱来攻击敌人，对生物系有加成
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs38.png"/>
+				</td>
+				<td>
+					火龙气焰
+				</td>
+				<td>
+					38级
+				</td>
+				<td>
+					近身魔法，相当于高等级的地狱雷光，输出超高
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs40.png"/>
+				</td>
+				<td>
+					冰 焰 术
+				</td>
+				<td>
+					40级
+				</td>
+				<td>
+					通过制造冰柱来攻击正面敌人
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs42.png"/>
+				</td>
+				<td>
+					分 身 术
+				</td>
+				<td>
+					42级
+				</td>
+				<td>
+					产生与自己同样的幻影，幻影可以发动与自己同样技能攻击
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs45.png"/>
+				</td>
+				<td>
+					流星火雨
+				</td>
+				<td>
+					45级
+				</td>
+				<td>
+					猛烈的火雨从天而降，区域内的任何生物都将受到极大的伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs47.png"/>
+				</td>
+				<td>
+					天霜冰环
+				</td>
+				<td>
+					47级
+				</td>
+				<td>
+					通过从天而降的冰攻击5*5范围内的敌人
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/fs48.png"/>
+				</td>
+				<td>
+					深 延 术
+				</td>
+				<td>
+					48级
+				</td>
+				<td>
+					提升魔法,但同时也会加大法力消耗.
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="title">
+		<h1>道士技能篇</h1>
+		<table  class="table table-striped table-bordered table-hover">
+			<thead>
+			<tr>
+				<th>技能图标</th>
+				<th>技能名称</th>
+				<th>技能等级</th>
+				<th>技能说明</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds07.png"/>
+				</td>
+				<td>
+					治 愈 术
+				</td>
+				<td>
+					7级
+				</td>
+				<td>
+					释放精神之力恢复自己或者他人的生命值
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds09.png"/>
+				</td>
+				<td>
+					精神力战法
+				</td>
+				<td>
+					9级
+				</td>
+				<td>
+					通过与精神之力沟通，可以提高战斗时的命中率
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds14.png"/>
+				</td>
+				<td>
+					施 毒 术
+				</td>
+				<td>
+					14级
+				</td>
+				<td>
+					配合特殊药粉可以指定某个目标中毒
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds18.png"/>
+				</td>
+				<td>
+					灵魂火符
+				</td>
+				<td>
+					18级
+				</td>
+				<td>
+					将精神之力附着在护身符上，远程攻击目标
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds19.png"/>
+				</td>
+				<td>
+					召唤骷髅
+				</td>
+				<td>
+					19级
+				</td>
+				<td>
+					使用护身符召唤一只骷髅作为自己的随从
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds20.png"/>
+				</td>
+				<td>
+					隐 身 术
+				</td>
+				<td>
+					20级
+				</td>
+				<td>
+					在自身周围释放精神之力使怪物无法察觉你的存在
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds21.png"/>
+				</td>
+				<td>
+					集体隐身术
+				</td>
+				<td>
+					21级
+				</td>
+				<td>
+					大量释放精神之力，能够隐藏范围内的人
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds22.png"/>
+				</td>
+				<td>
+					幽 灵 盾
+				</td>
+				<td>
+					22级
+				</td>
+				<td>
+					使用护身符提高范围内非敌方的魔防
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds25.png"/>
+				</td>
+				<td>
+					神圣战甲术
+				</td>
+				<td>
+					25级
+				</td>
+				<td>
+					使用护身符提高范围内非敌方的防御
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds28.png"/>
+				</td>
+				<td>
+					困 魔 咒
+				</td>
+				<td>
+					28级
+				</td>
+				<td>
+					限制在咒语范围中的怪物移动
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds30.png"/>
+				</td>
+				<td>
+					气 功 波
+				</td>
+				<td>
+					30级
+				</td>
+				<td>
+					可以推开将比自己等级低的敌人
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds32.png"/>
+				</td>
+				<td>
+					群体治疗术
+				</td>
+				<td>
+					32级
+				</td>
+				<td>
+					恢复范围内所有玩家的生命值
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds35.png"/>
+				</td>
+				<td>
+					召唤神兽
+				</td>
+				<td>
+					35级
+				</td>
+				<td>
+					使用护身符召唤一只强大的神兽作为自己的随从
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds36.png"/>
+				</td>
+				<td>
+					瘟  疫
+				</td>
+				<td>
+					36级
+				</td>
+				<td>
+					消耗目标魔法值，并附带其他目标效果
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds38.png"/>
+				</td>
+				<td>
+					召唤月灵
+				</td>
+				<td>
+					38级
+				</td>
+				<td>
+					使用护身符召唤一只会使用闪电的月灵作为自己的随从
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds40.png"/>
+				</td>
+				<td>
+					无极真气
+				</td>
+				<td>
+					40级
+				</td>
+				<td>
+					大幅提升道术的上限，带来强大的杀伤力
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds42.png"/>
+				</td>
+				<td>
+					毒  云
+				</td>
+				<td>
+					42级
+				</td>
+				<td>
+					扔出的护身符会在目标区域造成一片毒云
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds45.png"/>
+				</td>
+				<td>
+					血 龙 水
+				</td>
+				<td>
+					45级
+				</td>
+				<td>
+					强化召唤的宠物属性
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds48.png"/>
+				</td>
+				<td>
+					阴阳法环
+				</td>
+				<td>
+					48级
+				</td>
+				<td>
+					受到攻击时有一定几率缓慢回血的技能
+				</td>
+			</tr>
+
+			</tbody>
+		</table>
+	</div>
+
+	<div class="title">
+		<h1>刺客技能篇</h1>
+		<table  class="table table-striped table-bordered table-hover">
+			<thead>
+			<tr>
+				<th>技能图标</th>
+				<th>技能名称</th>
+				<th>技能等级</th>
+				<th>技能说明</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck07.png"/>
+				</td>
+				<td>
+					基本刺术
+				</td>
+				<td>
+					7级
+				</td>
+				<td>
+					增加一定的命中和伤害的初级技能
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck15.png"/>
+				</td>
+				<td>
+					风 剑 术
+				</td>
+				<td>
+					15级
+				</td>
+				<td>
+					在一个攻击动作里快速砍出两刀
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck18.png"/>
+				</td>
+				<td>
+					灵魂陷阱
+				</td>
+				<td>
+					18级
+				</td>
+				<td>
+					设置隐藏陷阱，困住敌人使敌人暂时无法移动
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck20.png"/>
+				</td>
+				<td>
+					体 迅 风
+				</td>
+				<td>
+					20级
+				</td>
+				<td>
+					使用风的力量来增加攻击速度
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck22.png"/>
+				</td>
+				<td>
+					月 影 术
+				</td>
+				<td>
+					22级
+				</td>
+				<td>
+					可以暂时在敌人面前隐身行走的技能
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck25.png"/>
+				</td>
+				<td>
+					拔 刀 术
+				</td>
+				<td>
+					25级
+				</td>
+				<td>
+					攻击一个目标,并有一定几率令其立刻沉默且不可移动
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck27.png"/>
+				</td>
+				<td>
+					风 身 术
+				</td>
+				<td>
+					27级
+				</td>
+				<td>
+					使用风的力量来增加敏捷
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck33.png"/>
+				</td>
+				<td>
+					旋 风 击
+				</td>
+				<td>
+					33级
+				</td>
+				<td>
+					用旋风攻击敌人时，周围的敌人会被击退
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck34.png"/>
+				</td>
+				<td>
+					猛毒剑气
+				</td>
+				<td>
+					34级
+				</td>
+				<td>
+					通过召唤毒粉的能力，使敌人中毒
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck35.png"/>
+				</td>
+				<td>
+					炎 龙 波
+				</td>
+				<td>
+					35级
+				</td>
+				<td>
+					是用快速的刀法给敌人大量伤害的技能
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ds36.png"/>
+				</td>
+				<td>
+					鬼 灵 步
+				</td>
+				<td>
+					36级
+				</td>
+				<td>
+					瞬间移动到屏幕范围以内的位置
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck38.png"/>
+				</td>
+				<td>
+					真气调息
+				</td>
+				<td>
+					38级
+				</td>
+				<td>
+					运用佛法吸取目标的魔法值
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck40.png"/>
+				</td>
+				<td>
+					烈 火 身
+				</td>
+				<td>
+					40级
+				</td>
+				<td>
+					制造一个幻想，在自己隐身是攻击目标，死亡时爆炸
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck42.png"/>
+				</td>
+				<td>
+					轻 身 步
+				</td>
+				<td>
+					42级
+				</td>
+				<td>
+					使用风的力量来增加移动速度
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck45.png"/>
+				</td>
+				<td>
+					火镰狂舞
+				</td>
+				<td>
+					45级
+				</td>
+				<td>
+					爆发武器的力量攻击扇形范围内的敌人
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/ck48.png"/>
+				</td>
+				<td>
+					血 风 击
+				</td>
+				<td>
+					48级
+				</td>
+				<td>
+					一定几率暴击，并造成流血伤害
+				</td>
+			</tr>
+
+
+			</tbody>
+		</table>
+	</div>
+
+
+	<div class="title">
+		<h1>弓箭手技能篇</h1>
+		<table  class="table table-striped table-bordered table-hover">
+			<thead>
+			<tr>
+				<th>技能图标</th>
+				<th>技能名称</th>
+				<th>技能等级</th>
+				<th>技能说明</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs07.png"/>
+				</td>
+				<td>
+					基本箭法
+				</td>
+				<td>
+					7级
+				</td>
+				<td>
+					远距离造成伤害的初级箭法，距离越远伤害越高
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs09.png"/>
+				</td>
+				<td>
+					落日箭法
+				</td>
+				<td>
+					9级
+				</td>
+				<td>
+					远距离射击并造成额外伤害的箭法
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs15.png"/>
+				</td>
+				<td>
+					连珠箭法
+				</td>
+				<td>
+					15级
+				</td>
+				<td>
+					连续射出两支箭矢攻击目标
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs18.png"/>
+				</td>
+				<td>
+					烈火陷阱
+				</td>
+				<td>
+					18级
+				</td>
+				<td>
+					设置一个陷阱，到时自动爆炸
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs20.png"/>
+				</td>
+				<td>
+					弓箭精通
+				</td>
+				<td>
+					20级
+				</td>
+				<td>
+					射箭三种状态分别为全力、穿墙、团队
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs23.png"/>
+				</td>
+				<td>
+					爆裂箭法
+				</td>
+				<td>
+					23级
+				</td>
+				<td>
+					远距离射出一支火焰箭，到时候自动爆炸
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs26.png"/>
+				</td>
+				<td>
+					风 弹 步
+				</td>
+				<td>
+					26级
+				</td>
+				<td>
+					向后跳跃一定距离，级别越高距离越远
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs30.png"/>
+				</td>
+				<td>
+					天罗地网
+				</td>
+				<td>
+					30级
+				</td>
+				<td>
+					召唤一张网来困住目标，使之无法移动
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs34.png"/>
+				</td>
+				<td>
+					剧毒箭法
+				</td>
+				<td>
+					34级
+				</td>
+				<td>
+					远距离射击并使目标中毒
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs35.png"/>
+				</td>
+				<td>
+					冲击箭法
+				</td>
+				<td>
+					35级
+				</td>
+				<td>
+					远距离射击并能击退目标
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs36.png"/>
+				</td>
+				<td>
+					蛛 魔 阱
+				</td>
+				<td>
+					36级
+				</td>
+				<td>
+					召唤一只蜘蛛，吸取目标的生命值
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs38.png"/>
+				</td>
+				<td>
+					噬血箭法
+				</td>
+				<td>
+					38级
+				</td>
+				<td>
+					远距离射击并吸取目标的生命值
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs40.png"/>
+				</td>
+				<td>
+					痹 魔 阱
+				</td>
+				<td>
+					40级
+				</td>
+				<td>
+					召唤一只蛤蟆，攻击并有几率麻痹目标
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs42.png"/>
+				</td>
+				<td>
+					邪魔箭法
+				</td>
+				<td>
+					42级
+				</td>
+				<td>
+					带魔法的箭，可以使得噬血箭和剧毒箭的伤害
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs45.png"/>
+				</td>
+				<td>
+					蛇 柱 阱
+				</td>
+				<td>
+					45级
+				</td>
+				<td>
+					召唤一个图腾并强制目标攻击自己
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<img src="/mir/images/skill/gs48.png"/>
+				</td>
+				<td>
+					火龙箭法
+				</td>
+				<td>
+					48级
+				</td>
+				<td>
+					远距离射出一支魔法箭并产生范围爆炸
+				</td>
+			</tr>
+
+
+			</tbody>
+		</table>
+	</div>
+
+</div>
+
+
+
+<!---------footer-------------->
+<#include "/mir/include/footer.html" />
+<#include "/mir/include/hmt.html" />
+
+
+
+</body>
+</html>

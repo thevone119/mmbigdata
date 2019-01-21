@@ -1,0 +1,73 @@
+<div class="header">
+    <div class="container">
+        <div class="row header_box">
+            <a href="/mir/index.html"><img src="/mir/images/logo.png" class="pull-left logo" /></a>
+            <div class="pull-right call">
+                <ul>
+                    <li class="border_rt">
+                        <i class="icon iconfont"></i>
+                        游戏交流QQ群<br/>670847004
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="nav_box">
+        <div class="container warp">
+            <ul class="pull-left">
+                <li id="li_index">
+                    <a href="/mir/index.html">
+                        <i class="icon iconfont">&#xe606;</i>
+                        游戏介绍
+                    </a>
+                </li>
+                <li id="li_down">
+                    <a href="/mir/down.html">
+                        <i class="icon iconfont">&#xe634;</i>
+                        游戏下载
+                    </a>
+                </li>
+                <li id="li_skill">
+                    <a href="/mir/skill.html">
+                        <i class="icon iconfont">&#xe6cb;</i>
+                        职业技能
+                    </a>
+                </li>
+                <!--
+                <li id="li_news">
+                    <a href="/mir/news.html">
+                        <i class="icon iconfont">&#xe640;</i>
+                        游戏公告
+                    </a>
+                </li>
+                -->
+                <div class="clear"></div>
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var url = window.location.href;
+    if(url.indexOf("news")>0){
+        $('#li_news').attr({"class" : "ac"});
+    }else if(url.indexOf("skill")>0){
+        $('#li_skill').attr({"class" : "ac"});
+        //alert($('#li_serve'));
+    }else if(url.indexOf("down")>0){
+        $('#li_down').attr({"class" : "ac"});
+    }else{
+        $('#li_index').attr({"class" : "ac"});
+    }
+
+
+
+
+
+
+
+
+</script>
