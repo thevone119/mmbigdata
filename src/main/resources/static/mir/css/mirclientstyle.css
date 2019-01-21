@@ -1,0 +1,143 @@
+* {
+    font-family: "微软雅黑";
+}
+
+
+.Layers {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 610px;
+  height: 410px;
+  z-index: 6;
+}
+
+.Right_ContainerTOP {
+  position: absolute;
+  left: 378px;
+  top: 37px;
+  width: 200px;
+  height: 147px;
+  z-index: 4;
+}
+.Right_ContainerMIDDLE {
+  position: absolute;
+  left: 378px;
+  top: 164px;
+  width: 200px;
+  height: 139px;
+  z-index: 5;
+}
+.Right_ContainerBOTTOM {
+  position: absolute;
+  left: 378px;
+  top: 253px;
+  width: 200px;
+  height: 147px;
+  z-index: 4;
+}
+.Left_Container {
+  position: absolute;
+  left: 46px;
+  top: 70px;
+  width: 293px;
+  height: 294px;
+  z-index: 3;
+}
+
+.Left_Container .Updates {
+    max-height: 310px;
+    overflow: hidden;
+}
+
+.Backgound {
+     background-image: url("../images/Backgound02.png");
+     position: absolute;
+     left: 0px;
+     top: 0px;
+     width: 582px;
+     height: 410px;
+     /*repeat: no-repeat;*/
+     z-index: 2;
+ }
+
+h1 {
+	text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.45);
+	color: #FFFFFF;
+	font-size: 18px;
+    font-family: "微软雅黑";
+	}
+
+h2 {
+	text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.45);
+	color: #FFFFFF;
+	font-size: 16px;
+    font-family: "微软雅黑";
+}
+
+a {
+    color: #057AFB;
+    text-decoration:none;
+}
+
+a.flag {
+    color: #FFD800;
+    font-size: 12px;
+    float:right;
+    margin-top:-15px;
+    padding:0 15px 0 0;
+}
+
+ul li {
+    color: #FFFFFF;
+    font-family: "微软雅黑";
+    font-size: 14px;
+}
+
+.socials {
+    position:absolute;
+    bottom:10px;
+    right:10px;
+    z-index: 10;
+}
+.socials div {
+    width:32px;
+    height:32px;
+    float:left;
+    margin:0 3px;
+}
+
+.socials div:hover {
+    cursor:pointer;
+}
+
+
+h3 {
+	text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+	color: #232529;
+	font-size: 20px;
+    font-family: "微软雅黑";
+}
+
+h4 {
+     text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+     color: #232529;
+     font-size: 17px;
+     margin: 5px 0 10px 0;
+     font-family: "微软雅黑";
+ }
+
+p {
+	text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.10);
+	color: #FFFFFF;
+	font-size: 12px;
+    font-family: "微软雅黑";
+}
+
+p2 {
+	text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.10);
+	color: #232529;
+	font-size: 12px;
+    font-family: "微软雅黑";
+}
+
