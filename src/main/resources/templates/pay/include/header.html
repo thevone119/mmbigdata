@@ -82,7 +82,7 @@
 </div>
 
 <script type="text/javascript">
-    //选中设置
+
     var url = window.location.href;
     if(url.indexOf("help")>0){
         $('#li_help').attr({"class" : "ac"});
@@ -99,7 +99,7 @@
         $('#li_index').attr({"class" : "ac"});
     }
 
-    //注册与登录
+
     if(url.indexOf("enroll")>0){
         $('#a_enroll').attr({"class" : "ac"});
         $('#a_login').attr({"class" : ""});
@@ -107,7 +107,7 @@
         $('#a_login').attr({"class" : "ac"});
     }
 
-    //登录判断
+
     var is_login = false;
     function getUser_islogin(){
         var cookie_login = $.cookie("user_is_login");
@@ -125,8 +125,8 @@
     function get_service_login(){
         $.ajax(
             {
-                type: 'post', // 提交方式 get/post
-                url: '/api/sys/login/getLoginUser', // 需要提交的 u
+                type: 'post',
+                url: '/api/sys/login/getLoginUser',
                 async:true,
                 cache:false,
                 dataType:'json',
@@ -142,7 +142,6 @@
                 }
             });
     }
-
 
     getUser_islogin();
     if(is_login){

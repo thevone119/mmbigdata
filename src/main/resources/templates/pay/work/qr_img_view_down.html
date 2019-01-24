@@ -39,7 +39,7 @@
         return (!m ? "" : m[2]);
     }
     var p_url=getPara("url");
-    var img_url = "http://mobile.qq.com/qrcode?url="+p_url;
+    var img_url = "/comm/qr_img_view?url="+p_url;
     var img_url_down = "/comm/down_qr_img?url="+p_url;
     $("#img").attr("src",img_url);
     $("#a_img").attr("href",img_url_down);
