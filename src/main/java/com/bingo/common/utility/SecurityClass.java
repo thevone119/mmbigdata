@@ -496,7 +496,7 @@ public class SecurityClass {
 
 
     public static void main(String args[]){
-        System.out.println(encryptMD5("Gmcc12#$"));
+        System.out.println(encryptMD5("nonce_str=291794923930000001&orderid=291794923930000001&pay_demo=传奇充值_1&pay_name=传奇充值&pay_type=1&price=10&uid=662b292a41104fb28a0aa9507f22121d"));
     }
 
 }

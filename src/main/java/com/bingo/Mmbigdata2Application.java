@@ -4,6 +4,7 @@ import com.bingo.business.taobao.model.TBShop;
 import com.bingo.business.taobao.service.TBShopService;
 import com.bingo.common.exception.ServiceException;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 
 @SpringBootApplication
+@EnableAutoConfiguration
 public class Mmbigdata2Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Mmbigdata2Application.class, args);

@@ -1,8 +1,12 @@
 package com.bingo.action;
 
+import com.bingo.business.pay.model.PayBus;
 import com.bingo.business.pay.parameter.PayInput;
 import com.bingo.business.pay.parameter.PayReturn;
+import com.bingo.common.exception.DaoException;
+import com.bingo.common.filter.ControllerFilter;
 import com.bingo.common.model.ReturnObject;
+import com.bingo.common.model.SessionUser;
 import com.bingo.common.utility.PubClass;
 import com.bingo.common.utility.QRCodeUtils;
 import com.bingo.common.utility.XJsonInfo;
@@ -18,6 +22,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -95,6 +101,38 @@ public class CommonController {
         QRCodeUtils.createQRcode(url,out);
         out.flush();
         out.close();
+    }
+
+    /**
+     * 直接查看二维码
+     * @param request
+     * @param response
+     * @throws IOException
+     * @throws DaoException
+     */
+    @ControllerFilter(LoginType = 1,UserType = 0)
+    @RequestMapping("/qr_img_view")
+    public void qr_img_view(HttpServletRequest request, HttpServletResponse response,String url) throws IOException, DaoException {
+
+        OutputStream out = null;
+        InputStream in = null;
+        try{
+            if(url==null||url.length()>255){
+                return;
+            }
+            out = response.getOutputStream();
+            QRCodeUtils.createQRcode(url,out);
+            out.flush();
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            try{
+                if(in!=null) in.close();
+            }catch(Exception e){}
+            try{
+                if(out!=null) out.close();
+            }catch(Exception e){}
+        }
     }
 
 

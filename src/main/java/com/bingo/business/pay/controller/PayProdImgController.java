@@ -177,10 +177,10 @@ public class PayProdImgController {
 			return ret;
 		}
 
-		if(vo.getImgContent().indexOf(".ALIPAY.")!=-1){
+		if(vo.getImgContent().toUpperCase().indexOf(".ALIPAY.")!=-1){
 			vo.setPayType(1);
 		}
-		if(vo.getImgContent().indexOf("wxp:")!=-1){
+		if(vo.getImgContent().toLowerCase().indexOf("wxp:")!=-1){
 			vo.setPayType(2);
 		}
 		PayProdImg _img = payProdImgService.findByPriceAndType(vo.getUserId(),vo.getImgPrice(),vo.getPayType());
