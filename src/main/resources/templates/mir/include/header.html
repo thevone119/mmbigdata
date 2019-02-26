@@ -34,14 +34,14 @@
                         职业技能
                     </a>
                 </li>
-                <!--
+
                 <li id="li_news">
                     <a href="/mir/news.html">
                         <i class="icon iconfont">&#xe640;</i>
                         游戏公告
                     </a>
                 </li>
-                -->
+
                 <div class="clear"></div>
             </ul>
 
@@ -59,6 +59,8 @@
         //alert($('#li_serve'));
     }else if(url.indexOf("down")>0){
         $('#li_down').attr({"class" : "ac"});
+    }else if(url.indexOf("news")>0){
+        $('#li_news').attr({"class" : "ac"});
     }else{
         $('#li_index').attr({"class" : "ac"});
     }
