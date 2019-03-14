@@ -247,7 +247,7 @@
 
         $().ready(function(){
             var baseurl =  window.location.protocol+"//"+window.location.host;
-            var img_url = "http://mobile.qq.com/qrcode?url="+baseurl+"/payapi/create_quick?prodid=testprod";
+            var img_url = "/comm/down_qr_img?url="+baseurl+"/payapi/create_quick?prodid=testprod";
             $("#idx_qr_img").attr("src",img_url);
         });
 

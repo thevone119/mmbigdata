@@ -41,7 +41,7 @@
 			<div data-role="qrPayImg" class="qrcode-img-area">
 				<div class="ui-loading qrcode-loading" data-role="qrPayImgLoading" style="display: none;"></div>
 				<div style="position: relative;display: inline-block;">
-					<img  id="show_qrcode" width="300" height="210" src="http://mobile.qq.com/qrcode?url=${ret.qrcode}" style="display: block;">
+					<img  id="show_qrcode" width="300" height="210" src="/comm/down_qr_img?url=${ret.qrcode}" style="display: block;">
 					<#if ret.pay_type == 1>
 						<img onclick="$('#use').hide()" id="use" src="/pay/images/logo_alipay.png" style="position: absolute;top: 50%;left: 50%;width:32px;height:32px;margin-left: -16px;margin-top: -20px">
 						<#else>
@@ -54,7 +54,7 @@
 
 
 		</div>
-		<div class ="payweixinbtn" style = "display: none;"><a href="http://mobile.qq.com/qrcode?url=${ret.qrcode}" target="_blank" id="downloadbtn" class="btn btn-primary">1.先保存二维码到手机</a></div>
+		<div class ="payweixinbtn" style = "display: none;"><a href="/comm/down_qr_img?url=${ret.qrcode}" target="_blank" id="downloadbtn" class="btn btn-primary">1.先保存二维码到手机</a></div>
 
 		<div class ="payweixinbtn" style = "display: none;padding-top: 10px"><a href="weixin://" class="btn btn-primary">2.打开微信，扫一扫本地图片</a></div>
 
@@ -102,7 +102,7 @@
 
     var myTimer;
     var strcode = '${ret.qrcode}';
-    var codeurl = 'http://mobile.qq.com/qrcode?url=${ret.qrcode}';
+    var codeurl = '/comm/down_qr_img/qrcode?url=${ret.qrcode}';
     //跳转回商家的页面地址
 	var backurl = '${ret.return_url}';
 	//支付二维码类型 1：非定额  2：定额
