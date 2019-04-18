@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <#include "/pay/include/head_view.html" />
+</head>
+<body>
+<div id="app">
+    <i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="120">
+        <Form-item label="子账户" prop="subaccount">
+            <i-input v-model="myform.subaccount"  placeholder="请输入"></i-input>
+        </Form-item>
+
+        <Form-item label="类型" prop="payType">
+            <i-select v-model="myform.payType" :value="myform.payType">
+                <i-option value=1>支付宝</i-option>
+                <i-option value="2">微信</i-option>
+                <i-option value="3">银联</i-option>
+            </i-select>
+        </Form-item>
+
+        <Form-item label="状态" prop="state">
+            <i-switch v-model="myform.state" size="large" :true-value="1" :false-value="0">
+                <span slot="open">有效</span>
+                <span slot="close">无效</span>
+            </i-switch>
+        </Form-item>
+    </i-form>
+    <div>
+        <i-button type="info" icon="shuffle" @click="save"  long> 保 存  </i-button>
+    </div>
+</div>
+<script>
+
+
+    const urls = {
+        query:'/api/pay/paysubaccount/query'
+        ,save:'/api/pay/paysubaccount/save'
+    };
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+                myform: {
+                    isState:true,
+                    state: 1,
+                    payType:'1',
+                    sid:null//主键
+                },
+                ruleValidate: {
+                    subAccount: [
+                        { required: true, message: '请输入子账户', trigger: 'blur' },
+                    ]
+                }
+        },
+        created:function(){
+            if (this.getPara('sid')) {
+                this.myform.sid = this.getPara('sid');
+                this.loadData();
+            }
+        },
+        methods: {
+            loadData:function(){
+                $.ajax(
+                    {
+                        type: 'post', // 提交方式 get/post
+                        url:urls.query, // 需要提交的 u
+                        async:true,
+                        cache:false,
+                        dataType:'json',
+                        data:this.myform,
+                        success: function(ret){
+                            if(ret.success){
+                                vm.myform = ret.data;
+                                if(vm.myform.payType!=null){
+                                    vm.myform.payType = vm.myform.payType+"";
+                                }
+                            }
+                        },
+                        error:function(){
+                            //layer.alert("系统错误，请稍候再试");
+                        }
+                    });
+            },
+            getPara:function(name) {
+                var r = new RegExp("(\\?|#|&)" + name + "=([^&#]*)(&|#|$)");
+                var m = location.href.match(r);
+                return (!m ? "" : m[2]);
+            },
+            save:function() {
+                this.$refs['myForm'].validate(function(valid) {
+                    if (valid) {
+                        $.ajax(
+                            {
+                                type: 'post', // 提交方式 get/post
+                                url:urls.save, // 需要提交的 u
+                                async:true,
+                                cache:false,
+                                dataType:'json',
+                                data:vm.myform,
+                                success: function(ret){
+                                    if(ret.success){
+                                        parent.layer.msg('保存成功');
+                                        var i = parent.layer.getFrameIndex(window.name);
+                                        parent.layer.close(i);
+                                        //parent.layer.
+                                    }
+                                },
+                                error:function(){
+                                    //layer.alert("系统错误，请稍候再试");
+                                }
+                            });
+                    }
+                })
+            }
+        }
+    });
+
+
+    function save() {
+        vm.save();
+    }
+
+</script>
+
+<#include "/pay/include/hmt.html" />
+</body>
+</html>

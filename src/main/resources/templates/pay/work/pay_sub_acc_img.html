@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <#include "/pay/include/head_view.html" />
+</head>
+<body>
+<div id="app">
+    <i-form ref="myForm" :model="myform" :rules="ruleValidate" :label-width="120">
+        <Form-item label="当前子账户" prop="subaccount">
+            {{myform.subaccount}}
+        </Form-item>
+
+
+        <Form-item label="通码" >
+            <img width="150px" height="150px"  id="img2" src=""/>
+            <br/>
+
+            <input type="file" id="file1" /><br />
+
+            <i-Button type="success" icon="ios-cloud-upload-outline" @click="uploadimg">上传通码</i-Button>
+
+        </Form-item>
+
+
+    </i-form>
+    <div>
+
+    </div>
+</div>
+<script>
+
+    $(function () {
+        $("#upload").click(function () {
+
+        });
+    });
+
+    const urls = {
+        query:'/api/pay/paysubaccount/query'
+        ,save:'/api/pay/paysubaccount/save'
+    };
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+                myform: {
+                    isState:true,
+                    state: 1,
+                    payType:'1',
+                    sid:null//主键
+                },
+                ruleValidate: {
+                    subAccount: [
+                        { required: true, message: '请输入子账户', trigger: 'blur' },
+                    ]
+                }
+        },
+        created:function(){
+            if (this.getPara('sid')) {
+                this.myform.sid = this.getPara('sid');
+                this.loadData();
+            }
+        },
+        methods: {
+            loadData:function(){
+                $.ajax(
+                    {
+                        type: 'post', // 提交方式 get/post
+                        url:urls.query, // 需要提交的 u
+                        async:true,
+                        cache:false,
+                        dataType:'json',
+                        data:this.myform,
+                        success: function(ret){
+                            if(ret.success){
+                                vm.myform = ret.data;
+                                if(vm.myform.payType!=null){
+                                    vm.myform.payType = vm.myform.payType+"";
+                                }
+                                if(vm.myform.payImgContent!=null && vm.myform.payImgContent.length>2){
+                                    document.getElementById("img2").src = "/comm/qr_img_view?url="+vm.myform.payImgContent;
+                                }
+                            }
+                        },
+                        error:function(){
+                            //layer.alert("系统错误，请稍候再试");
+                        }
+                    });
+            },
+            getPara:function(name) {
+                var r = new RegExp("(\\?|#|&)" + name + "=([^&#]*)(&|#|$)");
+                var m = location.href.match(r);
+                return (!m ? "" : m[2]);
+            },
+            uploadimg:function() {
+                var formData = new FormData();
+
+                formData.append("uploadfile", document.getElementById("file1").files[0]);
+                $.ajax({
+                    url: "/api/pay/paysubaccount/upload_qr_img?sid="+vm.myform.sid,
+                    type: "POST",
+                    data: formData,
+                    /**
+                     *必须false才会自动加上正确的Content-Type
+                     */
+                    contentType: false,
+                    /**
+                     * 必须false才会避开jQuery对 formdata 的默认处理
+                     * XMLHttpRequest会对 formdata 进行正确的处理
+                     */
+                    processData: false,
+                    success: function (ret) {
+                        if(ret.success){
+                            parent.layer.msg('上传成功');
+                            var i = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(i);
+                        }
+                    },
+                    error: function () {
+                        parent.layer.msg('上传失败');
+                    }
+                });
+            },
+
+            save:function() {
+                this.$refs['myForm'].validate(function(valid) {
+                    if (valid) {
+                        $.ajax(
+                            {
+                                type: 'post', // 提交方式 get/post
+                                url:urls.save, // 需要提交的 u
+                                async:true,
+                                cache:false,
+                                dataType:'json',
+                                data:vm.myform,
+                                success: function(ret){
+                                    if(ret.success){
+                                        parent.layer.msg('保存成功');
+                                        var i = parent.layer.getFrameIndex(window.name);
+                                        parent.layer.close(i);
+                                        //parent.layer.
+                                    }
+                                },
+                                error:function(){
+                                    //layer.alert("系统错误，请稍候再试");
+                                }
+                            });
+                    }
+                })
+            }
+        }
+    });
+
+
+    function save() {
+        vm.save();
+    }
+
+</script>
+
+<#include "/pay/include/hmt.html" />
+</body>
+</html>
