@@ -1,6 +1,5 @@
 package com.bingo.action;
 
-import com.bingo.business.pay.model.PayBus;
 import com.bingo.business.pay.parameter.PayInput;
 import com.bingo.business.pay.parameter.PayReturn;
 import com.bingo.common.exception.DaoException;
@@ -110,10 +109,8 @@ public class CommonController {
      * @throws IOException
      * @throws DaoException
      */
-    @ControllerFilter(LoginType = 1,UserType = 0)
     @RequestMapping("/qr_img_view")
     public void qr_img_view(HttpServletRequest request, HttpServletResponse response,String url) throws IOException, DaoException {
-
         OutputStream out = null;
         InputStream in = null;
         try{

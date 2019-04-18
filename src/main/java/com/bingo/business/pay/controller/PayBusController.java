@@ -41,7 +41,7 @@ import java.util.List;
 /**
  * @author huangtw
  * 2018-07-09 09:33:38
- * 对象功能:  Controller管理
+ * 对象功能:  支付商户管理 Controller管理
  */
 @RestController
 @RequestMapping("/api/pay/paybus")
@@ -51,8 +51,6 @@ public class PayBusController  {
 	private SessionCacheService sessionCache;
 
 
-	@Resource
-	private PayBusService paybusService;
 
 	@Resource
 	private PayService payService;
@@ -81,14 +79,21 @@ public class PayBusController  {
 	@ControllerFilter(LoginType = 1,UserType = 0)
 	@ResponseBody
 	@RequestMapping("/saveCurrBus")
-	public XJsonInfo saveCurrBus(PayBus vo) throws ServiceException, DaoException {
+	public XJsonInfo saveCurrBus(SysUser vo) throws ServiceException, DaoException {
 		//权限控制，只能保存自己的
 		SessionUser loginuser = sessionCache.getLoginUser();
-		PayBus bus = paybusService.get(loginuser.getUserid());
-		bus.setGobackUrl(vo.getGobackUrl());
-		bus.setNotifyUrl(vo.getNotifyUrl());
-		bus.setAutoReFee(vo.getAutoReFee());
-		paybusService.saveOrUpdate(bus);
+		SysUser user = sysuserService.get(loginuser.getUserid());
+		user.setGobackUrl(vo.getGobackUrl());
+		user.setNotifyUrl(vo.getNotifyUrl());
+		user.setNikename(vo.getNikename());
+		user.setEmail(vo.getEmail());
+		user.setMobile(vo.getMobile());
+
+		user.setAutoReFee(vo.getAutoReFee());
+		user.setPayTimeOut(vo.getPayTimeOut());
+		//user.setNotifyUrl(vo.getNotifyUrl());
+		user.setQq(vo.getQq());
+		sysuserService.saveOrUpdate(user);
 		return new XJsonInfo();
 	}
 
@@ -102,11 +107,28 @@ public class PayBusController  {
 	@ControllerFilter(LoginType = 1,UserType = 0)
 	@ResponseBody
 	@RequestMapping("/reSetSignKey")
-	public XJsonInfo reSetSignKey(PayBus vo) throws ServiceException, DaoException {
+	public XJsonInfo reSetSignKey(SysUser vo) throws ServiceException, DaoException {
 		//权限控制，只能保存自己的
 		SessionUser loginuser = sessionCache.getLoginUser();
-		String  signKey = paybusService.reSetSignKey(loginuser.getUserid());
+		String  signKey = sysuserService.reSetSignKey(loginuser.getUserid());
 		return new XJsonInfo(true).setData(signKey);
+	}
+
+	/**
+	 * 清除当前的微信，支付宝通码
+	 * @param vo
+	 * @return
+	 * @throws ServiceException
+	 * @throws DaoException
+	 */
+	@ControllerFilter(LoginType = 1,UserType = 0)
+	@ResponseBody
+	@RequestMapping("/clearPayImg")
+	public XJsonInfo clearPayImg(SysUser vo) throws ServiceException, DaoException {
+		//权限控制，只能处理自己的
+		SessionUser loginuser = sessionCache.getLoginUser();
+		sysuserService.clearPayImg(loginuser.getUserid());
+		return new XJsonInfo(true);
 	}
 
 	/**
@@ -154,19 +176,7 @@ public class PayBusController  {
 			return ret;
 		}
 
-		PayBus vo = paybusService.get(user.getUserid());
-		PayBus _vo = new PayBus();
-		_vo.setUuid(vo.getUuid());
-		_vo.seteMoney(vo.geteMoney());
-		_vo.setBusId(vo.getBusId());
-		_vo.setBusType(vo.getBusType());
-		_vo.setBusAcc(vo.getBusAcc());
-		_vo.setBusName(vo.getBusName());
-		_vo.setBusValidity(vo.getBusValidity());
-		_vo.setCreatetime(vo.getCreatetime());
-		_vo.setNotifyUrl(vo.getNotifyUrl());
-		_vo.setGobackUrl(vo.getGobackUrl());
-		return new XJsonInfo().setData(_vo);
+		return new XJsonInfo().setData(user);
 	}
 
 	/**
@@ -180,14 +190,11 @@ public class PayBusController  {
 	@ResponseBody
 	@RequestMapping("/queryByUid")
 	public XJsonInfo queryByUid(String uid) throws ServiceException, DaoException {
-		PayBus vo = paybusService.queryByUuid(uid);
-		PayBus _vo = new PayBus();
+		SysUser vo = sysuserService.queryByUuid(uid);
+		SysUser _vo = new SysUser();
 		_vo.setUuid(vo.getUuid());
 		_vo.seteMoney(vo.geteMoney());
-		_vo.setBusId(vo.getBusId());
 		_vo.setBusType(vo.getBusType());
-		_vo.setBusAcc(vo.getBusAcc());
-		_vo.setBusName(vo.getBusName());
 		_vo.setBusValidity(vo.getBusValidity());
 		_vo.setCreatetime(vo.getCreatetime());
 		_vo.setNotifyUrl(vo.getNotifyUrl());
@@ -204,13 +211,9 @@ public class PayBusController  {
     @ResponseBody
     @RequestMapping("/query")
     public XJsonInfo query(Long id) throws ServiceException, DaoException {
-        PayBus vo = paybusService.get(id);
-		//权限控制，只能查看自己的
 		SessionUser loginuser = sessionCache.getLoginUser();
-		if(loginuser.getUsertype()!=1 && !vo.getBusId().equals(loginuser.getUserid())){
-			return null;
-		}
-        return new XJsonInfo().setData(vo);
+		SysUser user = sysuserService.get(loginuser.getUserid());
+        return new XJsonInfo().setData(user);
     }
 
 	/**
@@ -224,20 +227,11 @@ public class PayBusController  {
 	@RequestMapping("/queryCurrBus")
 	public XJsonInfo queryCurrBus() throws ServiceException, DaoException {
 		SessionUser loginuser = sessionCache.getLoginUser();
-		PayBus vo = paybusService.get(loginuser.getUserid());
-		return new XJsonInfo().setData(vo);
+		SysUser user = sysuserService.get(loginuser.getUserid());
+		return new XJsonInfo().setData(user);
 	}
 
-	/**
-	 * @description: <分页查询>
-	 * @param:
-	 * @throws:
-	 */
-    @ResponseBody
-    @RequestMapping("/findPage")
-    public XJsonInfo findPage(PayBus vo) throws ServiceException, DaoException {
-        return  new XJsonInfo().setPageData(paybusService.findPage(vo));
-    }
+
 
 	/**
 	 * 上传不限额收款码
@@ -250,16 +244,16 @@ public class PayBusController  {
 	@RequestMapping("/upload_qr_img")
 	public XJsonInfo upload_qr_img(@RequestParam("uploadfile") MultipartFile file, Integer payType) throws Exception {
 		SessionUser loginuser = sessionCache.getLoginUser();
-		PayBus vo = paybusService.get(loginuser.getUserid());
+		SysUser user = sysuserService.get(loginuser.getUserid());
 		//二维码内容解码
 		Result ret = QRCodeUtils.getQRresult(file.getInputStream());
 		if(payType==1){
-			vo.setPayImgContentWx(ret.getText());
+			user.setPayImgContentWx(ret.getText());
 		}
 		if(payType==2){
-			vo.setPayImgContentZfb(ret.getText());
+			user.setPayImgContentZfb(ret.getText());
 		}
-		paybusService.saveOrUpdate(vo);
+		sysuserService.saveOrUpdate(user);
 		return  new XJsonInfo();
 	}
 
@@ -274,16 +268,16 @@ public class PayBusController  {
 	@RequestMapping("/qr_img_view")
 	public void qr_img_view(HttpServletRequest request, HttpServletResponse response,Integer payType) throws IOException, DaoException {
 		SessionUser loginuser = sessionCache.getLoginUser();
-		PayBus vo = paybusService.get(loginuser.getUserid());
+		SysUser user = sysuserService.get(loginuser.getUserid());
 		OutputStream out = null;
 		InputStream in = null;
 		try{
 			String text = null;
 			if(payType==1){
-				text = vo.getPayImgContentWx();
+				text = user.getPayImgContentWx();
 			}
 			if(payType==2){
-				text = vo.getPayImgContentZfb();
+				text = user.getPayImgContentZfb();
 			}
 			if(text==null){
 				return;
@@ -318,19 +312,19 @@ public class PayBusController  {
 			ret.setMsg("对不起，您还未登陆，请登录后再进行套餐开通");
 			return ret;
 		}
-		PayBus bus = paybusService.get(loginuser.getUserid());
-		if(bus==null){
+		SysUser user = sysuserService.get(loginuser.getUserid());
+		if(user==null){
 			ret.setMsg("对不起，当前商户账号无效");
 			return ret;
 		}
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 		//已存在套餐，不允许重复开通
-		if(bus.getBusValidity()!=null && bus.getBusValidity()>Integer.parseInt(format.format(new Date()))){
-			if(busType==bus.getBusType()){
+		if(user.getBusValidity()!=null && user.getBusValidity()>Integer.parseInt(format.format(new Date()))){
+			if(busType==user.getBusType()){
 				ret.setMsg("您已开通<"+PayTaoCan.getPayTaoCanName(busType)+">套餐,无需重复开通，在<商户设置>中可以设置下月套餐");
 				return ret;
 			}else{
-				ret.setMsg("您当前套餐为<"+PayTaoCan.getPayTaoCanName(bus.getBusType())+">套餐,如需变更套餐，请在<商户设置>中可以设置下月套餐");
+				ret.setMsg("您当前套餐为<"+PayTaoCan.getPayTaoCanName(user.getBusType())+">套餐,如需变更套餐，请在<商户设置>中可以设置下月套餐");
 				return ret;
 			}
 		}
@@ -344,14 +338,14 @@ public class PayBusController  {
 			return ret;
 		}
 		//费用不足
-		if(bus.geteMoney()<refee){
+		if(user.geteMoney()<refee){
 			ret.setMsg("对不起，您的商户余额不足，请先充值后再进行套餐开通");
 			return ret;
 		}
 
 		//充值，消费
 		PayBusChange change = new PayBusChange();
-		change.setBusId(bus.getBusId());
+		change.setBusId(user.getUserid());
 		change.setCtype(2);
 		change.setEmoney(-refee);
 		change.setState(1);

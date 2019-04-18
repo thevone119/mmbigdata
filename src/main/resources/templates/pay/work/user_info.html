@@ -33,7 +33,7 @@
 					商户sign_key:
 				</td>
 				<td>
-					{{bus.signKey}}
+					{{myform.signKey}}
 					<i-button type="info" icon="shuffle" @click="reSetSignKey"> 重置 </i-button>
 				</td>
 				<td>
@@ -83,13 +83,13 @@
 					当前套餐:
 				</td>
 				<td>
-					<font color="red">{{bus.busTypeStr}}</font>
+					<font color="red">{{myform.busTypeStr}}</font>
 				</td>
 				<td>
 					套餐有效期:
 				</td>
 				<td>
-					<font color="red">{{bus.busValidity}}</font>
+					<font color="red">{{myform.busValidity}}</font>
 
 				</td>
 			</tr>
@@ -98,7 +98,7 @@
 					账户余额:
 				</td>
 				<td>
-					<font color="red">{{bus.eMoney}} 元</font>
+					<font color="red">{{myform.eMoney}} 元</font>
 
 					<i-button type="error" icon="social-usd-outline" @click="recharge" long> 充 值 </i-button>
 				</td>
@@ -106,7 +106,7 @@
 					套餐自动续费:
 				</td>
 				<td>
-					{{bus.autoReFeeStr}}
+					{{myform.autoReFeeStr}}
 				</td>
 			</tr>
 
@@ -122,10 +122,9 @@
 
 	<script>
         var urls = {
-            query:'/api/sys/sysuser/queryCurrUser'
-            ,querybus:'/api/pay/paybus/queryCurrBus'
+            querybus:'/api/pay/paybus/queryCurrBus'
             ,reSetSignKey:'/api/pay/paybus/reSetSignKey'
-            ,save:'/api/sys/sysuser/saveCurrUser'
+            ,save:'/api/pay/paybus/saveCurrBus'
         };
 
         var vm = new Vue({
@@ -138,10 +137,6 @@
 					id:null,//主键
 					test:""
 				},
-                bus: {
-                    isState:true,
-                    state: 1
-                },
 				ruleValidate: {
 					email: [
 						{ required: true, message: '请输入邮箱地址', trigger: 'blur' },
@@ -169,14 +164,13 @@
                     $.ajax(
                         {
                             type: 'post', // 提交方式 get/post
-                            url:urls.query, // 需要提交的 u
+                            url:urls.querybus, // 需要提交的 u
                             async:true,
                             cache:false,
                             dataType:'json',
                             success: function(ret){
                                 if(ret.success){
                                     vm.myform = ret.data;
-                                    vm.loadBus();
                                 }else{
                                     layer.alert("您还没登录，或登录超时，请重新登录");
                                     window.top.location.href="/pay/login.html";
@@ -187,29 +181,7 @@
                             }
                         });
                 },
-                loadBus:function(){
-                    $.ajax(
-                        {
-                            type: 'post', // 提交方式 get/post
-                            url:urls.querybus, // 需要提交的 u
-                            async:true,
-                            cache:false,
-                            dataType:'json',
-                            success: function(ret){
-                                if(ret.success){
-                                    vm.bus = ret.data;
-                                    vm.bus.autoReFee=vm.bus.autoReFee+'';
-                                    vm.bus.payTimeOut=vm.bus.payTimeOut+'';
-                                    vm.myform.notifyUrl=vm.bus.notifyUrl;
-                                    vm.myform.gobackUrl=vm.bus.gobackUrl;
-                                    vm.myform.signKey=vm.bus.signKey;
-                                }
-                            },
-                            error:function(){
-                                layer.alert("系统错误，请稍候再试");
-                            }
-                        });
-                },
+
                 reSetSignKey:function(){
                     layer.confirm('重置将会使得之前的sign_key马上失效，确认需要进行重置么?', function(){
                         $.ajax(
@@ -221,7 +193,7 @@
                                 dataType:'json',
                                 success: function(ret){
                                     if(ret.success){
-                                        vm.bus.signKey = ret.data;
+                                        vm.myform.signKey = ret.data;
                                     }
                                 },
                                 error:function(){

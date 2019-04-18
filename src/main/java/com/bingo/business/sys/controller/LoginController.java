@@ -1,7 +1,6 @@
 package com.bingo.business.sys.controller;
 
-import com.bingo.business.pay.model.PayBus;
-import com.bingo.business.pay.service.PayBusService;
+
 import com.bingo.business.sys.model.SysRole;
 import com.bingo.business.sys.model.SysUser;
 import com.bingo.business.sys.service.SysRoleService;
@@ -49,8 +48,7 @@ public class LoginController {
     @Resource
     private SysUserService sysuserService;
 
-    @Resource
-    private PayBusService payBusService;
+
 
 
     @Resource
@@ -253,22 +251,18 @@ public class LoginController {
             return ret;
         }
         //注册用户
+
         user = new SysUser();
+        user.setUserid( System.currentTimeMillis());
         user.setUseracc(vo.getUseracc());
         user.setNikename(vo.getNikename());
         user.setUsertype(2);
         user.setState(1);
         user.setPwd(SecurityClass.encryptMD5(vo.getPwd()));
+        user.setBusType(0);
+        user.seteMoney(0.0f);
         sysuserService.saveOrUpdate(user);
-        //注册商户
-        PayBus bus = new PayBus();
-        bus.setBusId(user.getUserid());
-        bus.setBusAcc(user.getUseracc());
-        bus.setUuid(user.getUuid());
-        bus.setSignKey(user.getSignKey());
-        bus.setBusType(0);
-        bus.seteMoney(0.0f);
-        payBusService.saveOrUpdate(bus);
+
 
 
         //注册成功后，不登录

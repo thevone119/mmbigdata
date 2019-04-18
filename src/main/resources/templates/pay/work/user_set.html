@@ -33,7 +33,7 @@
 					商户sign_key:
 				</td>
 				<td>
-					{{bus.signKey}}
+					{{myform.signKey}}
 					<i-button type="info" icon="shuffle" @click="reSetSignKey"> 重置 </i-button>
 				</td>
 				<td>
@@ -90,7 +90,7 @@
 				</td>
 				<td>
 					<Form-item label="" prop="autoReFee">
-						<i-select v-model="bus.autoReFee" :value="bus.autoReFee">
+						<i-select v-model="myform.autoReFee" :value="myform.autoReFee">
 							<i-option value="0">不自动续费</i-option>
 							<i-option value="1">自动续费至-基础版</i-option>
 							<i-option value="2">自动续费至-高级版</i-option>
@@ -103,7 +103,7 @@
 				</td>
 				<td>
 					<Form-item label="" prop="payTimeOut">
-						<i-select v-model="bus.payTimeOut" :value="bus.payTimeOut">
+						<i-select v-model="myform.payTimeOut" :value="myform.payTimeOut">
 							<i-option value="5">5分钟</i-option>
 							<i-option value="10">10分钟</i-option>
 							<i-option value="15">15分钟</i-option>
@@ -120,7 +120,7 @@
 				<td>
 					<template>
 					<Upload action="/api/pay/paybus/upload_qr_img?payType=1"  name="uploadfile">
-						<i-Button type="primary" icon="ios-cloud-upload-outline">上传不定额微信收款码</i-Button>
+						<i-Button type="primary" icon="ios-cloud-upload-outline">上传微信通码</i-Button>
 					</Upload>
 					</template>
 					<i-Button type="success" icon="search" @click="Imgview(1)">查看当前已上传收款码</i-Button>
@@ -131,7 +131,7 @@
 				<td>
 					<template>
 					<Upload action="/api/pay/paybus/upload_qr_img?payType=2"  name="uploadfile">
-						<i-Button type="primary" icon="ios-cloud-upload-outline">上传不定额支付宝收款码</i-Button>
+						<i-Button type="primary" icon="ios-cloud-upload-outline">上传支付宝通码</i-Button>
 					</Upload>
 					</template>
 					<i-Button type="success"  icon="search"  @click="Imgview(2)">查看当前已上传收款码</i-Button>
@@ -143,7 +143,10 @@
 
 
 	<div>
-		<i-button type="info" icon="shuffle" @click="save" long> 保 存 设 置 </i-button>
+
+		<i-button type="error" icon="android-remove-circle" @click="clearPayImg" > 清除收款通码 </i-button>
+
+		<i-button type="info" icon="shuffle" @click="save" > 保 存 设 置 </i-button>
 
 	</div>
 </div>
@@ -153,10 +156,9 @@
 	<script>
         var urls = {
             query:'/api/sys/sysuser/queryCurrUser'
-            ,querybus:'/api/pay/paybus/queryCurrBus'
             ,reSetSignKey:'/api/pay/paybus/reSetSignKey'
-            ,save:'/api/sys/sysuser/saveCurrUser'
-            ,savebus:'/api/pay/paybus/saveCurrBus'
+            ,save:'/api/pay/paybus/saveCurrBus'
+            ,clearPayImg:'/api/pay/paybus/clearPayImg'
         };
 
         var vm = new Vue({
@@ -171,12 +173,6 @@
                         notifyUrl:"",
                         gobackUrl:""
                     },
-					bus: {
-						isState:true,
-						state: 1,
-                        notifyUrl:"",
-                        gobackUrl:""
-					},
                     ruleValidate: {
                         email: [
                             { required: true, message: '请输入邮箱地址', trigger: 'blur' },
@@ -211,33 +207,11 @@
                             success: function(ret){
                                 if(ret.success){
                                     vm.myform = ret.data;
-                                    vm.loadBus();
+                                    vm.myform.autoReFee=vm.myform.autoReFee+'';
+                                    vm.myform.payTimeOut=vm.myform.payTimeOut+'';
                                 }else{
                                     layer.alert("您还没登录，或登录超时，请重新登录");
                                     window.top.location.href="/pay/login.html";
-                                }
-                            },
-                            error:function(){
-                                layer.alert("系统错误，请稍候再试");
-                            }
-                        });
-                },
-                loadBus:function(){
-                    $.ajax(
-                        {
-                            type: 'post', // 提交方式 get/post
-                            url:urls.querybus, // 需要提交的 u
-                            async:true,
-                            cache:false,
-                            dataType:'json',
-                            success: function(ret){
-                                if(ret.success){
-                                    vm.bus = ret.data;
-                                    vm.bus.autoReFee=vm.bus.autoReFee+'';
-                                    vm.bus.payTimeOut=vm.bus.payTimeOut+'';
-                                    vm.myform.notifyUrl=vm.bus.notifyUrl;
-                                    vm.myform.gobackUrl=vm.bus.gobackUrl;
-                                    vm.myform.signKey=vm.bus.signKey;
                                 }
                             },
                             error:function(){
@@ -256,7 +230,7 @@
                                 dataType:'json',
                                 success: function(ret){
                                     if(ret.success){
-                                        vm.bus.signKey = ret.data;
+                                        vm.myform.signKey = ret.data;
                                     }
                                 },
                                 error:function(){
@@ -276,6 +250,28 @@
                         content: '/api/pay/paybus/qr_img_view?payType='+payType
                     });
                 },
+                clearPayImg:function(){//清除
+                    $.ajax(
+                        {
+                            type: 'post', // 提交方式 get/post
+                            url:urls.clearPayImg, // 需要提交的 u
+                            async:true,
+                            cache:false,
+                            dataType:'json',
+                            data:vm.myform,
+                            success: function(ret){
+                                if(ret.success){
+                                    layer.alert('收款通码已清除!','success');
+                                }else{
+                                    layer.alert(ret.msg);
+                                }
+                            },
+                            error:function(){
+                                layer.alert("系统错误，请稍候再试");
+                            }
+                        });
+                },
+
                 save:function () {
                     this.$refs['myForm'].validate(function(valid){
                         if (valid) {
@@ -293,24 +289,6 @@
                                         }else{
                                             layer.alert(ret.msg);
                                         }
-                                    },
-                                    error:function(){
-                                        layer.alert("系统错误，请稍候再试");
-                                    }
-                                });
-                            //通知地址保存到商户表
-                            vm.bus.notifyUrl=vm.myform.notifyUrl;
-                            vm.bus.gobackUrl=vm.myform.gobackUrl;
-                            $.ajax(
-                                {
-                                    type: 'post', // 提交方式 get/post
-                                    url:urls.savebus, // 需要提交的 u
-                                    async:true,
-                                    cache:false,
-                                    dataType:'json',
-                                    data:vm.bus,
-                                    success: function(ret){
-
                                     },
                                     error:function(){
                                         layer.alert("系统错误，请稍候再试");

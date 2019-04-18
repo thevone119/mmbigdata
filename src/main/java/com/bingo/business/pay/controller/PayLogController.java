@@ -2,6 +2,8 @@ package com.bingo.business.pay.controller;
 
 import com.bingo.business.pay.parameter.PayInput;
 import com.bingo.business.pay.parameter.PayReturn;
+import com.bingo.business.sys.model.SysUser;
+import com.bingo.business.sys.service.SysUserService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.filter.ControllerFilter;
@@ -46,7 +48,7 @@ public class PayLogController  {
 	private PayService payService;
 
 	@Resource
-	private PayBusService paybusService;
+	private SysUserService sysUserService;
 
 
 	public PayLogController(){
@@ -116,14 +118,14 @@ public class PayLogController  {
 	public XJsonInfo app_pay_check(Long logId,String orderid,String rid,String nonce_str,String uid,String sign) throws Exception {
 		//1.查询商户
 		XJsonInfo ret = new XJsonInfo(false);
-		PayBus paybus = paybusService.queryByUuid(uid);
+		SysUser paybus = sysUserService.queryByUuid(uid);
 		if(paybus==null){
 			ret.setCode(-2);
 			ret.setMsg("商户无效");
 			return ret;
 		}
 		StringBuffer stringA =new  StringBuffer();
-		stringA.append("logId="+logId+"&orderid="+orderid+"&rid="+rid+"&uid="+paybus.getUuid()+"&busId="+paybus.getBusId()+"&nonce_str="+nonce_str);
+		stringA.append("logId="+logId+"&orderid="+orderid+"&rid="+rid+"&uid="+paybus.getUuid()+"&busId="+paybus.getUserid()+"&nonce_str="+nonce_str);
 		String _sign =  SecurityClass.encryptMD5(stringA.toString()).toUpperCase();
 		if(!_sign.equals(sign)){
 			ret.setCode(13);
@@ -320,7 +322,7 @@ public class PayLogController  {
 	@RequestMapping("/payNotify")
 	public XJsonInfo payNotify(String rid,String uid) throws Exception {
 		PayLog log = paylogService.queryByRidUid(rid,uid);
-		PayBus bus = paybusService.queryByUuid(uid);
+		SysUser bus = sysUserService.queryByUuid(uid);
 		return payService.payNotify(log,bus);
 	}
 

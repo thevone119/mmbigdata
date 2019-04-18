@@ -5,6 +5,9 @@ import com.bingo.action.BaseErrorController;
 import com.bingo.business.pay.model.*;
 import com.bingo.business.pay.parameter.PayReturn;
 import com.bingo.business.pay.repository.*;
+import com.bingo.business.sys.model.SysUser;
+import com.bingo.business.sys.repository.SysUserRepository;
+import com.bingo.business.sys.service.SysUserService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.http.HttpReturn;
@@ -44,12 +47,12 @@ public class PayService {
     @Resource
     private PayBusChangeRepository payBusChangeRepository;
     @Resource
-    private PayBusRepository payBusRepository;
+    private SysUserRepository sysUserRepository;
     @Resource
     private PayLogRepository paylogRepository;
 
     @Resource
-    private PayBusService paybusService;
+    private SysUserService sysUserService;
 
     @Resource
     private PayLogService paylogService;
@@ -70,12 +73,12 @@ public class PayService {
             return;
         }
         //1.对商户进行费用加减
-        String hql = "update PayBus set eMoney=eMoney+? where busId=?";
+        String hql = "update SysUser set eMoney=eMoney+? where userid=?";
         //如果有套餐类型和有效期，则同时更新套餐类型和有效期
         if(busType!=null && busValidity!=null){
-            hql = "update PayBus set eMoney=eMoney+?,busType="+busType+",busValidity="+busValidity+" where busId=?";
+            hql = "update SysUser set eMoney=eMoney+?,busType="+busType+",busValidity="+busValidity+" where userid=?";
         }
-        payBusRepository.executeByHql(hql,new Object[]{vo.getEmoney(),vo.getBusId()});
+        sysUserRepository.executeByHql(hql,new Object[]{vo.getEmoney(),vo.getBusId()});
         //2.保存消费记录
         payBusChangeRepository.saveOrUpdate(vo);
     }
@@ -86,7 +89,7 @@ public class PayService {
      * @param bus
      * @return
      */
-    public boolean checkBusValidity(PayBus bus) throws Exception {
+    public boolean checkBusValidity(SysUser bus) throws Exception {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         //判断过期
         if(bus.getBusValidity()==null || bus.getBusValidity()<Integer.parseInt(format.format(new Date()))){
@@ -109,7 +112,7 @@ public class PayService {
 
             //充值，消费
             PayBusChange change = new PayBusChange();
-            change.setBusId(bus.getBusId());
+            change.setBusId(bus.getUserid());
             change.setCtype(2);
             change.setEmoney(-refee);
             change.setState(1);
@@ -171,7 +174,7 @@ public class PayService {
             }
 
             //查询商户信息
-            PayBus bus = paybusService.queryByUuid(vo.getUid());
+            SysUser bus = sysUserService.queryByUuid(vo.getUid());
             if(bus==null){
                 ret.setSuccess(false);
                 ret.setCode(1);
@@ -225,7 +228,7 @@ public class PayService {
      * @param paylog 支付订单
      * @param checkType 1:系统确认，2：手工确认,3:商户调用接口确认
      */
-    public XJsonInfo checkPay(PayBus bus,PayLog paylog, int checkType) throws Exception{
+    public XJsonInfo checkPay(SysUser bus,PayLog paylog, int checkType) throws Exception{
         XJsonInfo ret = new XJsonInfo(false);
         ret.setCode(1);
 
@@ -241,7 +244,7 @@ public class PayService {
         }
         //计算扣减的费用
         if(bus==null){
-            bus = payBusRepository.getById(paylog.getBusId());
+            bus = sysUserRepository.getById(paylog.getBusId());
         }
         //校验套餐,目前套餐失效了，不影响收款，只是不能发起支付而已
         if(!this.checkBusValidity(bus)){
@@ -284,7 +287,7 @@ public class PayService {
         //扣减费用
         PayBusChange change = new PayBusChange();
         change.setCid(paylog.getRid());
-        change.setBusId(bus.getBusId());
+        change.setBusId(bus.getUserid());
         change.setCtype(2);
         change.setEmoney(-refee);
         change.setState(1);
@@ -313,7 +316,7 @@ public class PayService {
      * @param bus
      * @throws Exception
      */
-    public void payNotifyThread(PayLog paylog, PayBus bus) throws Exception{
+    public void payNotifyThread(PayLog paylog, SysUser bus) throws Exception{
         paylog.setPayState(1);
         //采用多线程执行
         MyThreadPool pool = new MyThreadPool(2,20);
@@ -334,7 +337,7 @@ public class PayService {
      * @param paylog
      * @return
      */
-    public XJsonInfo payNotify(PayLog paylog, PayBus bus) throws Exception{
+    public XJsonInfo payNotify(PayLog paylog, SysUser bus) throws Exception{
         XJsonInfo ret = new XJsonInfo(false);
         if(paylog.getNotifyState()==1){
             ret.setMsg("已成功通知，无需重复通知");
@@ -419,7 +422,7 @@ public class PayService {
         //采用多线程执行,5个线程进行通知调用
         MyThreadPool pool = new MyThreadPool(5,20);
         for(PayLog paylog:list){
-            PayBus bus = payBusRepository.getById(paylog.getBusId());
+            SysUser bus = sysUserRepository.getById(paylog.getBusId());
             try{
                 pool.execute(() -> {
                     //String name = Thread.currentThread().getName();
@@ -447,8 +450,8 @@ public class PayService {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         //查询套餐过期的商户
         String hql = "from PayBus where autoReFee>0 and busValidity<?";
-        List<PayBus> list = payBusRepository.query(hql,new Long[]{new Long(format.format(new Date()))});
-        for(PayBus bus:list){
+        List<SysUser> list = sysUserRepository.query(hql,new Long[]{new Long(format.format(new Date()))});
+        for(SysUser bus:list){
             try{
                 checkBusValidity(bus);
             }catch (Exception e){

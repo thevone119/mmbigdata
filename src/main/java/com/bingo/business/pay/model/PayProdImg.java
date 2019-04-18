@@ -12,6 +12,7 @@ import java.util.UUID;
  * @author huangtw
  * 2018-07-09 09:34:03
  * 对象功能:  支付二维码表
+ * 固码
  */
 @Entity
 @Table(name="T_PAY_PROD_IMG")
@@ -25,6 +26,10 @@ public class PayProdImg extends PageModel{
 
 	@Column(name = "user_id",updatable = false)
 	protected Long  userId;//用户ID
+
+	//子账号ID,默认0,0就是主账号的意思
+	@Column(name = "sub_aid",updatable = false)
+	protected Long  subAid;//子账号ID
 
 
 	@Column(name = "img_price")
@@ -42,6 +47,8 @@ public class PayProdImg extends PageModel{
 
 	@Column(name = "createtime",updatable = false)
 	protected String  createtime;//createtime
+
+
 
 	@Transient
 	private String fitPrice = "";//适配的价格访问
@@ -114,5 +121,13 @@ public class PayProdImg extends PageModel{
 
 	public void setFitPrice(String fitPrice) {
 		this.fitPrice = fitPrice;
+	}
+
+	public Long getSubAid() {
+		return subAid;
+	}
+
+	public void setSubAid(Long subAid) {
+		this.subAid = subAid;
 	}
 }

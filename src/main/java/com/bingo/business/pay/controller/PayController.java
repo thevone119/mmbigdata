@@ -4,6 +4,8 @@ import com.bingo.business.pay.model.*;
 import com.bingo.business.pay.parameter.PayInput;
 import com.bingo.business.pay.parameter.PayReturn;
 import com.bingo.business.pay.service.*;
+import com.bingo.business.sys.model.SysUser;
+import com.bingo.business.sys.service.SysUserService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.model.SessionUser;
@@ -42,8 +44,7 @@ public class PayController {
 
     @Resource
     private PayLogService paylogService;
-    @Resource
-    private PayBusService paybusService;
+
     @Resource
     private PayProdImgService payProdImgService;
 
@@ -54,12 +55,15 @@ public class PayController {
     @Resource
     private PayService payService;
 
+    @Resource
+    private SysUserService sysuserService;
+
 
     @Resource
     private SessionCacheService sessionCache;
 
     //商户对象
-    private PayBus bus=null;
+    private SysUser bus=null;
 
     //支付日志对象
     private PayLog log=null;
@@ -83,7 +87,7 @@ public class PayController {
             ret.setRet_msg("参数不完整，请核对相关参数是否正确");
             return ret;
         }
-        bus = paybusService.queryByUuid(payin.getUid());
+        bus = sysuserService.queryByUuid(payin.getUid());
         if(bus==null){
             ret.setRet_code(12);
             ret.setRet_msg("商户无效");
@@ -126,7 +130,7 @@ public class PayController {
             ret.setRet_msg("参数不完整，请核对相关参数是否正确");
             return ret;
         }
-        bus = paybusService.queryByUuid(payin.getUid());
+        bus = sysuserService.queryByUuid(payin.getUid());
         if(bus==null){
             ret.setRet_code(12);
             ret.setRet_msg("商户无效");
@@ -199,7 +203,7 @@ public class PayController {
             //return "/pay/flow/pay_error";
         }
         log = paylogService.queryByRid(pay_id);
-        bus = paybusService.queryByUuid(log.getUid());
+        bus = sysuserService.queryByUuid(log.getUid());
         ret  = new PayReturn(log);
 
         if(log.getPayState()==1){
@@ -298,7 +302,7 @@ public class PayController {
                 return ret;
             }
             //验证签名
-            bus = paybusService.queryByUuid(payin.getUid());
+            bus = sysuserService.queryByUuid(payin.getUid());
             //先注入返回地址，这样出错可以直接返回这个地址
             ret.setReturn_url(bus.getGobackUrl());
             ret.setPay_type(payin.getPay_type());
@@ -367,9 +371,9 @@ public class PayController {
             if(log==null){
                 log = new PayLog();
                 //注入订单的其他信息
-                log.setBusId(bus.getBusId());
-                log.setBusAcc(bus.getBusAcc());
-                log.setBusName(bus.getBusName());
+                log.setBusId(bus.getUserid());
+                log.setBusAcc(bus.getUseracc());
+                log.setBusName(bus.getNikename());
                 log.setBusType(bus.getBusType());
                 log.setNotifyCount(0);
                 log.setNotifyState(0);
@@ -451,7 +455,7 @@ public class PayController {
         }
 
         //可用的定额
-        List<PayProdImg> listprod = payProdImgService.listFreeByPrice(bus.getBusId(),log.getProdPrice(),log.getPayType(),bus.getPayTimeOut());
+        List<PayProdImg> listprod = payProdImgService.listFreeByPrice(bus.getUserid(),log.getProdPrice(),log.getPayType(),bus.getPayTimeOut());
 
         //非定额
         if(listprod==null||listprod.size()==0){
@@ -529,7 +533,7 @@ public class PayController {
             ret.setMsg("对不起，您还未登陆，请登录后再生成签名");
             return ret;
         }
-        bus = paybusService.get(loginuser.getUserid());
+        bus = sysuserService.get(loginuser.getUserid());
 
         if(bus==null){
             ret.setMsg("对不起，当前商户无效");
@@ -622,7 +626,7 @@ public class PayController {
             return new ModelAndView("/pay/flow/pay_error");
         }
         //查询商户
-        bus = paybusService.get(prod.getBusId());
+        bus = sysuserService.get(prod.getBusId());
         if(bus==null){
             ret.setRet_msg("商户过期，或已失效");
             request.setAttribute("ret",ret);

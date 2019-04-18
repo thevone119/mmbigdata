@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.bingo.business.sys.model.*;
 import com.bingo.business.sys.repository.*;
@@ -143,5 +144,30 @@ public class SysUserService{
 		}
 		return page;
 	}
-	
+
+	/**
+	 * 重设商户的signkey
+	 * @param
+	 * @return
+	 */
+	public String reSetSignKey(Long userid){
+		StringBuffer qhtl = new StringBuffer(" update SysUser set signKey=? where userid=?");
+		String signKey =  UUID.randomUUID().toString().replace("-", "").toLowerCase();
+		sysuserRepository.executeByHql(qhtl.toString(),new Object[]{signKey,userid});
+		return signKey;
+	}
+
+	/**
+	 * 重设商户的signkey
+	 * @param
+	 * @return
+	 */
+	public void clearPayImg(Long userid){
+		StringBuffer qhtl = new StringBuffer(" update SysUser set payImgContentWx=null,payImgContentZfb=null where userid=?");
+		sysuserRepository.executeByHql(qhtl.toString(),new Object[]{userid});
+		return;
+	}
+
+
+
 }

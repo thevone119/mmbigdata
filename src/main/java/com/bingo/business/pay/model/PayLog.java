@@ -42,8 +42,17 @@ public class PayLog extends PageModel{
 
 	@Column(name = "uid",updatable = false)
 	protected String  uid;//商户uid
-	
-	
+
+
+	//子账号ID,默认0,0就是主账号的意思
+	@Column(name = "sub_aid",updatable = false)
+	protected Long  subAid;//子账号ID
+
+	//收款子账号
+	@Column(name = "sub_accoun",updatable = false)
+	protected String  subAccount;//收款子账号
+
+
 	@Column(name = "bus_name",updatable = false)
 	protected String  busName;//商户姓名
 
@@ -86,7 +95,7 @@ public class PayLog extends PageModel{
 	
 	
 	@Column(name = "pay_type",updatable = false)
-	protected Integer  payType;//pay_type 1：支付宝；2：微信支付
+	protected Integer  payType;//pay_type 1：支付宝；2：微信支付 3，银联
 	
 	
 	@Column(name = "createtime",updatable = false)
@@ -462,6 +471,22 @@ public class PayLog extends PageModel{
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public Long getSubAid() {
+		return subAid;
+	}
+
+	public void setSubAid(Long subAid) {
+		this.subAid = subAid;
+	}
+
+	public String getSubAccount() {
+		return subAccount;
+	}
+
+	public void setSubAccount(String subAccount) {
+		this.subAccount = subAccount;
 	}
 
 	public String getPayStateStr() {

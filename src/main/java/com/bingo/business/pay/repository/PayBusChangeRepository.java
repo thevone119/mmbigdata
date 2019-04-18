@@ -1,6 +1,5 @@
 package com.bingo.business.pay.repository;
 
-import com.bingo.business.pay.model.PayBus;
 import com.bingo.business.pay.model.PayBusChange;
 import com.bingo.common.repository.BaseDao;
 import org.springframework.stereotype.Repository;
