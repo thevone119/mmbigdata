@@ -93,6 +93,8 @@ public class PayBusController  {
 		user.setPayTimeOut(vo.getPayTimeOut());
 		//user.setNotifyUrl(vo.getNotifyUrl());
 		user.setQq(vo.getQq());
+		user.setMaxLowerMoney(vo.getMaxLowerMoney());
+		user.setMaxUpperMoney(vo.getMaxUpperMoney());
 		sysuserService.saveOrUpdate(user);
 		return new XJsonInfo();
 	}
@@ -199,6 +201,7 @@ public class PayBusController  {
 		_vo.setCreatetime(vo.getCreatetime());
 		_vo.setNotifyUrl(vo.getNotifyUrl());
 		_vo.setGobackUrl(vo.getGobackUrl());
+
 		return new XJsonInfo().setData(vo);
 	}
 
