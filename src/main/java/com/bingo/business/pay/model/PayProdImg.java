@@ -29,7 +29,7 @@ public class PayProdImg extends PageModel{
 
 	//子账号ID,默认0,0就是主账号的意思
 	@Column(name = "sub_aid",updatable = false)
-	protected Long  subAid;//子账号ID
+	protected Long  subAid=0L;//子账号ID
 
 
 	@Column(name = "img_price")

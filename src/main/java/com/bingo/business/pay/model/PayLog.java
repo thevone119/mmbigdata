@@ -45,11 +45,11 @@ public class PayLog extends PageModel{
 
 
 	//子账号ID,默认0,0就是主账号的意思
-	@Column(name = "sub_aid",updatable = false)
-	protected Long  subAid;//子账号ID
+	@Column(name = "sub_aid")
+	protected long  subAid;//子账号ID
 
 	//收款子账号
-	@Column(name = "sub_accoun",updatable = false)
+	@Column(name = "sub_accoun")
 	protected String  subAccount;//收款子账号
 
 
@@ -473,11 +473,11 @@ public class PayLog extends PageModel{
 		this.userName = userName;
 	}
 
-	public Long getSubAid() {
+	public long getSubAid() {
 		return subAid;
 	}
 
-	public void setSubAid(Long subAid) {
+	public void setSubAid(long subAid) {
 		this.subAid = subAid;
 	}
 

@@ -121,6 +121,20 @@ public class PayProdImgService {
 	}
 
 	/**
+	 * 查询所有适配价格的定额收款码
+	 * 根据子账号查找
+	 * @param userId
+	 * @param payType
+	 * @return
+	 */
+	public List<PayProdImg> listBySubPrice(Long userId,Long subAid,Integer payType,Float MinPrice,Float MaxPrice){
+		StringBuffer hql = new StringBuffer(" from PayProdImg img where userId=? and subAid=? and payType=? and imgPrice >= ? and imgPrice <= ?  order by imgPrice desc");
+		return payProdImgRepository.query(hql.toString(),new Object[]{userId,subAid,payType,payType,MinPrice,MaxPrice});
+	}
+
+
+
+	/**
 	 *根据用户，价格,支付类型查询可用支付二维码
 	 * @param userId
 	 * @param imgPrice

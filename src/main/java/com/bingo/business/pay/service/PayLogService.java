@@ -110,14 +110,15 @@ public class PayLogService{
 	/**
 	 * 查询正在使用的订单
 	 * 根据商户，价格查询
+	 * 支持只账号的哦
 	 * @return
 	 */
-	public List<PayLog> queryByUseingLog(String uid,Integer  payType,Integer payTimeOut,Float prodPrice){
-		return queryByUseingLog(uid,payType,payTimeOut,prodPrice,null,null);
+	public List<PayLog> queryByUseingLog(String uid,long subAid,Integer  payType,Integer payTimeOut,Float prodPrice){
+		return queryByUseingLog(uid,subAid,payType,payTimeOut,prodPrice,null,null);
 	}
 
-	public List<PayLog> queryByUseingLog(String uid,Integer  payType,Integer payTimeOut,Float prodPrice,Float payImgPrice,Long currTime){
-		StringBuffer qhtl = new StringBuffer(" from PayLog where uid =? and payType=? and updatetime>? and payState!=1 ");
+	public List<PayLog> queryByUseingLog(String uid,long subAid,Integer  payType,Integer payTimeOut,Float prodPrice,Float payImgPrice,Long currTime){
+		StringBuffer qhtl = new StringBuffer(" from PayLog where uid =? and subAid=? and payType=? and updatetime>? and payState!=1 ");
 		if(prodPrice!=null){
 			qhtl.append(" and prodPrice="+prodPrice );
 		}
@@ -136,7 +137,7 @@ public class PayLogService{
 		}
 
 		String validtime = format.format(cal.getTime());
-		return paylogRepository.query(qhtl.toString(),new Object[]{uid,payType,validtime});
+		return paylogRepository.query(qhtl.toString(),new Object[]{uid,subAid,payType,validtime});
 	}
 
 

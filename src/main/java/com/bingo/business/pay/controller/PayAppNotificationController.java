@@ -22,7 +22,7 @@ import com.bingo.business.pay.service.*;
 /**
  * @author huangtw
  * 2018-08-24 00:49:22
- * 对象功能:  Controller管理
+ * 对象功能:  这个是APP的通知接口Controller管理
  */
 @RestController
 @RequestMapping("/api/pay/payappnotification")

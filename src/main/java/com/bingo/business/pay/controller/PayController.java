@@ -414,8 +414,7 @@ public class PayController {
                 ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
                 return ret;
             }
-            //这里直接锁住订单哦
-            payService.putMoneyLock(log.getBusId(),log.getSubAid(),log.getPayType(),log.getPayImgPrice(),bus.getPayTimeOut()+1);
+
 
             paylogService.saveOrUpdate(log);
             ret=new PayReturn(log);
@@ -431,6 +430,21 @@ public class PayController {
     }
 
 
+    /**
+     * 更新订单的收款码，如果更新成功，直接锁单哦
+     * @return
+     * @throws Exception
+     */
+    private boolean  updateLogPayImg() throws Exception {
+        boolean rett = updateLogPayImg2();
+        if(rett){
+            //这里直接锁住订单哦
+            payService.putMoneyLock(log.getBusId(),log.getSubAid(),log.getPayType(),log.getPayImgPrice(),bus.getPayTimeOut()+1);
+            payService.updateSubPlanAmout(log.getSubAid(),new Float(log.getPayImgPrice()*100).longValue());
+        }
+        return rett;
+    }
+
 
     /**
      * 重点主要逻辑哟
@@ -438,7 +452,7 @@ public class PayController {
      * 重点测试哦
      * @return
      */
-    private boolean  updateLogPayImg() throws Exception {
+    private boolean  updateLogPayImg2() throws Exception {
         java.util.Date updatetime = format.parse(log.getUpdatetime());
         Calendar cal = Calendar.getInstance();
         //锁多30秒

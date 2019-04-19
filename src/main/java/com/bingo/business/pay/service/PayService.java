@@ -13,6 +13,7 @@ import com.bingo.common.exception.ServiceException;
 import com.bingo.common.http.HttpReturn;
 import com.bingo.common.http.MyOkHttp;
 import com.bingo.common.http.MyRequests;
+import com.bingo.common.service.RedisCacheService;
 import com.bingo.common.thread.MyThreadPool;
 import com.bingo.common.utility.SecurityClass;
 import com.bingo.common.utility.XJsonInfo;
@@ -60,6 +61,11 @@ public class PayService {
     @Resource
     private PayLogNotifyRepository payLogNotifyRepository;
 
+    @Resource
+    private RedisCacheService redis;
+
+
+
 
     /**
      * 充值，消费接口
@@ -81,6 +87,37 @@ public class PayService {
         sysUserRepository.executeByHql(hql,new Object[]{vo.getEmoney(),vo.getBusId()});
         //2.保存消费记录
         payBusChangeRepository.saveOrUpdate(vo);
+    }
+
+
+    /**
+     * 更新子账号应收款数
+     * @throws ServiceException
+     * @throws DaoException
+     */
+    public void updateSubPlanAmout(long sid,long payPlanAmout) throws Exception {
+        if(sid==0){
+            return;
+        }
+        //不重复充值，消费
+        //1.对商户进行费用加减
+        String hql = "update PaySubAccount set payPlanAmout=payPlanAmout+?,payPlanCount=payPlanCount+1 where sid=?";
+        sysUserRepository.executeByHql(hql,new Object[]{sid,payPlanAmout});
+    }
+
+    /**
+     * 更新子账号实收款数
+     * @throws ServiceException
+     * @throws DaoException
+     */
+    public void updateSubAmout(long sid,long payAmout) throws Exception {
+        if(sid==0){
+            return;
+        }
+        //不重复充值，消费
+        //1.对商户进行费用加减
+        String hql = "update PaySubAccount set payAmout=payAmout+?,payCount=payCount+1 where sid=?";
+        sysUserRepository.executeByHql(hql,new Object[]{sid,payAmout});
     }
 
     /**
@@ -126,6 +163,8 @@ public class PayService {
     /**
      * 收到APP的通知，进行相关的处理
      * 对通知进行后续的匹配处理
+     * 重点改造哦
+     * 需要针对子账号进行改造
      * @param vo
      * @return
      */
@@ -272,8 +311,8 @@ public class PayService {
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.MONTH,-3);
                 if(format.parse(bus.getCreatetime()).getTime()>cal.getTime().getTime()){
-                    refee=0.0f;
-                    demo = "试用期内，支付手续费全免";
+                    //refee=0.0f;
+                    //demo = "试用期内，支付手续费全免";
                 }
             }
         }
@@ -284,7 +323,7 @@ public class PayService {
             demo = "商户调用接口确认收款，不收手续费";
         }
 
-        //扣减费用
+        //1.扣减费用
         PayBusChange change = new PayBusChange();
         change.setCid(paylog.getRid());
         change.setBusId(bus.getUserid());
@@ -294,6 +333,11 @@ public class PayService {
         change.setDemo(demo);
         change.setBizId(paylog.getRid());
         this.busChange(change,null,null);
+
+        //2.更新收款累计
+        if(paylog.getSubAid()>0){
+            updateSubAmout(paylog.getSubAid(),new Float(paylog.getPayImgPrice()*100).longValue());
+        }
 
         //2.设置为已收款
         paylogRepository.executeByHql("update PayLog set payState=1,payTime=? where logId=?",new Object[]{format.format(new Date()),paylog.getLogId()});
@@ -461,6 +505,27 @@ public class PayService {
         logger.info("reChangeTask end");
     }
 
+
+    /**
+     * 支付金额锁
+     * 针对并发，进行相关的金额锁定
+     */
+    public synchronized void  putMoneyLock(Long uid,long subid,int payType,Float lockMoney,int lockMinutes){
+        int m = new Float(lockMoney*100).intValue();
+        String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+m;
+        redis.set(key,"1",lockMinutes);
+    }
+
+    //是否在锁定状态
+    public boolean hasMoneyLock(Long uid,long subid,int payType,Float lockMoney){
+        int m = new Float(lockMoney*100).intValue();
+        String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+m;
+        Object v = (Object)redis.get(key);
+        if(v==null){
+            return false;
+        }
+        return true;
+    }
 
 
 }

@@ -87,5 +87,19 @@ public class PaySubAccountService{
 
 		return paysubaccountRepository.findPage(hql.toString(), vo, fldValues);
 	}
+
+	/**
+	 * 查询所有有效的子账号
+	 * 根据子账号查找
+	 * @param userId
+	 * @param payType
+	 * @return
+	 */
+	public List<PaySubAccount> listValidSubAccount(Long userId,Integer payType){
+		StringBuffer hql = new StringBuffer(" from PaySubAccount  where busId=? and payType=? and state=1 ");
+		return paysubaccountRepository.query(hql.toString(),new Object[]{userId,payType});
+	}
+
+
 	
 }

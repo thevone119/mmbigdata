@@ -18,7 +18,7 @@ public class PaySubAccount extends PageModel {
     @Id
     @GeneratedValue //相当于native  相当于mysql的表内自增)
     @Column(name = "sid")
-    protected Long  sid;//sid，主键，无意义
+    protected long  sid;//sid，主键，无意义
 
     @Column(name = "bus_id",updatable = false)
     protected long  busId;//商户ID,直接使用用户表的ID
@@ -71,11 +71,11 @@ public class PaySubAccount extends PageModel {
         this.createtime=format.format(new Date());
     }
 
-    public Long getSid() {
+    public long getSid() {
         return sid;
     }
 
-    public void setSid(Long sid) {
+    public void setSid(long sid) {
         this.sid = sid;
     }
 
