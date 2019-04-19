@@ -9,6 +9,7 @@ import com.bingo.business.sys.service.SysUserService;
 import com.bingo.common.exception.DaoException;
 import com.bingo.common.exception.ServiceException;
 import com.bingo.common.model.SessionUser;
+import com.bingo.common.service.RedisCacheService;
 import com.bingo.common.service.SessionCacheService;
 import com.bingo.common.utility.QRCodeUtils;
 import com.bingo.common.utility.XJsonInfo;
@@ -27,9 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Administrator on 2018-07-30.
@@ -41,6 +40,9 @@ import java.util.List;
 @Scope("prototype")
 public class PayController {
     private static final Logger logger = LoggerFactory.getLogger(PayController.class);
+
+    //子账号轮训的放这里
+    private static Map<Long,Integer> subMap = new HashMap<Long,Integer>();
 
     @Resource
     private PayLogService paylogService;
@@ -58,9 +60,16 @@ public class PayController {
     @Resource
     private SysUserService sysuserService;
 
+    @Resource
+    private PaySubAccountService paySubAccountService;
+
+
+
 
     @Resource
     private SessionCacheService sessionCache;
+
+
 
     //商户对象
     private SysUser bus=null;
@@ -332,11 +341,11 @@ public class PayController {
                     sprice=0.01f;
                 }
 
-                //试用期,3个月内免手续费
+                //试用期,3个月内免手续费（废弃）
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.MONTH,-3);
                 if(format.parse(bus.getCreatetime()).getTime()>cal.getTime().getTime()){
-                    sprice=0.0f;
+                    //sprice=0.0f;
                 }
 
                 if(bus.geteMoney()<sprice){
@@ -405,6 +414,9 @@ public class PayController {
                 ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
                 return ret;
             }
+            //这里直接锁住订单哦
+            payService.putMoneyLock(log.getBusId(),log.getSubAid(),log.getPayType(),log.getPayImgPrice(),bus.getPayTimeOut()+1);
+
             paylogService.saveOrUpdate(log);
             ret=new PayReturn(log);
             ret.setRet_code(1);
@@ -421,95 +433,207 @@ public class PayController {
 
 
     /**
+     * 重点主要逻辑哟
      * 更新订单的收款码
+     * 重点测试哦
      * @return
      */
     private boolean  updateLogPayImg() throws Exception {
         java.util.Date updatetime = format.parse(log.getUpdatetime());
         Calendar cal = Calendar.getInstance();
-        //锁多一分钟
-        cal.add(Calendar.MINUTE,-bus.getPayTimeOut()-1);
+        //锁多30秒
+        cal.add(Calendar.SECOND,-(bus.getPayTimeOut()*60)-30);
         //如果已有收款码，并且未过期，则直接更新收款码使用期限即可
-        if(log.getProdImgId()!=null){
+        if(log.getPayImgPrice()!=null && log.getPayImgPrice()>0){
             if(cal.getTime().before(updatetime)){
                 log.setUpdatetime(format.format(new Date()));
                 return true;
             }
         }
-        //已使用的收款码
-        List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),null);
 
+        //在用的订单
+        //List<PayLog> useinglog =  paylogService.queryByUseingLog(log.getUid(),log.getPayType(),bus.getPayTimeOut(),null);
+
+        //这里要判断子账号哦
         //当前收款金额的是否被使用，没有被使用，则直接使用当前的
         if(log.getPayImgPrice()!=null && log.getPayImgPrice()>0){
-            boolean hasuse = false;
-            for(PayLog l:useinglog){
-                if(l.getPayImgPrice().equals(log.getPayImgPrice())){
-                    hasuse = true;
-                    break;
-                }
-            }
-            if(!hasuse){
+            if(!payService.hasMoneyLock(log.getBusId(),log.getSubAid(),log.getPayType(),log.getPayImgPrice())){
                 log.setUpdatetime(format.format(new Date()));
                 return true;
             }
         }
 
-        //可用的定额
-        List<PayProdImg> listprod = payProdImgService.listFreeByPrice(bus.getUserid(),log.getProdPrice(),log.getPayType(),bus.getPayTimeOut());
 
-        //非定额
-        if(listprod==null||listprod.size()==0){
-            //没空闲的，则使用非定额的,最多使用10个哦。
-            Float imgPrice = log.getProdPrice();
-            for(int i=0;i<30;i++){
-                imgPrice = imgPrice-i*0.01f;
-                boolean has  = false;
-                for(PayLog ulog:useinglog){
-                    if(ulog.getPayImgPrice().equals(imgPrice)){
-                        has = true;
+        //查询有效的子账号
+        List<PaySubAccount> listSubAccount = paySubAccountService.listValidSubAccount(bus.getUserid(),log.getPayType());
+        //如果有子账号，那么优先使用子账号哦
+        //采用轮训的方式进行
+        //1.使用子账号固码收款
+        if(listSubAccount!=null&&listSubAccount.size()>0){
+            Integer currIdx = subMap.get(bus.getUserid());
+            if(currIdx==null){
+                currIdx=0;
+            }
+            for(int i=0;i<listSubAccount.size();i++){
+                currIdx++;
+                if(currIdx>=listSubAccount.size()){
+                    currIdx=0;
+                }
+                PaySubAccount sub = listSubAccount.get(currIdx);
+                List<PayProdImg> pimgList = payProdImgService.listBySubPrice(bus.getUserid(),sub.getSid(),log.getPayType(),log.getProdPrice()-bus.getMaxLowerMoney(),log.getProdPrice()+bus.getMaxUpperMoney());
+                //判断固码价格是否可使用
+                if(pimgList!=null && pimgList.size()>0){
+                    for(PayProdImg pi:pimgList){
+                        if(!payService.hasMoneyLock(log.getBusId(),pi.getSubAid(),log.getPayType(),pi.getImgPrice())){
+                            subMap.put(bus.getUserid(),currIdx);
+                            //定额
+                            //注入订单的收款信息
+                            log.setProdImgId(pi.getCid());
+                            log.setProdImgName("子账户固码收款");
+                            //log.setProdPrice(payin.getPrice());
+                            log.setSubAid(sub.getSid());
+                            log.setSubAccount(sub.getSubaccount());
+                            log.setPayImgPrice(pi.getImgPrice());
+                            log.setPayImgContent(pi.getImgContent());
+                            log.setUpdatetime(format.format(new Date()));
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        //2.使用子账号通码收款
+        if(listSubAccount!=null&&listSubAccount.size()>0 ){
+            Integer currIdx = subMap.get(bus.getUserid());
+            if(currIdx==null){
+                currIdx=0;
+            }
+            for(int i=0;i<listSubAccount.size();i++){
+                currIdx++;
+                if(currIdx>=listSubAccount.size()){
+                    currIdx=0;
+                }
+                PaySubAccount sub = listSubAccount.get(currIdx);
+                if(sub.getPayImgContent()==null ||sub.getPayImgContent().length()<5){
+                    continue;
+                }
+                //通码取金额（先从当前金额向上取）
+                boolean machcomm = false;//是否匹配到通码
+                Float imgPrice = log.getProdPrice();
+                for(int k=0;k<50;k++){
+                    imgPrice = imgPrice+k*0.01f;
+                    if(imgPrice>log.getProdPrice()+bus.getMaxUpperMoney()){
+                        break;
+                    }
+                    if(!payService.hasMoneyLock(log.getBusId(),sub.getSid(),log.getPayType(),imgPrice)){
+                        machcomm = true;
                         break;
                     }
                 }
-                if(!has){
+                //没有匹配到，则向下取
+                if(!machcomm){
+                    imgPrice = log.getProdPrice();
+                    for(int k=0;k<50;k++){
+                        imgPrice = imgPrice-k*0.01f;
+                        if(imgPrice<log.getProdPrice()-bus.getMaxLowerMoney()){
+                            break;
+                        }
+                        if(!payService.hasMoneyLock(log.getBusId(),sub.getSid(),log.getPayType(),imgPrice)){
+                            machcomm = true;
+                            break;
+                        }
+                    }
+                }
+                //如果匹配到，则使用当前的子账号通码
+                if(machcomm){
+                    subMap.put(bus.getUserid(),currIdx);
+                    //注入订单的收款信息
+                    log.setProdImgId(0L);
+                    log.setProdImgName("子账户通码收款");
+                    log.setPayImgPrice(imgPrice);
+                    log.setSubAid(sub.getSid());
+                    log.setSubAccount(sub.getSubaccount());
+                    log.setPayImgContent(sub.getPayImgContent());
+                    log.setUpdatetime(format.format(new Date()));
+                    return true;
+                }
+            }
+        }
+
+
+        //3.采用主账号固码
+        List<PayProdImg> pimgList = payProdImgService.listBySubPrice(bus.getUserid(),0L,log.getPayType(),log.getProdPrice()-bus.getMaxLowerMoney(),log.getProdPrice()+bus.getMaxUpperMoney());
+        //3.1判断固码价格是否可使用
+        if(pimgList!=null && pimgList.size()>0){
+            for(PayProdImg pi:pimgList){
+                if(!payService.hasMoneyLock(log.getBusId(),pi.getSubAid(),log.getPayType(),pi.getImgPrice())){
+                    //定额
+                    //注入订单的收款信息
+                    log.setProdImgId(pi.getCid());
+                    log.setProdImgName("主账户固码收款");
+                    //log.setProdPrice(payin.getPrice());
+                    log.setSubAid(pi.getSubAid());
+                    //log.setSubAccount();
+                    log.setPayImgPrice(pi.getImgPrice());
+                    log.setPayImgContent(pi.getImgContent());
+                    log.setUpdatetime(format.format(new Date()));
+                    return true;
+                }
+            }
+        }
+
+        //4.最后才采用主账号通码
+        String payImgContent = null;
+        //支付宝
+        if(log.getPayType()==1){
+            payImgContent = bus.getPayImgContentZfb();
+        }
+        //微信
+        if(log.getPayType()==2){
+            payImgContent = bus.getPayImgContentWx();
+        }
+        if(payImgContent==null||payImgContent.length()<5){
+            return false;
+        }
+        //通码取金额（先从当前金额向上取）
+        boolean machcomm = false;//是否匹配到通码
+        Float imgPrice = log.getProdPrice();
+        for(int k=0;k<50;k++){
+            imgPrice = imgPrice+k*0.01f;
+            if(imgPrice>log.getProdPrice()+bus.getMaxUpperMoney()){
+                break;
+            }
+            if(!payService.hasMoneyLock(log.getBusId(),0L,log.getPayType(),imgPrice)){
+                machcomm = true;
+                break;
+            }
+        }
+        //没有匹配到，则向下取
+        if(!machcomm){
+            imgPrice = log.getProdPrice();
+            for(int k=0;k<50;k++){
+                imgPrice = imgPrice-k*0.01f;
+                if(imgPrice<log.getProdPrice()-bus.getMaxLowerMoney()){
+                    break;
+                }
+                if(!payService.hasMoneyLock(log.getBusId(),0L,log.getPayType(),imgPrice)){
+                    machcomm = true;
                     break;
                 }
             }
-            //没有合适的非定额的
-            if(imgPrice<log.getProdPrice()-0.1){
-                return false;
-            }
-            String payImgContent = null;
-            //支付宝
-            if(log.getPayType()==1){
-                payImgContent = bus.getPayImgContentZfb();
-            }
-            //微信
-            if(log.getPayType()==2){
-                payImgContent = bus.getPayImgContentWx();
-            }
-            if(payImgContent==null||payImgContent.length()<5){
-                return false;
-            }
-            //注入非定额的
+        }
+        if(machcomm){
             //注入订单的收款信息
             log.setProdImgId(0L);
-            log.setProdImgName("非定额收款码收款");
+            log.setProdImgName("主账户通码收款");
+            log.setSubAid(0);
             log.setPayImgPrice(imgPrice);
             log.setPayImgContent(payImgContent);
             log.setUpdatetime(format.format(new Date()));
-        }else{
-            //定额
-            //注入订单的收款信息
-            log.setProdImgId(listprod.get(0).getCid());
-            log.setProdImgName("定额收款码");
-            //log.setProdPrice(payin.getPrice());
-            log.setPayImgPrice(listprod.get(0).getImgPrice());
-            log.setPayImgContent(listprod.get(0).getImgContent());
-            log.setUpdatetime(format.format(new Date()));
+            return true;
         }
-        //最后都要更新时间
-        log.setUpdatetime(format.format(new Date()));
-        return true;
+        return false;
     }
 
 
