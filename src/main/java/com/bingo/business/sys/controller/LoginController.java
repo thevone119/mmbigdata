@@ -253,7 +253,6 @@ public class LoginController {
         //注册用户
 
         user = new SysUser();
-        user.setUserid( System.currentTimeMillis());
         user.setUseracc(vo.getUseracc());
         user.setNikename(vo.getNikename());
         user.setUsertype(2);
