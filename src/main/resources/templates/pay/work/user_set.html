@@ -86,6 +86,25 @@
 
 			<tr>
 				<td>
+					上浮价格:
+				</td>
+				<td>
+					<Form-item label="" prop="maxUpperMoney">
+						<i-Input v-model="myform.maxUpperMoney" placeholder="请输入0.0-0.5" style="width: 90%" ></i-Input>
+					</Form-item>
+				</td>
+				<td>
+					下浮价格:
+				</td>
+				<td>
+					<Form-item label="" prop="maxLowerMoney">
+						<i-Input v-model="myform.maxLowerMoney" placeholder="请输入0.0-0.5" style="width: 90%" ></i-Input>
+					</Form-item>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
 					自动续费:
 				</td>
 				<td>
@@ -155,7 +174,7 @@
 </body>
 	<script>
         var urls = {
-            query:'/api/sys/sysuser/queryCurrUser'
+            query:'/api/pay/paybus/queryCurrBus'
             ,reSetSignKey:'/api/pay/paybus/reSetSignKey'
             ,save:'/api/pay/paybus/saveCurrBus'
             ,clearPayImg:'/api/pay/paybus/clearPayImg'
