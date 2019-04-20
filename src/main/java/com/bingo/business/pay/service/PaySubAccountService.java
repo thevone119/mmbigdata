@@ -100,6 +100,15 @@ public class PaySubAccountService{
 		return paysubaccountRepository.query(hql.toString(),new Object[]{userId,payType});
 	}
 
+	/**
+	 * 根据账号查询子账号
+	 * 根据有效性
+	 */
+	public List<PaySubAccount> queryByAccount(Long userId,String subaccount){
+		StringBuffer hql = new StringBuffer(" from PaySubAccount  where busId=? and subaccount=? ");
+		return paysubaccountRepository.query(hql.toString(),new Object[]{userId,subaccount});
+	}
+
 
 	
 }

@@ -129,7 +129,7 @@ public class PayProdImgService {
 	 */
 	public List<PayProdImg> listBySubPrice(Long userId,Long subAid,Integer payType,Float MinPrice,Float MaxPrice){
 		StringBuffer hql = new StringBuffer(" from PayProdImg img where userId=? and subAid=? and payType=? and imgPrice >= ? and imgPrice <= ?  order by imgPrice desc");
-		return payProdImgRepository.query(hql.toString(),new Object[]{userId,subAid,payType,payType,MinPrice,MaxPrice});
+		return payProdImgRepository.query(hql.toString(),new Object[]{userId,subAid,payType,MinPrice,MaxPrice});
 	}
 
 

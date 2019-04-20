@@ -47,11 +47,11 @@ public class PaySubAccount extends PageModel {
 
     //总收金额(单位，分)
     @Column(name = "pay_amount")
-    protected long  payAmout;//总收金额
+    protected float  payAmout;//总收金额
 
     //预收金额(单位，分)
     @Column(name = "pay_plan_amount")
-    protected long  payPlanAmout;//总收金额
+    protected float  payPlanAmout;//总收金额
 
     //收款已收笔数
     @Column(name = "pay_count")
@@ -65,6 +65,15 @@ public class PaySubAccount extends PageModel {
     //账号状态 0：无效 1：有效
     @Column(name = "state")
     protected int  state=1;
+
+
+    @Transient
+    private String payAmoutStr = "";//日期的格式化输出
+
+
+    @Transient
+    private String payPlanAmoutStr = "";//价格格式化输出
+
 
     public PaySubAccount(){
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -120,19 +129,19 @@ public class PaySubAccount extends PageModel {
         this.createtime = createtime;
     }
 
-    public long getPayAmout() {
+    public float getPayAmout() {
         return payAmout;
     }
 
-    public void setPayAmout(long payAmout) {
+    public void setPayAmout(float payAmout) {
         this.payAmout = payAmout;
     }
 
-    public long getPayPlanAmout() {
+    public float getPayPlanAmout() {
         return payPlanAmout;
     }
 
-    public void setPayPlanAmout(long payPlanAmout) {
+    public void setPayPlanAmout(float payPlanAmout) {
         this.payPlanAmout = payPlanAmout;
     }
 
@@ -158,5 +167,22 @@ public class PaySubAccount extends PageModel {
 
     public void setState(int state) {
         this.state = state;
+    }
+
+
+    public String getPayAmoutStr() {
+        return String.format("%.2f", this.payAmout) ;
+    }
+
+    public void setPayAmoutStr(String payAmoutStr) {
+        this.payAmoutStr = payAmoutStr;
+    }
+
+    public String getPayPlanAmoutStr() {
+        return String.format("%.2f", this.payPlanAmout) ;
+    }
+
+    public void setPayPlanAmoutStr(String payPlanAmoutStr) {
+        this.payPlanAmoutStr = payPlanAmoutStr;
     }
 }

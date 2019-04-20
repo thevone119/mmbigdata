@@ -178,7 +178,17 @@ public class PayBusController  {
 			return ret;
 		}
 
-		return new XJsonInfo().setData(user);
+		SysUser _vo = new SysUser();
+		_vo.setUserid(user.getUserid());
+		_vo.setUuid(user.getUuid());
+		_vo.setUseracc(user.getUseracc());
+		_vo.seteMoney(user.geteMoney());
+		_vo.setBusType(user.getBusType());
+		_vo.setBusValidity(user.getBusValidity());
+		_vo.setCreatetime(user.getCreatetime());
+		_vo.setNotifyUrl(user.getNotifyUrl());
+		_vo.setGobackUrl(user.getGobackUrl());
+		return new XJsonInfo().setData(_vo);
 	}
 
 	/**
@@ -194,7 +204,9 @@ public class PayBusController  {
 	public XJsonInfo queryByUid(String uid) throws ServiceException, DaoException {
 		SysUser vo = sysuserService.queryByUuid(uid);
 		SysUser _vo = new SysUser();
+		_vo.setUserid(vo.getUserid());
 		_vo.setUuid(vo.getUuid());
+		_vo.setUseracc(vo.getUseracc());
 		_vo.seteMoney(vo.geteMoney());
 		_vo.setBusType(vo.getBusType());
 		_vo.setBusValidity(vo.getBusValidity());

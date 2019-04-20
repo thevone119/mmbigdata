@@ -440,7 +440,6 @@ public class PayController {
         if(rett){
             //这里直接锁住订单哦
             payService.putMoneyLock(log.getBusId(),log.getSubAid(),log.getPayType(),log.getPayImgPrice(),bus.getPayTimeOut()+1);
-            payService.updateSubPlanAmout(log.getSubAid(),new Float(log.getPayImgPrice()*100).longValue());
         }
         return rett;
     }
@@ -510,6 +509,8 @@ public class PayController {
                             log.setPayImgPrice(pi.getImgPrice());
                             log.setPayImgContent(pi.getImgContent());
                             log.setUpdatetime(format.format(new Date()));
+
+                            payService.updateSubPlanAmout(log.getSubAid(),log.getPayImgPrice());
                             return true;
                         }
                     }
@@ -570,6 +571,8 @@ public class PayController {
                     log.setSubAccount(sub.getSubaccount());
                     log.setPayImgContent(sub.getPayImgContent());
                     log.setUpdatetime(format.format(new Date()));
+
+                    payService.updateSubPlanAmout(log.getSubAid(),log.getPayImgPrice());
                     return true;
                 }
             }

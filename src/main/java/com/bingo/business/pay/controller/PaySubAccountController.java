@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
 import com.bingo.business.pay.model.*;
 import com.bingo.business.pay.service.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,7 +58,15 @@ public class PaySubAccountController  {
     public XJsonInfo save(PaySubAccount vo) throws ServiceException, DaoException {
 		SessionUser loginuser = sessionCache.getLoginUser();
 		vo.setBusId(loginuser.getUserid());
-        paysubaccountService.saveOrUpdate(vo);
+		//如果是新增，不允许保存相同的子账号哦
+		if(vo.getSid()<=0){
+			List<PaySubAccount>  listsub =paysubaccountService.queryByAccount(loginuser.getUserid(),vo.getSubaccount());
+			if(listsub!=null && listsub.size()>0){
+				return new XJsonInfo(false,"已存在的子账号，请勿添加相同的子账号");
+			}
+		}
+
+		paysubaccountService.saveOrUpdate(vo);
         return new XJsonInfo();
     }
 

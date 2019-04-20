@@ -58,6 +58,9 @@ public class PayAppNotification  extends PageModel {
     @Column(name = "sign")
     private String sign;//签名数据，签名规则，各个字段合并后进行MD5签名
 
+    @Column(name = "process_log")
+    private String processLog;//处理过程记录
+
 
     public PayAppNotification(){
         createTime = new Date().getTime();
@@ -167,6 +170,14 @@ public class PayAppNotification  extends PageModel {
 
     public void setPostTimeService(Long postTimeService) {
         this.postTimeService = postTimeService;
+    }
+
+    public String getProcessLog() {
+        return processLog;
+    }
+
+    public void setProcessLog(String processLog) {
+        this.processLog = processLog;
     }
 
     /**

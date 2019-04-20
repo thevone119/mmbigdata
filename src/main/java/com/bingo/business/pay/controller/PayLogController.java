@@ -246,6 +246,8 @@ public class PayLogController  {
 			write.append("收货人姓名"+tcb);
 			write.append("收货人手机"+tcb);
 			write.append("收货地址"+tcb);
+			write.append("收款子账号ID"+tcb);
+			write.append("收款子账号"+tcb);
 
 			write.append(tab);
 
@@ -278,6 +280,8 @@ public class PayLogController  {
 				write.append(log.getUserName()+tcb);
 				write.append(log.getUserPhone()+tcb);
 				write.append(log.getUserAddress()+tcb);
+				write.append(log.getSubAid()+tcb);
+				write.append(log.getSubAccount()+tcb);
 				write.append(tab);
 
 				buff.write(write.toString().getBytes("UTF-8"));

@@ -62,6 +62,10 @@ public class PayService {
     private PayLogNotifyRepository payLogNotifyRepository;
 
     @Resource
+    private PaySubAccountService paySubAccountService;
+
+
+    @Resource
     private RedisCacheService redis;
 
 
@@ -95,14 +99,14 @@ public class PayService {
      * @throws ServiceException
      * @throws DaoException
      */
-    public void updateSubPlanAmout(long sid,long payPlanAmout) throws Exception {
+    public void updateSubPlanAmout(long sid,Float payPlanAmout) throws Exception {
         if(sid==0){
             return;
         }
         //不重复充值，消费
         //1.对商户进行费用加减
         String hql = "update PaySubAccount set payPlanAmout=payPlanAmout+?,payPlanCount=payPlanCount+1 where sid=?";
-        sysUserRepository.executeByHql(hql,new Object[]{sid,payPlanAmout});
+        sysUserRepository.executeByHql(hql,new Object[]{payPlanAmout,sid});
     }
 
     /**
@@ -110,14 +114,14 @@ public class PayService {
      * @throws ServiceException
      * @throws DaoException
      */
-    public void updateSubAmout(long sid,long payAmout) throws Exception {
+    public void updateSubAmout(long sid,Float payAmout) throws Exception {
         if(sid==0){
             return;
         }
         //不重复充值，消费
         //1.对商户进行费用加减
         String hql = "update PaySubAccount set payAmout=payAmout+?,payCount=payCount+1 where sid=?";
-        sysUserRepository.executeByHql(hql,new Object[]{sid,payAmout});
+        sysUserRepository.executeByHql(hql,new Object[]{payAmout,sid});
     }
 
     /**
@@ -165,6 +169,16 @@ public class PayService {
      * 对通知进行后续的匹配处理
      * 重点改造哦
      * 需要针对子账号进行改造
+     * 1.支付宝通知 庭旺通过扫码向你付款0.05元
+     * 2.支付宝通知 成功收款0.01元。享免费提现等更多专属服务，点击查看
+     * 1.微信支付 [3条]微信支付: 微信支付收款0.01元
+     * 2.微信支付 微信支付收款0.05元
+     *title='notifymessage', text='<![CDATA[微信支付收款0.01元(朋友到店)]]></title> 	<des><![CDATA[收款金额￥0.01
+     汇总今日第1笔收款，共计￥0.01
+     备注收款成功，已存入零钱。点击可查看详情]]>'
+     <![CDATA[[店员消息]收款到账0.05元]]></title> 	<des><![CDATA[收款金额￥0.05
+     汇总今日第2笔收款, 共计￥0.10
+     说明已存入店长黑米支付(**旺)的零钱]]></des>
      * @param vo
      * @return
      */
@@ -175,43 +189,36 @@ public class PayService {
             //解析通知内容--待编程
             float payImgPrice = 0;//支付金额
             int payType= 0;//支付渠道
+            long subAid=0;//子账号ID
+            //这个是通知
+            if(vo.getNkey().startsWith("n_")){
+                //1.支付宝1
+                if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("成功收款")!=-1 && vo.getText().indexOf("元")!=-1){
+                    payType=1;
+                    int start = vo.getText().indexOf("成功收款")+"成功收款".length();
+                    int end = vo.getText().indexOf("元",start);
+                    String emoney =  vo.getText().substring(start,end);
+                    payImgPrice = new Float(emoney);
+                }
+                //支付宝收款2
+                if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("通过扫码向你付款")!=-1 && vo.getText().indexOf("元")!=-1){
+                    payType=1;
+                    int start = vo.getText().indexOf("通过扫码向你付款")+"通过扫码向你付款".length();
+                    int end = vo.getText().indexOf("元",start);
+                    String emoney =  vo.getText().substring(start,end);
+                    payImgPrice = new Float(emoney);
+                }
 
-            //1.支付宝1
-            if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("成功收款")!=-1 && vo.getText().indexOf("元")!=-1){
-                payType=1;
-                int start = vo.getText().indexOf("成功收款")+"成功收款".length();
-                int end = vo.getText().indexOf("元",start);
-                String emoney =  vo.getText().substring(start,end);
-                payImgPrice = new Float(emoney);
+
+                //2.微信
+                if(vo.getTitle().indexOf("微信支付")!=-1&&vo.getText().indexOf("微信支付收款")!=-1 && vo.getText().indexOf("元")!=-1){
+                    payType=2;
+                    int start = vo.getText().indexOf("微信支付收款")+"微信支付收款".length();
+                    int end = vo.getText().indexOf("元",start);
+                    String emoney =  vo.getText().substring(start,end);
+                    payImgPrice = new Float(emoney);
+                }
             }
-            //支付宝收款2
-            if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("通过扫码向你付款")!=-1 && vo.getText().indexOf("元")!=-1){
-                payType=1;
-                int start = vo.getText().indexOf("通过扫码向你付款")+"通过扫码向你付款".length();
-                int end = vo.getText().indexOf("元",start);
-                String emoney =  vo.getText().substring(start,end);
-                payImgPrice = new Float(emoney);
-            }
-
-
-            //2.微信
-            if(vo.getTitle().indexOf("微信支付")!=-1&&vo.getText().indexOf("微信支付收款")!=-1 && vo.getText().indexOf("元")!=-1){
-                payType=2;
-                int start = vo.getText().indexOf("微信支付收款")+"微信支付收款".length();
-                int end = vo.getText().indexOf("元",start);
-                String emoney =  vo.getText().substring(start,end);
-                payImgPrice = new Float(emoney);
-            }
-            logger.info("payImgPrice："+payImgPrice);
-
-            if(payImgPrice==0||payType==0){
-                ret.setSuccess(false);
-                ret.setCode(1);
-                ret.setMsg("解析APP通知错误");
-                logger.info("解析APP通知错误:"+vo.toString());
-                return ret;
-            }
-
             //查询商户信息
             SysUser bus = sysUserService.queryByUuid(vo.getUid());
             if(bus==null){
@@ -222,8 +229,55 @@ public class PayService {
                 return ret;
             }
 
+            //这个是微信数据监控
+            if(vo.getNkey().startsWith("wxm_")){
+                //子号收款
+                if(vo.getText().indexOf("存入店长")!=-1 && vo.getText().indexOf("元")!=-1){
+                    payType=2;
+                    int start = vo.getText().indexOf("收款到账")+"收款到账".length();
+                    int end = vo.getText().indexOf("元",start);
+                    String emoney =  vo.getText().substring(start,end);
+                    payImgPrice = new Float(emoney);
+                    //获取店长名称
+                    start = vo.getText().indexOf("存入店长")+"存入店长".length();
+                    end = vo.getText().indexOf("的",start);
+                    String dz = vo.getText().substring(start,end);
+                    if(dz!=null && dz.indexOf("(")!=-1){
+                        dz = dz.substring(0,dz.indexOf("("));
+                    }
+                    //查询子账号
+                    List<PaySubAccount> listsub = paySubAccountService.queryByAccount(bus.getUserid(),dz);
+                    if(listsub==null||listsub.size()==0){
+                        ret.setSuccess(false);
+                        ret.setCode(1);
+                        ret.setMsg("没有找到对应的子账号("+dz+")");
+                        logger.info("没有找到对应的子账号("+dz+")");
+                        return ret;
+                    }else{
+                        subAid = listsub.get(0).getSid();
+                    }
+                }else if(vo.getText().indexOf("微信支付收款")!=-1 && vo.getText().indexOf("元")!=-1){//主号收款
+                    payType=2;
+                    int start = vo.getText().indexOf("微信支付收款")+"微信支付收款".length();
+                    int end = vo.getText().indexOf("元",start);
+                    String emoney =  vo.getText().substring(start,end);
+                    payImgPrice = new Float(emoney);
+                }
+            }
+
+
+            logger.info("payImgPrice："+payImgPrice);
+
+            if(payImgPrice==0||payType==0){
+                ret.setSuccess(false);
+                ret.setCode(1);
+                ret.setMsg("解析APP通知错误");
+                logger.info("解析APP通知错误:"+vo.toString());
+                return ret;
+            }
+
             //查询所有匹配的订单
-            List<PayLog> listlog = paylogService.queryByUseingLog(bus.getUuid(),payType,bus.getPayTimeOut(),null,payImgPrice,vo.getPostTimeService());
+            List<PayLog> listlog = paylogService.queryByUseingLog(bus.getUuid(),subAid,payType,bus.getPayTimeOut(),null,payImgPrice,vo.getPostTimeService());
             if(listlog==null||listlog.size()==0){
                 ret.setSuccess(false);
                 ret.setCode(1);
@@ -336,11 +390,14 @@ public class PayService {
 
         //2.更新收款累计
         if(paylog.getSubAid()>0){
-            updateSubAmout(paylog.getSubAid(),new Float(paylog.getPayImgPrice()*100).longValue());
+            updateSubAmout(paylog.getSubAid(),paylog.getPayImgPrice());
         }
 
         //2.设置为已收款
         paylogRepository.executeByHql("update PayLog set payState=1,payTime=? where logId=?",new Object[]{format.format(new Date()),paylog.getLogId()});
+
+        //3.释放锁
+        delMoneyLock(paylog.getBusId(),paylog.getSubAid(),paylog.getPayType(),paylog.getPayImgPrice());
 
         //5.触发通知回调
         this.payNotifyThread(paylog,bus);
@@ -511,20 +568,24 @@ public class PayService {
      * 针对并发，进行相关的金额锁定
      */
     public synchronized void  putMoneyLock(Long uid,long subid,int payType,Float lockMoney,int lockMinutes){
-        int m = new Float(lockMoney*100).intValue();
-        String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+m;
-        redis.set(key,"1",lockMinutes);
+        String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+ String.format("%.2f", lockMoney);
+        redis.set(key,1,lockMinutes);
     }
 
     //是否在锁定状态
     public boolean hasMoneyLock(Long uid,long subid,int payType,Float lockMoney){
-        int m = new Float(lockMoney*100).intValue();
-        String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+m;
+        String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+ String.format("%.2f", lockMoney);
         Object v = (Object)redis.get(key);
         if(v==null){
             return false;
         }
         return true;
+    }
+
+    //成功后，释放锁哦
+    public void delMoneyLock(Long uid,long subid,int payType,Float lockMoney){
+        String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+ String.format("%.2f", lockMoney);
+        redis.delete(key);
     }
 
 

@@ -147,7 +147,12 @@ public class PayAppNotificationController  {
 		ret.setSuccess(true);
 		ret.setCode(0);
 		ret.setMsg("ok");
-		payService.doNotification(vo);
+		XJsonInfo doret = payService.doNotification(vo);
+		//处理不成功，更新下日志，方便查问题吧
+		if(!doret.getSuccess()){
+			vo.setProcessLog(doret.getMsg());
+			payappnotificationService.saveOrUpdate(vo);
+		}
 		//保存成功即代表成功，后续处理失败也不用管
         return ret;
     }
