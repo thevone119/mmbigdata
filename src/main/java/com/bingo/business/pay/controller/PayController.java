@@ -551,6 +551,9 @@ public class PayController {
                     imgPrice = log.getProdPrice();
                     for(int k=0;k<50;k++){
                         imgPrice = imgPrice-k*0.01f;
+                        if(imgPrice<=0){
+                            break;
+                        }
                         if(imgPrice<log.getProdPrice()-bus.getMaxLowerMoney()){
                             break;
                         }
@@ -631,6 +634,9 @@ public class PayController {
             imgPrice = log.getProdPrice();
             for(int k=0;k<50;k++){
                 imgPrice = imgPrice-k*0.01f;
+                if(imgPrice<=0){
+                    break;
+                }
                 if(imgPrice<log.getProdPrice()-bus.getMaxLowerMoney()){
                     break;
                 }
