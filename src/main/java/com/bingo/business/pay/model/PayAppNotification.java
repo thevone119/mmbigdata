@@ -23,7 +23,7 @@ public class PayAppNotification  extends PageModel {
     private String nkey;//通知的唯一主键
 
     @Column(name = "id")
-    private Integer id;//app通知的ID,
+    private String id;//app通知的ID,
 
     @Column(name = "posttime")
     private Long postTime;//app通知的时间
@@ -76,11 +76,11 @@ public class PayAppNotification  extends PageModel {
         this.nkey = nkey;
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -223,7 +223,7 @@ public class PayAppNotification  extends PageModel {
 
     public static void main(String args[]) throws IllegalAccessException {
         PayAppNotification n = new PayAppNotification();
-        n.setId(4097);
+        n.setId("test");
         n.setNkey("n_com.tencent.mm_4097_1536313901084");
         n.setPackageName("com.tencent.mm");
         n.setPostTime(1536313901084l);
