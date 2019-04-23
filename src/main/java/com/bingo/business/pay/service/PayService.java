@@ -176,6 +176,7 @@ public class PayService {
      * 需要针对子账号进行改造
      * 1.支付宝通知 庭旺通过扫码向你付款0.05元
      * 2.支付宝通知 成功收款0.01元。享免费提现等更多专属服务，点击查看
+     * 3.支付宝通知 支付宝成功收款0.01元
      * 1.微信支付 [3条]微信支付: 微信支付收款0.01元
      * 2.微信支付 微信支付收款0.05元
      *title='notifymessage', text='<![CDATA[微信支付收款0.01元(朋友到店)]]></title> 	<des><![CDATA[收款金额￥0.01
@@ -194,11 +195,11 @@ public class PayService {
             //解析通知内容--待编程
             float payImgPrice = 0;//支付金额
             int payType= 0;//支付渠道
-            long subAid=0;//子账号ID
+            long subAid=0;//子账号ID,如果子账号是0，就是不管子账号了，都算
             //这个是通知
             if(vo.getNkey().startsWith("n_")){
                 //1.支付宝1
-                if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("成功收款")!=-1 && vo.getText().indexOf("元")!=-1){
+                if(payImgPrice==0&&vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("成功收款")!=-1 && vo.getText().indexOf("元")!=-1){
                     payType=1;
                     int start = vo.getText().indexOf("成功收款")+"成功收款".length();
                     int end = vo.getText().indexOf("元",start);
@@ -206,7 +207,7 @@ public class PayService {
                     payImgPrice = new Float(emoney);
                 }
                 //支付宝收款2
-                if(vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("通过扫码向你付款")!=-1 && vo.getText().indexOf("元")!=-1){
+                if(payImgPrice==0&&vo.getTitle().indexOf("支付宝通知")!=-1&&vo.getText().indexOf("通过扫码向你付款")!=-1 && vo.getText().indexOf("元")!=-1){
                     payType=1;
                     int start = vo.getText().indexOf("通过扫码向你付款")+"通过扫码向你付款".length();
                     int end = vo.getText().indexOf("元",start);
@@ -216,9 +217,16 @@ public class PayService {
 
 
                 //2.微信
-                if(vo.getTitle().indexOf("微信支付")!=-1&&vo.getText().indexOf("微信支付收款")!=-1 && vo.getText().indexOf("元")!=-1){
+                if(payImgPrice==0&&vo.getTitle().indexOf("微信支付")!=-1&&vo.getText().indexOf("微信支付收款")!=-1 && vo.getText().indexOf("元")!=-1){
                     payType=2;
                     int start = vo.getText().indexOf("微信支付收款")+"微信支付收款".length();
+                    int end = vo.getText().indexOf("元",start);
+                    String emoney =  vo.getText().substring(start,end);
+                    payImgPrice = new Float(emoney);
+                }
+                if(payImgPrice==0&&vo.getTitle().indexOf("微信收款助手")!=-1&&vo.getText().indexOf("收款到账")!=-1 && vo.getText().indexOf("元")!=-1){
+                    payType=2;
+                    int start = vo.getText().indexOf("收款到账")+"收款到账".length();
                     int end = vo.getText().indexOf("元",start);
                     String emoney =  vo.getText().substring(start,end);
                     payImgPrice = new Float(emoney);
@@ -607,16 +615,23 @@ public class PayService {
 
     /**
      * 支付金额锁
+     * 支付宝的锁，不管子账号的，直接锁金额即可
      * 针对并发，进行相关的金额锁定
      */
-    public synchronized void  putMoneyLock(Long uid,long subid,int payType,Float lockMoney,int lockMinutes){
+    public  void  putMoneyLock(Long uid,long subid,int payType,Float lockMoney,int lockMinutes){
         String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+ String.format("%.2f", lockMoney);
+        if(payType==1){
+            key = "pl_"+uid+"_"+0+"_"+payType+"_"+ String.format("%.2f", lockMoney);
+        }
         redis.set(key,1,lockMinutes);
     }
 
     //是否在锁定状态
     public boolean hasMoneyLock(Long uid,long subid,int payType,Float lockMoney){
         String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+ String.format("%.2f", lockMoney);
+        if(payType==1){
+            key = "pl_"+uid+"_"+0+"_"+payType+"_"+ String.format("%.2f", lockMoney);
+        }
         Object v = (Object)redis.get(key);
         if(v==null){
             return false;
@@ -627,6 +642,9 @@ public class PayService {
     //成功后，释放锁哦
     public void delMoneyLock(Long uid,long subid,int payType,Float lockMoney){
         String key = "pl_"+uid+"_"+subid+"_"+payType+"_"+ String.format("%.2f", lockMoney);
+        if(payType==1){
+            key = "pl_"+uid+"_"+0+"_"+payType+"_"+ String.format("%.2f", lockMoney);
+        }
         redis.delete(key);
     }
 
