@@ -29,6 +29,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Administrator on 2018-07-30.
@@ -80,7 +83,10 @@ public class PayController {
     //格式化，这个也有线程安全问题，多列则没问题
     private SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 
+    @Resource
+    private RedisCacheService redis;
 
+    private static Lock lock = new ReentrantLock();    //全局锁，一定要在try,catch中
     /**
      * 提供给外部查询订单接口
      * @return
@@ -289,20 +295,66 @@ public class PayController {
         }
     }
 
+    /**创建订单
+     * 加锁，同一个商户并发调用创建订单接口，要加锁，
+     * 避免生成了重复的订单，包括重复金额的订单
+     * @param payin
+     * @return
+     * @throws Exception
+     */
+    @ResponseBody
+    @RequestMapping("/create")
+    public PayReturn createOrder(PayInput payin) throws Exception {
+        PayReturn ret  =new PayReturn();
+        if(payin.getUid()==null||payin.getOrderid()==null||payin.getPrice()==null||payin.getSign()==null||payin.getPay_type()==null){
+            ret.setRet_code(11);
+            ret.setRet_msg("参数不完整，请核对相关参数是否正确");
+            return ret;
+        }
+        //同一商户，5秒内重复的，都锁
+        boolean islock = false;
+        String key = "l_uid_"+payin.getUid();
+        try{
+            lock.lock();
+            if(redis.get(key)==null){
+                redis.set(key,1,5000, TimeUnit.SECONDS);
+            }else{
+                islock =true;
+                redis.set(key,1,5000, TimeUnit.SECONDS);
+            }
+        }catch (Exception e){
+
+        }finally {
+            lock.unlock();
+        }
+
+        try{
+            if(islock){
+                lock.lock();
+            }
+            return createOrderLock(payin);
+
+        }catch (Exception e){
+            ret.setRet_code(11);
+            ret.setRet_msg("未知错误");
+            return ret;
+        }finally {
+            if(islock){
+                lock.unlock();
+            }
+        }
+    }
+
     /**
      * 创建订单,返回json
      * 1.判断是否已存在
      * 2.如果已存在，则判断是否过期，没过期的直接续期
      * 3.如果已过期，则判断判断之前使用的收款码是否被使用，如果没被使用，则优先使用之前的收款码。
      * 4.如果已被使用，则使用新的收款码。
-     *
+     * 这个要考虑加锁，避免并发下创建了相同金额的订单哦
      * @return
-     * @throws ServiceException
-     * @throws DaoException
      */
-    @ResponseBody
-    @RequestMapping("/create")
-    public PayReturn createOrder(PayInput payin) throws Exception {
+    private PayReturn createOrderLock(PayInput payin) throws Exception {
         PayReturn ret  =new PayReturn();
         try{
             if(payin.getUid()==null||payin.getOrderid()==null||payin.getPrice()==null||payin.getSign()==null||payin.getPay_type()==null){
@@ -432,6 +484,8 @@ public class PayController {
 
     /**
      * 更新订单的收款码，如果更新成功，直接锁单哦
+     * 这里要加锁，锁商户号，就是同一个商户号，不允许对此方法进行并发，避免出现同样金额的订单
+     *
      * @return
      * @throws Exception
      */
@@ -449,6 +503,7 @@ public class PayController {
      * 重点主要逻辑哟
      * 更新订单的收款码
      * 重点测试哦
+     *
      * @return
      */
     private boolean  updateLogPayImg2() throws Exception {

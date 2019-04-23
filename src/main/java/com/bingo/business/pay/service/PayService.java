@@ -31,6 +31,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Administrator on 2018-07-26.
@@ -67,6 +70,8 @@ public class PayService {
 
     @Resource
     private RedisCacheService redis;
+
+    private static Lock lock = new ReentrantLock();    //全局锁，一定要在try,catch中
 
 
 
@@ -317,11 +322,46 @@ public class PayService {
     }
 
     /**
+     * 这个做个锁单的，避免重复订单重复扣费
+     * @param bus
+     * @param paylog
+     * @param checkType
+     * @return
+     * @throws Exception
+     */
+    public XJsonInfo checkPay(SysUser bus,PayLog paylog, int checkType) throws Exception{
+        XJsonInfo ret = new XJsonInfo(false);
+        ret.setCode(1);
+        if(paylog==null){
+            ret.setCode(31);
+            ret.setMsg("没有找到订单");
+            return ret;
+        }
+        //10秒内，重复的，直接返回订单已经提交
+        try{
+            lock.lock();
+            String lockkey = "lock_log"+paylog.getLogId();
+            if(redis.get(lockkey)==null){
+                redis.set(lockkey,1,10000,TimeUnit.SECONDS);
+            }else{
+                ret.setCode(32);
+                ret.setMsg("订单重复确认");
+                return ret;
+            }
+        }catch (Exception e){
+
+        }finally {
+            lock.unlock();
+        }
+        return checkPayLock(bus,paylog,checkType);
+    }
+
+    /**
      * 确认收款接口
      * @param paylog 支付订单
      * @param checkType 1:系统确认，2：手工确认,3:商户调用接口确认
      */
-    public XJsonInfo checkPay(SysUser bus,PayLog paylog, int checkType) throws Exception{
+    private XJsonInfo checkPayLock(SysUser bus,PayLog paylog, int checkType) throws Exception{
         XJsonInfo ret = new XJsonInfo(false);
         ret.setCode(1);
 
@@ -335,6 +375,8 @@ public class PayService {
             ret.setMsg("订单状态已是已支付状态");
             return ret;
         }
+
+
         //计算扣减的费用
         if(bus==null){
             bus = sysUserRepository.getById(paylog.getBusId());

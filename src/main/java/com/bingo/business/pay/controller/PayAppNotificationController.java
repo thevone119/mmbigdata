@@ -128,6 +128,7 @@ public class PayAppNotificationController  {
 			ret.setCode(-1);
 			ret.setMsg("签名无效");
 			logger.info("签名无效:"+vo.toString());
+			logger.info("正确签名:"+vo.MarkSign());
 			return ret;
 		}
 

@@ -23,7 +23,7 @@ public class PayReturn {
     private String orderid;//订单ID
     private String qrcode;//支付的二维码 http://mobile.qq.com/qrcode?url=
     private Integer pay_type;//支付渠道 1：支付宝  2：微信
-    private Integer qrcode_type;//支付二维码类型 1：非定额  2：定额
+    private Integer qrcode_type;//支付二维码类型 1：非定额  2：定额 1：通码(手输金额)  2：固码（固定金额）
     private Float realprice;//实际支付金额
     private String pay_ext1;//扩展字段1
     private String pay_ext2;//扩展字段2

