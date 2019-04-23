@@ -17,7 +17,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name="T_sys_user")
-public class SysUser extends PageModel{
+public class SysUser extends PageModel  implements Cloneable {
 
 	@Id
 	@Column(name = "userid",updatable = false)
@@ -31,35 +31,35 @@ public class SysUser extends PageModel{
 
 	@Column(name = "useracc",updatable = false)
 	protected String  useracc;//用户名，登录账号
-	
-	
+
+
 	@Column(name = "pwd")
 	protected String  pwd;//用户密码，MD5加密存储
-	
-	
+
+
 	@Column(name = "createtime",updatable = false)
 	protected String  createtime;//创建时间
-	
-	
+
+
 	@Column(name = "usertype")
 	protected Integer  usertype=0;//用户类型，0：普通用户，1：管理员 2:支付商户（作废掉？）
 
 
 
-	
-	
+
+
 	@Column(name = "nikename")
 	protected String  nikename;//昵称，中文名称
-	
-	
+
+
 	@Column(name = "email")
 	protected String  email;//email
-	
-	
+
+
 	@Column(name = "qq")
 	protected String  qq;//qq
-	
-	
+
+
 	@Column(name = "mobile")
 	protected String  mobile;//手机号码
 
@@ -88,6 +88,13 @@ public class SysUser extends PageModel{
 	protected Integer  autoReFee=0;//到期自动续费0:不自动续费，1：自动续费套餐1，2自动续费套餐2,3：自动续费套餐3
 
 
+	@Column(name = "max_upper_money")
+	protected float  maxUpperMoney=0.3f;//最大上浮金额 默认0.3
+
+	@Column(name = "max_lower_money")
+	protected float  maxLowerMoney=0.3f;//最大下浮金额 默认0.3
+
+
 
 	@Column(name = "pay_img_content_zfb")
 	protected String  payImgContentZfb;//支付宝的收款二维码
@@ -107,8 +114,14 @@ public class SysUser extends PageModel{
 
 	@Transient
 	private String createtimeStr = "";//日期的格式化输出
-	
-	
+
+	@Transient
+	protected Long  busId;//商户ID,直接使用用户表的ID ,兼容之前的商户的
+
+	@Transient
+	protected String  busAcc;//商户账号  ,兼容之前的商户的
+
+
 	/**
 	 * 对象构建方法
 	 * @return
@@ -120,6 +133,7 @@ public class SysUser extends PageModel{
 		this.uuid= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		this.signKey= UUID.randomUUID().toString().replace("-", "").toLowerCase();
 		//this.updatetime=format.format(new Date());
+		userid = System.currentTimeMillis();
 	}
 
 	public String getUseracc() {
@@ -313,6 +327,22 @@ public class SysUser extends PageModel{
 		this.notifyUrl = notifyUrl;
 	}
 
+	public float getMaxUpperMoney() {
+		return maxUpperMoney;
+	}
+
+	public void setMaxUpperMoney(float maxUpperMoney) {
+		this.maxUpperMoney = maxUpperMoney;
+	}
+
+	public float getMaxLowerMoney() {
+		return maxLowerMoney;
+	}
+
+	public void setMaxLowerMoney(float maxLowerMoney) {
+		this.maxLowerMoney = maxLowerMoney;
+	}
+
 	public String getBusTypeStr() {
 		switch (this.busType){
 			case 0:
@@ -370,4 +400,30 @@ public class SysUser extends PageModel{
 		this.createtimeStr = createtimeStr;
 	}
 
+	public Long getBusId() {
+		return userid;
+		//return busId;
+	}
+
+	public void setBusId(Long busId) {
+		this.busId = busId;
+	}
+
+	public String getBusAcc() {
+		return useracc;
+		//return busAcc;
+	}
+
+	public void setBusAcc(String busAcc) {
+		this.busAcc = busAcc;
+	}
+
+	public Object clone() {
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

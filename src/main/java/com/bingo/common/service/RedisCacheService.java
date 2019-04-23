@@ -31,6 +31,10 @@ public class RedisCacheService {
         redisTemplate.opsForValue().set(key, value, minutes, TimeUnit.MINUTES);
     }
 
+    public void set(String key, Object value, long minutes,TimeUnit unit) {
+        redisTemplate.opsForValue().set(key, value, minutes, unit);
+    }
+
     public Object get(String key) {
         return redisTemplate.opsForValue().get(key);
     }

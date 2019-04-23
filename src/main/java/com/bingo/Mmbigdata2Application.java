@@ -28,6 +28,7 @@ public class Mmbigdata2Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Mmbigdata2Application.class, args);
 		System.out.println("spring boot start!");
+
 	}
 
 
