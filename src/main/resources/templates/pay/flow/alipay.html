@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>alipay</title>
+
 </head>
 <body>
   
@@ -14,7 +15,6 @@
   function returnApp() {
       AlipayJSBridge.call("exitApp")
   }
-  
   function ready(a) {
       window.AlipayJSBridge ? a && a() : document.addEventListener("AlipayJSBridgeReady", a, !1)
   }
@@ -25,6 +25,7 @@
             var r = window.location.search.substr(1).match(reg);
             if (r != null) return decodeURIComponent(r[2]); return null;
           }
+
           var a = {
               actionType: "scan",
               u: getParm('u'),
@@ -34,12 +35,13 @@
                   s: "money",
                   u: getParm('u'),
                   a: getParm('a'),
-                  m: "Alipay guarantees transactions"
+                  m: "hp_"+getParm('d')
               }
           }
       } catch (b) {
           returnApp()
       }
+
       AlipayJSBridge.call("startApp", {
           appId: "20000123",
           param: a
