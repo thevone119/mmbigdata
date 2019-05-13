@@ -138,7 +138,11 @@ public class PayService {
     public boolean checkBusValidity(SysUser bus) throws Exception {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         //判断过期
-        if(bus.getBusValidity()==null || bus.getBusValidity()<Integer.parseInt(format.format(new Date()))){
+        if(bus.getBusValidity() < Integer.parseInt(format.format(new Date()))){
+            //代理商户不用续费
+            if(bus.getBusType()==4){
+                return true;
+            }
             if(bus.getAutoReFee()==0){
                 return false;
             }
@@ -404,6 +408,10 @@ public class PayService {
             }else{
                 demo = "支付订单手续费";
                 float serviceFeeFee = PayTaoCan.getPayTaoCanServiceFeeFee(bus.getBusType());
+                //代理商户的，可以指定费率的
+                if(bus.getBusType()==4){
+                    serviceFeeFee = bus.getBusRate()/1000.0f;
+                }
                 refee = paylog.getProdPrice()*serviceFeeFee;
                 //手续费最低是0.01,小于0.01按照0.01计算
                 if(refee<0.01){

@@ -381,13 +381,17 @@ public class PayController {
             //验证是否有足够的手续费,大于1元才有手续费
             float sprice = 0.0f;
             if(payin.getPrice()>1){
-                if(bus.getBusType()==null || bus.getBusType()==0){
+                if(bus.getBusType()==0){
                     ret.setRet_code(21);
                     ret.setRet_msg("对不起，您还未开通支付套餐，请先开通套餐后再进行支付");
                     return ret;
                 }
-
-                sprice = payin.getPrice() * PayTaoCan.getPayTaoCanServiceFeeFee(bus.getBusType());
+                float serviceFeeFee = PayTaoCan.getPayTaoCanServiceFeeFee(bus.getBusType());
+                //代理商户的，可以指定费率的
+                if(bus.getBusType()==4){
+                    serviceFeeFee = bus.getBusRate()/1000.0f;
+                }
+                sprice = payin.getPrice() * serviceFeeFee;
                 //手续费最低是0.01,小于0.01按照0.01计算
                 if(sprice<0.01){
                     sprice=0.01f;
@@ -466,7 +470,6 @@ public class PayController {
                 ret.setRet_msg("当前没有可用的收款码，无法创建支付订单，请稍候再试");
                 return ret;
             }
-
 
             paylogService.saveOrUpdate(log);
             ret=new PayReturn(log);

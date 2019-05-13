@@ -334,7 +334,7 @@ public class PayBusController  {
 		}
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 		//已存在套餐，不允许重复开通
-		if(user.getBusValidity()!=null && user.getBusValidity()>Integer.parseInt(format.format(new Date()))){
+		if(user.getBusValidity()>Integer.parseInt(format.format(new Date()))){
 			if(busType==user.getBusType()){
 				ret.setMsg("您已开通<"+PayTaoCan.getPayTaoCanName(busType)+">套餐,无需重复开通，在<商户设置>中可以设置下月套餐");
 				return ret;
