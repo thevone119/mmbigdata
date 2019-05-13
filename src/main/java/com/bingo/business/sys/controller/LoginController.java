@@ -260,6 +260,8 @@ public class LoginController {
         user.setPwd(SecurityClass.encryptMD5(vo.getPwd()));
         user.setBusType(0);
         user.seteMoney(0.0f);
+        user.setEmail(vo.getEmail());
+
         sysuserService.saveOrUpdate(user);
 
 
