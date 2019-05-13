@@ -2,6 +2,7 @@ package com.bingo.business.pay.model;
 
 import com.bingo.common.model.PageModel;
 import com.bingo.common.utility.RandomUtils;
+import com.bingo.common.utility.URIEncoder;
 
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
@@ -184,5 +185,16 @@ public class PaySubAccount extends PageModel {
 
     public void setPayPlanAmoutStr(String payPlanAmoutStr) {
         this.payPlanAmoutStr = payPlanAmoutStr;
+    }
+
+    //支付宝的收款连接
+    public String getZFBPIDContent(Float imgPrice,String Orderid){
+        //String alipayUserId="2088102951972617";
+        String alipayUserId=subaccount;
+        String alipays = "alipays://platformapi/startapp?appId=20000691&url="; // 2019年04月07日 原appid 20000067 替换成 20000691
+        String price = String.format("%.2f", imgPrice);
+        String url = "https://www.heimipay.com/pay/flow/alipay.html?u=" + alipayUserId + "&a="+price+"&d="+Orderid;
+        //String url = "https://pay.sxhhjc.cn/go?i=4e29d3fbbde9d015d1090246";
+        return alipays+ URIEncoder.encodeURIComponent(url);
     }
 }

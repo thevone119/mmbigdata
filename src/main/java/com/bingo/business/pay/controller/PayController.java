@@ -526,6 +526,7 @@ public class PayController {
         //当前收款金额的是否被使用，没有被使用，则直接使用当前的
         if(log.getPayImgPrice()!=null && log.getPayImgPrice()>0){
             if(!payService.hasMoneyLock(log.getBusId(),log.getSubAid(),log.getPayType(),log.getPayImgPrice())){
+                //payService.putMoneyLock(log.getBusId(),log.getSubAid(),log.getPayType(),log.getPayImgPrice());
                 log.setUpdatetime(format.format(new Date()));
                 return true;
             }
@@ -548,6 +549,9 @@ public class PayController {
                     currIdx=0;
                 }
                 PaySubAccount sub = listSubAccount.get(currIdx);
+                if(!sub.getPayType().equals(log.getPayType())){
+                    continue;
+                }
                 List<PayProdImg> pimgList = payProdImgService.listBySubPrice(bus.getUserid(),sub.getSid(),log.getPayType(),log.getProdPrice()-bus.getMaxLowerMoney(),log.getProdPrice()+bus.getMaxUpperMoney());
                 //判断固码价格是否可使用
                 if(pimgList!=null && pimgList.size()>0){
@@ -585,6 +589,9 @@ public class PayController {
                     currIdx=0;
                 }
                 PaySubAccount sub = listSubAccount.get(currIdx);
+                if(!sub.getPayType().equals(log.getPayType())){
+                    continue;
+                }
                 if(sub.getPayImgContent()==null ||sub.getPayImgContent().length()<5){
                     continue;
                 }
@@ -628,6 +635,74 @@ public class PayController {
                     log.setSubAid(sub.getSid());
                     log.setSubAccount(sub.getSubaccount());
                     log.setPayImgContent(sub.getPayImgContent());
+                    log.setUpdatetime(format.format(new Date()));
+
+                    payService.updateSubPlanAmout(log.getSubAid(),log.getPayImgPrice());
+                    return true;
+                }
+            }
+        }
+
+        //2.使用子账号PID(针对支付宝)进行收款
+        if(listSubAccount!=null&&listSubAccount.size()>0 ){
+            Integer currIdx = subMap.get(bus.getUserid());
+            if(currIdx==null){
+                currIdx=0;
+            }
+            for(int i=0;i<listSubAccount.size();i++){
+                currIdx++;
+                if(currIdx>=listSubAccount.size()){
+                    currIdx=0;
+                }
+                PaySubAccount sub = listSubAccount.get(currIdx);
+                if(!sub.getPayType().equals(log.getPayType())){
+                    continue;
+                }
+                //支付宝模式
+                if(sub.getPayType()!=1){
+                    continue;
+                }
+                //通码取金额（先从当前金额向上取）
+                boolean machcomm = false;//是否匹配到通码
+                Float imgPrice = log.getProdPrice();
+
+                for(int k=0;k<50;k++){
+                    imgPrice = imgPrice+k*0.01f;
+                    if(imgPrice>log.getProdPrice()+bus.getMaxUpperMoney()){
+                        break;
+                    }
+                    if(!payService.hasMoneyLock(log.getBusId(),sub.getSid(),log.getPayType(),imgPrice)){
+                        machcomm = true;
+                        break;
+                    }
+                }
+                //没有匹配到，则向下取
+                if(!machcomm){
+                    imgPrice = log.getProdPrice();
+                    for(int k=0;k<50;k++){
+                        imgPrice = imgPrice-k*0.01f;
+                        if(imgPrice<=0){
+                            break;
+                        }
+                        if(imgPrice<log.getProdPrice()-bus.getMaxLowerMoney()){
+                            break;
+                        }
+                        if(!payService.hasMoneyLock(log.getBusId(),sub.getSid(),log.getPayType(),imgPrice)){
+                            machcomm = true;
+                            break;
+                        }
+                    }
+                }
+                //如果匹配到，则使用当前的子账号通码
+                if(machcomm){
+                    subMap.put(bus.getUserid(),currIdx);
+                    //注入订单的收款信息
+                    log.setProdImgId(1L);
+                    log.setProdImgName("子账户PID收款");
+                    log.setPayImgPrice(imgPrice);
+                    log.setSubAid(sub.getSid());
+                    log.setSubAccount(sub.getSubaccount());
+                    log.setPayImgContent(sub.getZFBPIDContent(imgPrice,log.getOrderid()));
                     log.setUpdatetime(format.format(new Date()));
 
                     payService.updateSubPlanAmout(log.getSubAid(),log.getPayImgPrice());
