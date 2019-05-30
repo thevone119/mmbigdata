@@ -273,6 +273,30 @@ public class PayService {
                     }else{
                         subAid = listsub.get(0).getSid();
                     }
+                }else if(vo.getText().indexOf("他人收款到账")!=-1 && vo.getText().indexOf("元")!=-1){//主号收款
+                    payType=2;
+                    int start = vo.getText().indexOf("收款到账")+"收款到账".length();
+                    int end = vo.getText().indexOf("元",start);
+                    String emoney =  vo.getText().substring(start,end);
+                    payImgPrice = new Float(emoney);
+                    //获取店长名称
+                    start = vo.getText().indexOf("存入")+"存入".length();
+                    end = vo.getText().indexOf("的",start);
+                    String dz = vo.getText().substring(start,end);
+                    if(dz!=null && dz.indexOf("(")!=-1){
+                        dz = dz.substring(0,dz.indexOf("("));
+                    }
+                    //查询子账号
+                    List<PaySubAccount> listsub = paySubAccountService.queryByAccount(bus.getUserid(),dz);
+                    if(listsub==null||listsub.size()==0){
+                        ret.setSuccess(false);
+                        ret.setCode(1);
+                        ret.setMsg("没有找到对应的子账号("+dz+")");
+                        logger.info("没有找到对应的子账号("+dz+")");
+                        return ret;
+                    }else{
+                        subAid = listsub.get(0).getSid();
+                    }
                 }else if(vo.getText().indexOf("微信支付收款")!=-1 && vo.getText().indexOf("元")!=-1){//主号收款
                     payType=2;
                     int start = vo.getText().indexOf("微信支付收款")+"微信支付收款".length();
